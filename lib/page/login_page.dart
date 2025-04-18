@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _errorMessage = e.toString();
       });
-      print( 'Erreur de connexion: $e');
+      print( 'Error login: $e');
     } finally {
       setState(() {
         _isLoading = false;

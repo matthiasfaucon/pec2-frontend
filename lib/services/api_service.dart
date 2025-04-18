@@ -74,12 +74,12 @@ class ApiService {
           );
           break;
         default:
-          throw Exception('Méthode HTTP non supportée: $method');
+          throw Exception('Unsupported HTTP method: $method');
       }
       
       return _handleResponse(response);
     } catch (e) {
-      throw Exception('Erreur réseau: $e');
+      throw Exception('Network error: $e');
     }
   }
   
@@ -93,9 +93,9 @@ class ApiService {
       try {
         final errorData = jsonDecode(response.body);
         final errorMessage = errorData['message'] ?? 'Erreur de serveur';
-        throw Exception('Erreur $errorMessage (${response.statusCode})');
+        throw Exception('Error $errorMessage (${response.statusCode})');
       } catch (e) {
-        throw Exception('Erreur ${response.statusCode}: ${response.reasonPhrase}');
+        throw Exception('Error ${response.statusCode}: ${response.reasonPhrase}');
       }
     }
   }
