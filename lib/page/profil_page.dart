@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/utils/date_formatter.dart';
+import 'package:firstflutterapp/utils/translator.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -64,7 +65,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildProfileContent() {
     final String avatarUrl = _userProfile['profilePicture'] ?? 'https://via.placeholder.com/150';
-    final String fullName = '${_userProfile['firstName'] ?? ''} ${_userProfile['lastName'] ?? ''}';
     
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -76,7 +76,6 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundImage: NetworkImage(avatarUrl),
           ),
           const SizedBox(height: 24),
-          
           Text(
             _userProfile['username'] ?? 'Utilisateur',
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
@@ -100,20 +99,12 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildInfoRow("Date de naissance", DateFormatter.formatDate(_userProfile['birthDayDate'])),
             if (_userProfile['birthDayDate'] != null)
               _buildInfoRow("Âge", DateFormatter.calculateAge(_userProfile['birthDayDate'])),
-            _buildInfoRow("Sexe", _userProfile['sexe'] ?? 'Non renseigné' ),
-            _buildInfoRow("Rôle", _userProfile['role'] ?? 'Non renseigné'),
+            _buildInfoRow("Sexe", Translator.translateSexe(_userProfile['sexe'])),
+            _buildInfoRow("Rôle", Translator.translateRole(_userProfile['role'])),
             _buildInfoRow("Créé le", DateFormatter.formatDate(_userProfile['createdAt'])),
             _buildInfoRow("Mis à jour le", DateFormatter.formatDate(_userProfile['updatedAt'])),
           ]),
-          const SizedBox(height: 16),
-          _buildInfoCard("Statut du compte", [
-            _buildInfoRow("Compte activé", _userProfile['enable'] == true ? 'Oui' : 'Non'),
-            _buildInfoRow("Abonnement", _userProfile['subscriptionEnable'] == true ? 'Activé' : 'Désactivé'),
-            _buildInfoRow("Commentaires", _userProfile['commentsEnable'] == true ? 'Activés' : 'Désactivés'),
-            _buildInfoRow("Messages", _userProfile['messageEnable'] == true ? 'Activés' : 'Désactivés'),
-            if (_userProfile['emailVerifiedAt'] != null)
-              _buildInfoRow("Email vérifié", "Oui (${DateFormatter.formatDate(_userProfile['emailVerifiedAt']['Time'])})"),
-          ]),
+         
         ],
       ),
     );
