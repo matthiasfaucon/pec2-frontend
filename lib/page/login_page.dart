@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../services/api_service.dart';
 import '../main.dart';
 
 class LoginPage extends StatefulWidget {
@@ -14,41 +11,45 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final ApiService _apiService = ApiService();
+  bool _isLoading = false;
+  String _errorMessage = '';
 
   Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
     final email = _emailController.text;
     final password = _passwordController.text;
 
-    // final url = dotenv.env['API_BASE_URL'] ?? '';
-    final url = 'http://10.0.2.2:8080/login';
-
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+      final data = await _apiService.request(
+        method: 'POST',
+        endpoint: '/login',
+        body: {'email': email, 'password': password},
+        withAuth: false,
       );
+      
+      final token = data['token'];
+      
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_token', token);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('Connexion réussie: $data');
-        final token = data['token'];
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', token);
-
-        // Retourne à la page principale ou rafraîchit
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
-
-        // Tu peux faire Navigator.push(...) ici si tu veux changer de page
-      } else {
-        print('Erreur: ${response.statusCode}');
-        print('Réponse: ${response.body}');
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
     } catch (e) {
-      print('Erreur réseau: $e');
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      print( 'Error login: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -62,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              "Connexion",
+              "Connexion ",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
@@ -82,11 +83,21 @@ class _LoginPageState extends State<LoginPage> {
                 border: OutlineInputBorder(),
               ),
             ),
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text("Se connecter"),
-            ),
+            _isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: _login,
+                    child: const Text("Se connecter"),
+                  ),
           ],
         ),
       ),

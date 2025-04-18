@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firstflutterapp/page/profil_page.dart';
 
 class ContainerBottomNavigation extends StatelessWidget {
   const ContainerBottomNavigation({super.key});
@@ -23,23 +24,12 @@ class ContainerBottomNavigation extends StatelessWidget {
         activeIcon: const Icon(Icons.list_alt_rounded),
         backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
       ),
-      // BottomNavigationBarItem(
-      //   icon: GestureDetector(
-      //     onTap: () {
-      //       // Naviguer vers la page de profil
-      //       Navigator.push(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => ProfilePage()),  // Remplace ProfilePage() par ta page de profil
-      //       );
-      //     },
-      //     child: const CircleAvatar(
-      //       radius: 30,
-      //       backgroundImage: NetworkImage("https://i.imgur.com/QCNbOAo.png"),
-      //     ),
-      //   ),
-      //   label: '',
-      //   backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-      // ),
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.person),
+        label: 'Profil',
+        activeIcon: const Icon(Icons.person_rounded),
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      ),
     ];
   }
 
