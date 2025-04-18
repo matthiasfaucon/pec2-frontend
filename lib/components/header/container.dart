@@ -19,7 +19,7 @@ class _HeaderState extends State<Header> {
           children: const [
             Text("Salut,", style: TextStyle(fontSize: 16)),
             Text(
-              "Charline Royer",
+              "Test",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],

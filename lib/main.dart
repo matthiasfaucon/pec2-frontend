@@ -8,8 +8,13 @@ import 'package:firstflutterapp/components/search-bar/search-bar.dart';
 import 'package:firstflutterapp/components/bottom-navigation/container.dart';
 import 'package:firstflutterapp/components/categories/categories-list.dart';
 import 'package:firstflutterapp/page/login_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firstflutterapp/services/api_service.dart';
+import 'package:firstflutterapp/page/profil_page.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -25,7 +30,7 @@ class MyApp extends StatelessWidget {
       builder:
           (theme, darkTheme) => MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Pet Shop',
+        title: 'OnlyFlick',
         theme: theme,
         darkTheme: darkTheme,
         home: const HomePage(),
@@ -45,6 +50,7 @@ class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
   bool isConnected = false;
   bool isLoading = true;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -103,20 +109,39 @@ class _HomePageState extends State<HomePage> {
         onTap: (index) => setState(() => selectedIndex = index),
         items: bottomNavigationItems,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              Header(),
-              SizedBox(height: 24),
-              SearchBarOnlyFlic(),
-              SizedBox(height: 24),
-              CategoriesList(),
-              SizedBox(height: 32),
-              FreeFeed(),
-            ],
-          ),
+      body: _getPageForIndex(selectedIndex),
+    );
+  }
+  
+  Widget _getPageForIndex(int index) {
+    switch (index) {
+      case 0: 
+        return _buildHomePage();
+      case 1:
+        return Center(child: Text("Page Favorites en construction"));
+      case 2: 
+        return Center(child: Text("Page Catalogue en construction"));
+      case 3: 
+        return const ProfilePage();
+      default:
+        return _buildHomePage();
+    }
+  }
+  
+  Widget _buildHomePage() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            Header(),
+            SizedBox(height: 24),
+            SearchBarOnlyFlic(),
+            SizedBox(height: 24),
+            CategoriesList(),
+            SizedBox(height: 32),
+            FreeFeed(),
+          ],
         ),
       ),
     );
