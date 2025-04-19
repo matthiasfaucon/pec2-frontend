@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/utils/date_formatter.dart';
 import 'package:firstflutterapp/utils/translator.dart';
+import 'update_password_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -126,7 +127,10 @@ class _ProfilePageState extends State<ProfilePage> {
           
           ElevatedButton(
             onPressed: () {
-              // Action pour modifier le profil
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UpdatePasswordPage()),
+              );
             },
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
@@ -137,7 +141,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             child: const Text(
-              "Modifier mon profil",
+              "Mettre à jour mon mot de passe",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
