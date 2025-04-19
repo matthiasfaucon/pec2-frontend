@@ -54,11 +54,14 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Mon Profil"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
       ),
       body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C3FFE)))
         : _errorMessage.isNotEmpty
-          ? Center(child: Text("Erreur: $_errorMessage", style: TextStyle(color: Colors.red)))
+          ? Center(child: Text("Erreur: $_errorMessage", style: TextStyle(color: Color(0xFFFF3A30))))
           : _buildProfileContent(),
     );
   }
@@ -67,18 +70,23 @@ class _ProfilePageState extends State<ProfilePage> {
     final String avatarUrl = _userProfile['profilePicture'] ?? 'https://via.placeholder.com/150';
     
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 60,
             backgroundImage: NetworkImage(avatarUrl),
+            backgroundColor: Color(0xFFE4DAFF),
           ),
           const SizedBox(height: 24),
           Text(
             _userProfile['username'] ?? 'Utilisateur',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+            style: const TextStyle(
+              fontSize: 24, 
+              fontWeight: FontWeight.bold, 
+              color: Colors.black
+            ),
           ),
           
           if (_userProfile['bio'] != null && _userProfile['bio'].toString().isNotEmpty)
@@ -86,7 +94,11 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 _userProfile['bio'],
-                style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                style: TextStyle(
+                  fontSize: 16, 
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey[700],
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -101,29 +113,78 @@ class _ProfilePageState extends State<ProfilePage> {
               _buildInfoRow("Âge", DateFormatter.calculateAge(_userProfile['birthDayDate'])),
             _buildInfoRow("Sexe", Translator.translateSexe(_userProfile['sexe'])),
             _buildInfoRow("Rôle", Translator.translateRole(_userProfile['role'])),
+          ]),
+          
+          const SizedBox(height: 16),
+          
+          _buildInfoCard("Informations du compte", [
             _buildInfoRow("Créé le", DateFormatter.formatDate(_userProfile['createdAt'])),
             _buildInfoRow("Mis à jour le", DateFormatter.formatDate(_userProfile['updatedAt'])),
           ]),
-         
+          
+          const SizedBox(height: 24),
+          
+          ElevatedButton(
+            onPressed: () {
+              // Action pour modifier le profil
+            },
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: const Color(0xFF6C3FFE),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              "Modifier mon profil",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 
   Widget _buildInfoCard(String title, List<Widget> children) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 18, 
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF6C3FFE),
+              ),
             ),
-            const SizedBox(height: 16),
+            const Divider(
+              color: Color(0xFFE4DAFF),
+              thickness: 1,
+              height: 32,
+            ),
             ...children,
           ],
         ),
@@ -143,7 +204,10 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           Text(
             value,
-            style: const TextStyle(fontSize: 16),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
