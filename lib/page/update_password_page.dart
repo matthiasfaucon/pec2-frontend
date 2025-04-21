@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../utils/platform_utils.dart';
+import '../utils/route_utils.dart';
+import '../utils/auth_utils.dart';
+import 'dart:developer' as developer;
 
 class UpdatePasswordPage extends StatefulWidget {
   const UpdatePasswordPage({Key? key}) : super(key: key);
@@ -21,6 +25,31 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
   bool _obscureOldPassword = true;
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Vérifie si l'utilisateur est sur le web, redirige vers l'interface admin
+    if (PlatformUtils.isWebPlatform()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        RouteUtils.navigateToAdminLogin(context);
+      });
+      return;
+    }
+    
+    // Vérifie si l'utilisateur est connecté
+    _checkLoginStatus();
+  }
+  
+  Future<void> _checkLoginStatus() async {
+    final bool isLoggedIn = await AuthUtils.isLoggedIn();
+    if (!isLoggedIn) {
+      if (mounted) {
+        RouteUtils.navigateToMobileHome(context);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -85,6 +114,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
         _newPasswordController.clear();
         _confirmPasswordController.clear();
       });
+      
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -95,6 +125,15 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Si nous sommes sur le web, ne pas afficher cette page
+    if (PlatformUtils.isWebPlatform()) {
+      return const Scaffold(
+        body: Center(
+          child: Text("Cette page n'est pas disponible sur le web."),
+        ),
+      );
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mettre à jour le mot de passe'),

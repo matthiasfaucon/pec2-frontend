@@ -1,7 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firstflutterapp/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firstflutterapp/components/free-feed/container.dart';
 import 'package:firstflutterapp/components/header/container.dart';
 import 'package:firstflutterapp/components/search-bar/search-bar.dart';
@@ -11,10 +10,16 @@ import 'package:firstflutterapp/page/login_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/page/profil_page.dart';
+import 'package:firstflutterapp/utils/platform_utils.dart';
+import 'package:firstflutterapp/utils/route_utils.dart';
+import 'package:firstflutterapp/utils/auth_utils.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  
+
+  
   runApp(const MyApp());
 }
 
@@ -33,7 +38,8 @@ class MyApp extends StatelessWidget {
         title: 'OnlyFlick',
         theme: theme,
         darkTheme: darkTheme,
-        home: const HomePage(),
+        initialRoute: '/',
+        routes: RouteUtils.getAppRoutes(),
       ),
     );
   }
@@ -56,21 +62,33 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkLoginStatus();
+    
+    if (PlatformUtils.isWebPlatform()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        RouteUtils.navigateToAdminLogin(context);
+      });
+      return;
+    }
   }
 
   Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-
-    setState(() {
-      isConnected = token != null;
-      isLoading = false;
-    });
+    try {
+      final bool loggedIn = await AuthUtils.isLoggedIn();
+      
+      setState(() {
+        isConnected = loggedIn;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isConnected = false;
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
+    await AuthUtils.logout();
     setState(() {
       isConnected = false;
     });
@@ -78,6 +96,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (PlatformUtils.isWebPlatform()) {
+      return const Scaffold(
+        body: Center(
+          child: Text("Cette application n'est pas disponible sur le web. Veuillez utiliser un appareil mobile."),
+        ),
+      );
+    }
+    
     final bottomNavigationItems = ContainerBottomNavigation().buildItems(context);
 
     if (isLoading) {

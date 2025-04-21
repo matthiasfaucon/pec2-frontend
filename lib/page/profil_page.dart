@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/utils/date_formatter.dart';
 import 'package:firstflutterapp/utils/translator.dart';
+import 'package:firstflutterapp/utils/platform_utils.dart';
+import 'package:firstflutterapp/utils/route_utils.dart';
+import 'package:firstflutterapp/utils/auth_utils.dart';
+import 'dart:developer' as developer;
 import 'update_password_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -20,7 +24,16 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _fetchUserProfile();
+    
+    // Vérifie si l'utilisateur est sur le web, redirige vers l'interface admin
+    if (PlatformUtils.isWebPlatform()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        RouteUtils.navigateToAdminLogin(context);
+        return;
+      });
+    } else {
+      _fetchUserProfile();
+    }
   }
 
   Future<void> _fetchUserProfile() async {
@@ -30,6 +43,14 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     try {
+      // Vérifie si l'utilisateur est connecté
+      final bool isLoggedIn = await AuthUtils.isLoggedIn();
+      if (!isLoggedIn) {
+        developer.log('Utilisateur non connecté, redirection vers la page de connexion');
+        RouteUtils.navigateToMobileHome(context);
+        return;
+      }
+      
       final userData = await _apiService.request(
         method: 'GET',
         endpoint: '/users/profile',
@@ -40,18 +61,27 @@ class _ProfilePageState extends State<ProfilePage> {
         _userProfile = userData;
         _isLoading = false;
       });
-      print('User profile: $_userProfile');
+      developer.log('Profil utilisateur récupéré: $_userProfile');
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
       });
-      print('Error fetching profile: $e');
+      developer.log('Erreur lors de la récupération du profil: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Si nous sommes sur le web, ne pas afficher la page de profil mobile
+    if (PlatformUtils.isWebPlatform()) {
+      return const Scaffold(
+        body: Center(
+          child: Text("Cette page n'est pas disponible sur le web."),
+        ),
+      );
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text("Mon Profil"),
@@ -62,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C3FFE)))
         : _errorMessage.isNotEmpty
-          ? Center(child: Text("Erreur: $_errorMessage", style: TextStyle(color: Color(0xFFFF3A30))))
+          ? Center(child: Text("Erreur: $_errorMessage", style: const TextStyle(color: Color(0xFFFF3A30))))
           : _buildProfileContent(),
     );
   }
@@ -78,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
           CircleAvatar(
             radius: 60,
             backgroundImage: NetworkImage(avatarUrl),
-            backgroundColor: Color(0xFFE4DAFF),
+            backgroundColor: const Color(0xFFE4DAFF),
           ),
           const SizedBox(height: 24),
           Text(
@@ -150,6 +180,31 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           
           const SizedBox(height: 16),
+          
+          // Bouton de déconnexion
+          OutlinedButton(
+            onPressed: () async {
+              await AuthUtils.logout();
+              if (context.mounted) {
+                RouteUtils.navigateToMobileHome(context);
+              }
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red[700],
+              side: BorderSide(color: Colors.red[300]!),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              "Se déconnecter",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ],
       ),
     );
