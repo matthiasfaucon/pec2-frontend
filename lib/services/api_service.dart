@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/platform_utils.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
 
@@ -12,15 +13,7 @@ class ApiService {
   
   ApiService._internal();
   
-  String get baseUrl {
-    if (kIsWeb) {
-      return dotenv.env['API_BASE_URL_WEB'] ?? 'http://localhost:8080';
-    } else if (Platform.isAndroid) {
-      return dotenv.env['API_BASE_URL_ANDROID'] ?? 'http://10.0.2.2:8080';
-    } else {
-      return dotenv.env['API_BASE_URL_DEFAULT'] ?? 'http://localhost:8080';
-    }
-  }
+  String get baseUrl => PlatformUtils.getApiBaseUrl();
   
   Future<Map<String, String>> _getHeaders({bool withAuth = true}) async {
     Map<String, String> headers = {

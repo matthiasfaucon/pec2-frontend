@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utils/auth_utils.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import '../utils/platform_utils.dart';
+import '../utils/route_utils.dart';
+import 'dart:developer' as developer;
 
 class AdminDashboardPage extends StatefulWidget {
   @override
@@ -23,7 +25,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     });
 
     // Vérifier si l'utilisateur est sur le web
-    if (!kIsWeb) {
+    if (!PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -38,6 +40,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
     // Vérifier si l'utilisateur est un admin
     final bool canAccess = await AuthUtils.canAccessAdminPanel();
+    developer.log('Accès admin autorisé: $canAccess');
     
     setState(() {
       _isAdmin = canAccess;
@@ -52,14 +55,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             backgroundColor: Colors.red,
           ),
         );
-        Navigator.of(context).pop();
+        RouteUtils.navigateToAdminLogin(context);
       });
     }
   }
 
   Future<void> _logout() async {
     await AuthUtils.logout();
-    Navigator.of(context).pushReplacementNamed('/admin-login');
+    RouteUtils.navigateToAdminLogin(context);
   }
 
   @override

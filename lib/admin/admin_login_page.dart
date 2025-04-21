@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../utils/auth_utils.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import '../utils/platform_utils.dart';
+import '../utils/route_utils.dart';
 import 'admin_dashboard.dart';
 import 'dart:developer' as developer;
 
@@ -24,7 +25,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     super.initState();
     
     // Vérifie si l'utilisateur est sur le web, sinon affiche un message d'erreur
-    if (!kIsWeb) {
+    if (!PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -45,10 +46,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     if (canAccess) {
       // Si déjà connecté avec un rôle admin, rediriger vers le dashboard
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => AdminDashboardPage()),
-        );
+        RouteUtils.navigateToAdminDashboard(context);
       });
     }
   }
@@ -86,10 +84,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       
       if (isAdmin) {
         // Redirige vers le tableau de bord admin
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => AdminDashboardPage()),
-        );
+        RouteUtils.navigateToAdminDashboard(context);
       } else {
         // Si l'utilisateur n'est pas un admin, affiche un message d'erreur et le déconnecte
         await AuthUtils.logout();
