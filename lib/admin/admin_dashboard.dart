@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../utils/auth_utils.dart';
 import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
+import '../components/admin/admin_layout.dart';
+import 'dart:developer' as developer;
 
 class AdminDashboardPage extends StatefulWidget {
   @override
@@ -11,6 +13,7 @@ class AdminDashboardPage extends StatefulWidget {
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
   bool _isLoading = true;
   bool _isAdmin = false;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -37,6 +40,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     }
 
     final bool canAccess = await AuthUtils.canAccessAdminPanel();
+    developer.log('Accès admin vérifié: $canAccess');
     
     setState(() {
       _isAdmin = canAccess;
@@ -61,6 +65,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     RouteUtils.navigateToAdminLogin(context);
   }
 
+  void _onMenuItemSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -77,7 +87,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Tableau de bord admin"),
+        title: const Text("Admin OnlyFlick"),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -86,126 +96,128 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color(0xFF6C3FFE),
-              ),
-              child: Text(
-                'Administration OnlyFlick',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.dashboard),
-              title: const Text('Tableau de bord'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Gestion utilisateurs'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.inventory),
-              title: const Text('Gestion produits'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Paramètres'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Bienvenue dans l'interface d'administration",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Statistiques générales",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _buildStatCard("Utilisateurs", "250", Icons.people, Colors.blue),
-                  _buildStatCard("Produits", "120", Icons.inventory_2, Colors.green),
-                  _buildStatCard("Commandes", "48", Icons.shopping_cart, Colors.orange),
-                  _buildStatCard("Revenus", "9,540 €", Icons.euro, Colors.purple),
-                  _buildStatCard("Visites", "1,250", Icons.visibility, Colors.teal),
-                  _buildStatCard("Taux de conversion", "3.2%", Icons.trending_up, Colors.red),
-                ],
-              ),
-            ),
-          ],
-        ),
+      body: AdminDashboardLayout(
+        selectedIndex: _selectedIndex,
+        onMenuItemSelected: _onMenuItemSelected,
+        content: _buildContent(),
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 48,
-              color: color,
+  Widget _buildContent() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildDashboardContent();
+      case 1:
+        return _buildStatsContent();
+      case 2:
+        return _buildUsersContent();
+      case 3:
+        return _buildSettingsContent();
+      default:
+        return _buildDashboardContent();
+    }
+  }
+
+  Widget _buildDashboardContent() {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Tableau de bord",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 16),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              _buildKpiCard(
+                "Utilisateurs actifs",
+                "128",
+                Icons.people,
+                Colors.blue,
+              ),
+              const SizedBox(width: 24),
+              _buildKpiCard(
+                "Revenus mensuels",
+                "2,540 €",
+                Icons.euro,
+                Colors.green,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsContent() {
+    return const Center(
+      child: Text(
+        "Page Statistiques en développement",
+        style: TextStyle(fontSize: 18),
+      ),
+    );
+  }
+
+  Widget _buildUsersContent() {
+    return const Center(
+      child: Text(
+        "Page Utilisateurs en développement",
+        style: TextStyle(fontSize: 18),
+      ),
+    );
+  }
+
+  Widget _buildSettingsContent() {
+    return const Center(
+      child: Text(
+        "Page Paramètres en développement",
+        style: TextStyle(fontSize: 18),
+      ),
+    );
+  }
+
+  Widget _buildKpiCard(String title, String value, IconData icon, Color color) {
+    return SizedBox(
+      width: 200,
+      height: 200,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 48,
                 color: color,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
+              const SizedBox(height: 16),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
