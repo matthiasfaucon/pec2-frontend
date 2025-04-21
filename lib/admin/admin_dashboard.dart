@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../utils/auth_utils.dart';
 import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
-import 'dart:developer' as developer;
 
 class AdminDashboardPage extends StatefulWidget {
   @override
@@ -24,7 +23,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       _isLoading = true;
     });
 
-    // Vérifier si l'utilisateur est sur le web
     if (!PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -38,9 +36,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       return;
     }
 
-    // Vérifier si l'utilisateur est un admin
     final bool canAccess = await AuthUtils.canAccessAdminPanel();
-    developer.log('Accès admin autorisé: $canAccess');
     
     setState(() {
       _isAdmin = canAccess;
@@ -118,7 +114,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               title: const Text('Gestion utilisateurs'),
               onTap: () {
                 Navigator.pop(context);
-                // Navigation vers la page de gestion des utilisateurs
               },
             ),
             ListTile(
@@ -126,7 +121,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               title: const Text('Gestion produits'),
               onTap: () {
                 Navigator.pop(context);
-                // Navigation vers la page de gestion des produits
               },
             ),
             ListTile(
@@ -134,7 +128,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               title: const Text('Paramètres'),
               onTap: () {
                 Navigator.pop(context);
-                // Navigation vers la page des paramètres
               },
             ),
           ],
