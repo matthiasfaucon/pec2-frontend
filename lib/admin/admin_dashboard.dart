@@ -3,6 +3,7 @@ import '../utils/auth_utils.dart';
 import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
 import '../components/admin/admin_layout.dart';
+import '../components/admin/users_management.dart';
 import 'dart:developer' as developer;
 
 class AdminDashboardPage extends StatefulWidget {
@@ -111,7 +112,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case 1:
         return _buildStatsContent();
       case 2:
-        return _buildUsersContent();
+        return const UsersManagement();
       case 3:
         return _buildSettingsContent();
       default:
@@ -159,15 +160,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return const Center(
       child: Text(
         "Page Statistiques en développement",
-        style: TextStyle(fontSize: 18),
-      ),
-    );
-  }
-
-  Widget _buildUsersContent() {
-    return const Center(
-      child: Text(
-        "Page Utilisateurs en développement",
         style: TextStyle(fontSize: 18),
       ),
     );
@@ -222,4 +214,4 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       ),
     );
   }
-} 
+}

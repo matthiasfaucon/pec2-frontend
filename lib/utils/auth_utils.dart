@@ -123,4 +123,10 @@ class AuthUtils {
       developer.log('Erreur lors du débogage du token: $e');
     }
   }
+  
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    return token;
+  }
 } 
