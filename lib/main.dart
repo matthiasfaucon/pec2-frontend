@@ -1,7 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firstflutterapp/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firstflutterapp/components/free-feed/container.dart';
 import 'package:firstflutterapp/components/header/container.dart';
 import 'package:firstflutterapp/components/search-bar/search-bar.dart';
