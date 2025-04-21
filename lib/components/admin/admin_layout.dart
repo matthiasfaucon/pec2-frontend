@@ -75,6 +75,7 @@ class SideMenu extends StatelessWidget {
             const SizedBox(height: 30),
             _buildMenuItem(0, "Tableau de bord", Icons.dashboard),
             _buildMenuItem(1, "Statistiques", Icons.insert_chart),
+            _buildMenuItem(2, "Utilisateurs", Icons.group),
             _buildMenuItem(3, "Paramètres", Icons.settings),
             const Spacer(),
             Container(
