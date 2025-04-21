@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
-import '../utils/auth_utils.dart';
 import 'dart:developer' as developer;
 
 class LoginPage extends StatefulWidget {
@@ -22,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     
-    // Si nous sommes sur le web, redirigez vers l'interface admin
     if (PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         RouteUtils.navigateToAdminLogin(context);
@@ -53,12 +51,9 @@ class _LoginPageState extends State<LoginPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
 
-      // Vérifie si nous sommes sur le web ou mobile pour rediriger vers l'interface appropriée
       if (PlatformUtils.isWebPlatform()) {
-        // Si sur le web, rediriger vers l'interface admin
         RouteUtils.navigateToAdminLogin(context);
       } else {
-        // Si sur mobile, toujours rediriger vers l'interface mobile
         RouteUtils.navigateToMobileHome(context);
       }
     } catch (e) {
@@ -75,7 +70,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Si nous sommes sur le web, afficher un message pour rediriger vers l'interface admin
     if (PlatformUtils.isWebPlatform()) {
       return Scaffold(
         body: Center(

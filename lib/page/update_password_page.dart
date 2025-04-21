@@ -45,7 +45,6 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
   Future<void> _checkLoginStatus() async {
     final bool isLoggedIn = await AuthUtils.isLoggedIn();
     if (!isLoggedIn) {
-      developer.log('Utilisateur non connecté, redirection vers la page de connexion');
       if (mounted) {
         RouteUtils.navigateToMobileHome(context);
       }
@@ -116,13 +115,11 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
         _confirmPasswordController.clear();
       });
       
-      developer.log('Mot de passe mis à jour avec succès');
     } catch (e) {
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString();
       });
-      developer.log('Erreur lors de la mise à jour du mot de passe: $e');
     }
   }
 

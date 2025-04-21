@@ -13,14 +13,12 @@ import 'package:firstflutterapp/page/profil_page.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
 import 'package:firstflutterapp/utils/auth_utils.dart';
-import 'dart:developer' as developer;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   
-  // Affiche des informations sur la plateforme pour le débogage
-  PlatformUtils.logPlatformInfo();
+
   
   runApp(const MyApp());
 }
@@ -65,7 +63,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _checkLoginStatus();
     
-    // Redirection en fonction de la plateforme
     if (PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         RouteUtils.navigateToAdminLogin(context);
@@ -83,7 +80,6 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
     } catch (e) {
-      developer.log('Erreur lors de la vérification du statut de connexion: $e');
       setState(() {
         isConnected = false;
         isLoading = false;
@@ -100,7 +96,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Si nous sommes sur le web, ne pas afficher l'interface mobile
     if (PlatformUtils.isWebPlatform()) {
       return const Scaffold(
         body: Center(
