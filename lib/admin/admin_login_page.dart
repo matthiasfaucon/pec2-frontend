@@ -220,20 +220,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C3FFE)))
                 : ElevatedButton(
                     onPressed: _loginAdmin,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: const Color(0xFF6C3FFE),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
                     child: const Text(
                       "Se connecter",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
                     ),
                   ),
             ],

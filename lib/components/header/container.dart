@@ -1,7 +1,8 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 
-import '../../page/login_page.dart';
+import '../../view/login_view.dart';
+
 
 class Header extends StatefulWidget {
   @override
@@ -43,8 +44,8 @@ class _HeaderState extends State<Header> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => LoginPage(),
-              ), // Redirige vers LoginPage
+                builder: (context) => LoginView(),
+              )
             );
           },
           child: const CircleAvatar(

@@ -6,16 +6,16 @@ import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
 import 'package:firstflutterapp/utils/auth_utils.dart';
 import 'dart:developer' as developer;
-import 'update_password_page.dart';
+import 'update_password_view.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class ProfileView extends StatefulWidget {
+  const ProfileView({Key? key}) : super(key: key);
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _ProfileViewState createState() => _ProfileViewState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfileViewState extends State<ProfileView> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   String _errorMessage = '';
@@ -159,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UpdatePasswordPage()),
+                MaterialPageRoute(builder: (context) => UpdatePasswordView()),
               );
             },
             style: ElevatedButton.styleFrom(
