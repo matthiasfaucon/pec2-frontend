@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firstflutterapp/page/profil_page.dart';
 
 class ContainerBottomNavigation extends StatelessWidget {
   const ContainerBottomNavigation({super.key});

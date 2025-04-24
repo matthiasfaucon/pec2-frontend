@@ -6,6 +6,20 @@ import '../utils/platform_utils.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
 
+class ApiResponse<T> {
+  final T? data;
+  final String? error;
+  final int statusCode;
+  final bool success;
+
+  ApiResponse({
+    required this.statusCode,
+    required this.success,
+    this.data,
+    this.error,
+  });
+}
+
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   
@@ -85,21 +99,31 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
-  
-  dynamic _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (response.body.isNotEmpty) {
-        return jsonDecode(response.body);
+
+  ApiResponse _handleResponse(http.Response response) {
+    try {
+      final decoded = response.body.isNotEmpty ? jsonDecode(response.body) : null;
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return ApiResponse(
+          statusCode: response.statusCode,
+          success: true,
+          data: decoded,
+        );
+      } else {
+        final message = decoded?['error'] ?? decoded?['message'] ?? response.reasonPhrase;
+        return ApiResponse(
+          statusCode: response.statusCode,
+          success: false,
+          error: message,
+        );
       }
-      return null;
-    } else {
-      try {
-        final errorData = jsonDecode(response.body);
-        final errorMessage = errorData['message'] ?? 'Erreur de serveur';
-        throw Exception('Error $errorMessage (${response.statusCode})');
-      } catch (e) {
-        throw Exception('Error ${response.statusCode}: ${response.reasonPhrase}');
-      }
+    } catch (e) {
+      return ApiResponse(
+        statusCode: response.statusCode,
+        success: false,
+        error: "Erreur de parsing JSON: $e",
+      );
     }
   }
 } 

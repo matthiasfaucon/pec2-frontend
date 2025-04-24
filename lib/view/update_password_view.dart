@@ -5,14 +5,14 @@ import '../utils/route_utils.dart';
 import '../utils/auth_utils.dart';
 import 'dart:developer' as developer;
 
-class UpdatePasswordPage extends StatefulWidget {
-  const UpdatePasswordPage({Key? key}) : super(key: key);
+class UpdatePasswordView extends StatefulWidget {
+  const UpdatePasswordView({Key? key}) : super(key: key);
 
   @override
-  _UpdatePasswordPageState createState() => _UpdatePasswordPageState();
+  _UpdatePasswordViewState createState() => _UpdatePasswordViewState();
 }
 
-class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
+class _UpdatePasswordViewState extends State<UpdatePasswordView> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -96,7 +96,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
     });
 
     try {
-      final response = await _apiService.request(
+      await _apiService.request(
         method: 'PUT',
         endpoint: '/users/password',
         body: {

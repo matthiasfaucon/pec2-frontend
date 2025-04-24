@@ -1,3 +1,4 @@
+import 'package:firstflutterapp/view/register/register_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
@@ -5,12 +6,12 @@ import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
 import 'dart:developer' as developer;
 
-class LoginPage extends StatefulWidget {
+class LoginView extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginViewState createState() => _LoginViewState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginViewState extends State<LoginView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final ApiService _apiService = ApiService();
@@ -38,14 +39,14 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text;
 
     try {
-      final data = await _apiService.request(
+      final response = await _apiService.request(
         method: 'POST',
         endpoint: '/login',
         body: {'email': email, 'password': password},
         withAuth: false,
       );
       
-      final token = data['token'];
+      final token = response.data['token'];
       developer.log('Mobile login - Token reçu: $token');
       
       final prefs = await SharedPreferences.getInstance();
@@ -200,8 +201,10 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 8),
               OutlinedButton(
                 onPressed: () {
-                  // Logique pour s'inscrire
-                },
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => RegisterView()),
+                  );                },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.black87,
                   side: const BorderSide(color: Colors.grey),
@@ -218,20 +221,8 @@ class _LoginPageState extends State<LoginPage> {
                 ? const Center(child: CircularProgressIndicator(color: Color(0xFF6C3FFE)))
                 : ElevatedButton(
                     onPressed: _login,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: const Color(0xFF6C3FFE),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
-                      ),
-                    ),
                     child: const Text(
                       "Se connecter",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
                     ),
                   ),
               const SizedBox(height: 20),

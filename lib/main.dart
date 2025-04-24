@@ -1,25 +1,25 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firstflutterapp/theme.dart';
+import 'package:firstflutterapp/view/login_view.dart';
+import 'package:firstflutterapp/view/profil_view.dart';
 import 'package:flutter/material.dart';
 import 'package:firstflutterapp/components/free-feed/container.dart';
 import 'package:firstflutterapp/components/header/container.dart';
 import 'package:firstflutterapp/components/search-bar/search-bar.dart';
 import 'package:firstflutterapp/components/bottom-navigation/container.dart';
 import 'package:firstflutterapp/components/categories/categories-list.dart';
-import 'package:firstflutterapp/page/login_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firstflutterapp/services/api_service.dart';
-import 'package:firstflutterapp/page/profil_page.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
 import 'package:firstflutterapp/utils/auth_utils.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  
 
-  
   runApp(const MyApp());
 }
 
@@ -34,13 +34,24 @@ class MyApp extends StatelessWidget {
       initial: AdaptiveThemeMode.system,
       builder:
           (theme, darkTheme) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'OnlyFlick',
-        theme: theme,
-        darkTheme: darkTheme,
-        initialRoute: '/',
-        routes: RouteUtils.getAppRoutes(),
-      ),
+            debugShowCheckedModeBanner: false,
+            title: 'OnlyFlick',
+            theme: theme,
+            darkTheme: darkTheme,
+            initialRoute: '/',
+            routes: RouteUtils.getAppRoutes(),
+            locale: Locale('fr', 'FR'),
+            // Langue française
+            supportedLocales: [
+              Locale('en', 'US'), // Langue anglaise
+              Locale('fr', 'FR'), // Langue française
+            ],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+          ),
     );
   }
 }
@@ -57,12 +68,13 @@ class _HomePageState extends State<HomePage> {
   bool isConnected = false;
   bool isLoading = true;
   final ApiService _apiService = ApiService();
+  // final DeepLinkService _deepLinkService = DeepLinkService();
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
-    
+    // _deepLinkService.listenDeepLinks(context);
     if (PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         RouteUtils.navigateToAdminLogin(context);
@@ -74,7 +86,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _checkLoginStatus() async {
     try {
       final bool loggedIn = await AuthUtils.isLoggedIn();
-      
+
       setState(() {
         isConnected = loggedIn;
         isLoading = false;
@@ -99,21 +111,23 @@ class _HomePageState extends State<HomePage> {
     if (PlatformUtils.isWebPlatform()) {
       return const Scaffold(
         body: Center(
-          child: Text("Cette application n'est pas disponible sur le web. Veuillez utiliser un appareil mobile."),
+          child: Text(
+            "Cette application n'est pas disponible sur le web. Veuillez utiliser un appareil mobile.",
+          ),
         ),
       );
     }
-    
-    final bottomNavigationItems = ContainerBottomNavigation().buildItems(context);
+
+    final bottomNavigationItems = ContainerBottomNavigation().buildItems(
+      context,
+    );
 
     if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (!isConnected) {
-      return LoginPage();
+      return LoginView();
     }
 
     return Scaffold(
@@ -129,8 +143,10 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+        backgroundColor:
+            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        selectedItemColor:
+            Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
         currentIndex: selectedIndex,
         onTap: (index) => setState(() => selectedIndex = index),
         items: bottomNavigationItems,
@@ -138,22 +154,22 @@ class _HomePageState extends State<HomePage> {
       body: _getPageForIndex(selectedIndex),
     );
   }
-  
+
   Widget _getPageForIndex(int index) {
     switch (index) {
-      case 0: 
+      case 0:
         return _buildHomePage();
       case 1:
         return Center(child: Text("Page Favorites en construction"));
-      case 2: 
+      case 2:
         return Center(child: Text("Page Catalogue en construction"));
-      case 3: 
-        return const ProfilePage();
+      case 3:
+        return const ProfileView();
       default:
         return _buildHomePage();
     }
   }
-  
+
   Widget _buildHomePage() {
     return SafeArea(
       child: Padding(
