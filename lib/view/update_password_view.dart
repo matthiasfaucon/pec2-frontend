@@ -96,7 +96,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
     });
 
     try {
-      final response = await _apiService.request(
+      await _apiService.request(
         method: 'PUT',
         endpoint: '/users/password',
         body: {

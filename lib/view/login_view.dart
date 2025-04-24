@@ -39,14 +39,14 @@ class _LoginViewState extends State<LoginView> {
     final password = _passwordController.text;
 
     try {
-      final data = await _apiService.request(
+      final response = await _apiService.request(
         method: 'POST',
         endpoint: '/login',
         body: {'email': email, 'password': password},
         withAuth: false,
       );
       
-      final token = data['token'];
+      final token = response.data['token'];
       developer.log('Mobile login - Token reçu: $token');
       
       final prefs = await SharedPreferences.getInstance();

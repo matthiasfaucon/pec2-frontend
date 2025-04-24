@@ -58,7 +58,7 @@ class _ProfileViewState extends State<ProfileView> {
       );
       
       setState(() {
-        _userProfile = userData;
+        _userProfile = userData.data;
         _isLoading = false;
       });
       developer.log('Profil utilisateur récupéré: $_userProfile');
