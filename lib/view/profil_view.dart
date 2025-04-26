@@ -4,8 +4,6 @@ import 'package:firstflutterapp/view/setting-user/setting-user.dart';
 import 'package:firstflutterapp/view/update_profile/update_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firstflutterapp/services/api_service.dart';
-import 'package:firstflutterapp/utils/date_formatter.dart';
-import 'package:firstflutterapp/utils/translator.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
 import 'package:firstflutterapp/utils/auth_utils.dart';
