@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../services/stats_service.dart';
+import '../../services/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+class _UserStatsResponse {
+  final String period;
+  final int count;
+  final String label;
+
+  _UserStatsResponse({
+    required this.period,
+    required this.count,
+    required this.label,
+  });
+
+  factory _UserStatsResponse.fromJson(Map<String, dynamic> json) {
+    return _UserStatsResponse(
+      period: json['period'] as String,
+      count: json['count'] as int,
+      label: json['label'] as String,
+    );
+  }
+}
 
 class UserStatsChart extends StatefulWidget {
   const UserStatsChart({Key? key}) : super(key: key);
@@ -12,12 +32,11 @@ class UserStatsChart extends StatefulWidget {
 }
 
 class _UserStatsChartState extends State<UserStatsChart> {
-  final StatsService _statsService = StatsService();
   bool _isLoading = false;
   String _selectedFilter = 'month';
   int _selectedYear = DateTime.now().year;
   int _selectedMonth = DateTime.now().month;
-  List<UserStatsResponse> _statsData = [];
+  List<_UserStatsResponse> _statsData = [];
   String _error = '';
 
   @override
@@ -33,14 +52,31 @@ class _UserStatsChartState extends State<UserStatsChart> {
     });
 
     try {
-      final stats = await _statsService.getUserStats(
-        filter: _selectedFilter,
-        year: _selectedYear,
-        month: _selectedFilter == 'month' ? _selectedMonth : null,
+      final Map<String, String> queryParams = {
+        'filter': _selectedFilter,
+        'year': _selectedYear.toString(),
+      };
+
+      if (_selectedFilter == 'month') {
+        queryParams['month'] = _selectedMonth.toString();
+      }
+
+      final response = await ApiService().request(
+        method: 'GET',
+        endpoint: '/users/statistics',
+        withAuth: true,
+        queryParams: queryParams,
       );
 
+      if (!response.success) {
+        throw Exception(response.error ?? 'Échec de la récupération des statistiques');
+      }
+
+      final List<dynamic> data = response.data as List<dynamic>;
       setState(() {
-        _statsData = stats;
+        _statsData = data
+            .map((item) => _UserStatsResponse.fromJson(item as Map<String, dynamic>))
+            .toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -48,6 +84,7 @@ class _UserStatsChartState extends State<UserStatsChart> {
         _error = e.toString();
         _isLoading = false;
       });
+      debugPrint('Erreur lors de la récupération des statistiques: $e');
     }
   }
 
@@ -93,7 +130,7 @@ class _UserStatsChartState extends State<UserStatsChart> {
                 height: 300,
                 child: LineChart(
                   LineChartData(
-                    minY: 0, // Empêche les valeurs négatives
+                    minY: 0,
                     gridData: const FlGridData(show: true),
                     titlesData: FlTitlesData(
                       leftTitles: AxisTitles(
