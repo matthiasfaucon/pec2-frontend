@@ -4,6 +4,7 @@ import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
 import '../components/admin/admin_layout.dart';
 import '../components/admin/users_management.dart';
+import '../components/admin/contact_management.dart';
 import 'dart:developer' as developer;
 
 class AdminDashboardPage extends StatefulWidget {
@@ -114,6 +115,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case 2:
         return const UsersManagement();
       case 3:
+        return const ContactManagement();
+      case 4:
         return _buildSettingsContent();
       default:
         return _buildDashboardContent();
@@ -132,24 +135,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              _buildKpiCard(
-                "Utilisateurs actifs",
-                "128",
-                Icons.people,
-                Colors.blue,
-              ),
-              const SizedBox(width: 24),
-              _buildKpiCard(
-                "Revenus mensuels",
-                "2,540 €",
-                Icons.euro,
-                Colors.green,
-              ),
-            ],
           ),
         ],
       ),
