@@ -14,6 +14,7 @@ class ContactManagement extends StatefulWidget {
 class _ContactManagementState extends State<ContactManagement> {
   List<dynamic> _contacts = [];
   bool _loadingContacts = false;
+  bool _updatingStatus = false;
 
   @override
   void initState() {
@@ -38,6 +39,21 @@ class _ContactManagementState extends State<ContactManagement> {
     }
   }
 
+  String _getStatusEnglish(String statusFrench) {
+    switch (statusFrench) {
+      case 'Ouvert':
+        return 'open';
+      case 'En cours de traitement':
+        return 'processing';
+      case 'Fermé':
+        return 'closed';
+      case 'Rejeté':
+        return 'rejected';
+      default:
+        return statusFrench;
+    }
+  }
+
   Color _getStatusColor(String? status) {
     if (status == null) return Colors.grey;
     
@@ -53,6 +69,115 @@ class _ContactManagementState extends State<ContactManagement> {
       default:
         return Colors.grey;
     }
+  }
+
+  Future<void> _updateContactStatus(String contactId, String newStatus) async {
+    setState(() {
+      _updatingStatus = true;
+    });
+
+    try {
+      final response = await ApiService().request(
+        method: 'PATCH',
+        endpoint: '/contacts/$contactId/status',
+        withAuth: true,
+        body: {
+          "status": newStatus
+        },
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Statut mis à jour avec succès"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _fetchContacts(); // Recharger les contacts pour refléter les changements
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erreur lors de la mise à jour du statut: ${response.error}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (error) {
+      developer.log('Erreur lors de la mise à jour du statut: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Erreur: $error"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _updatingStatus = false;
+      });
+    }
+  }
+
+  void _showStatusUpdateDialog(dynamic contact) {
+    final currentStatus = contact['status'] ?? 'open';
+    String selectedStatus = currentStatus;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Modifier le statut"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Contact: ${contact['firstName']} ${contact['lastName']}"),
+                  SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedStatus,
+                    decoration: InputDecoration(
+                      labelText: 'Statut',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      DropdownMenuItem(value: 'open', child: Text(_getStatusFrench('open'))),
+                      DropdownMenuItem(value: 'processing', child: Text(_getStatusFrench('processing'))),
+                      DropdownMenuItem(value: 'closed', child: Text(_getStatusFrench('closed'))),
+                      DropdownMenuItem(value: 'rejected', child: Text(_getStatusFrench('rejected'))),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedStatus = value!;
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text("Annuler"),
+            ),
+            ElevatedButton(
+              onPressed: _updatingStatus
+                  ? null
+                  : () {
+                      Navigator.of(context).pop();
+                      _updateContactStatus(contact['id'].toString(), selectedStatus);
+                    },
+              child: _updatingStatus
+                  ? CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : Text("Mettre à jour"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -167,7 +292,29 @@ class _ContactManagementState extends State<ContactManagement> {
                                       _buildDetailRow('Nom', contact['lastName'] ?? 'N/A'),
                                       _buildDetailRow('Email', contact['email'] ?? 'N/A'),
                                       _buildDetailRow('Sujet', contact['subject'] ?? 'N/A'),
-                                      _buildDetailRow('Statut', statusFrench, valueColor: statusColor),
+                                      Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 120,
+                                            child: Text(
+                                              'Statut:',
+                                              style: const TextStyle(fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              statusFrench,
+                                              style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.edit, size: 20),
+                                            onPressed: () => _showStatusUpdateDialog(contact),
+                                            tooltip: "Modifier le statut",
+                                            color: Colors.blue,
+                                          ),
+                                        ],
+                                      ),
                                       const SizedBox(height: 8),
                                       const Text(
                                         'Message:',
