@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../services/stats_service.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class UserStatsChart extends StatefulWidget {
   const UserStatsChart({Key? key}) : super(key: key);
@@ -22,7 +23,7 @@ class _UserStatsChartState extends State<UserStatsChart> {
   @override
   void initState() {
     super.initState();
-    _fetchStats();
+    initializeDateFormatting('fr_FR', null).then((_) => _fetchStats());
   }
 
   Future<void> _fetchStats() async {
@@ -92,6 +93,7 @@ class _UserStatsChartState extends State<UserStatsChart> {
                 height: 300,
                 child: LineChart(
                   LineChartData(
+                    minY: 0, // Empêche les valeurs négatives
                     gridData: const FlGridData(show: true),
                     titlesData: FlTitlesData(
                       leftTitles: AxisTitles(
@@ -99,7 +101,10 @@ class _UserStatsChartState extends State<UserStatsChart> {
                           showTitles: true,
                           reservedSize: 40,
                           getTitlesWidget: (value, meta) {
-                            return Text(value.toInt().toString());
+                            if (value == value.roundToDouble()) {
+                              return Text(value.toInt().toString());
+                            }
+                            return const Text('');
                           },
                         ),
                       ),
@@ -144,6 +149,30 @@ class _UserStatsChartState extends State<UserStatsChart> {
                         ),
                       ),
                     ],
+                    lineTouchData: LineTouchData(
+                      enabled: true,
+                      touchTooltipData: LineTouchTooltipData(
+                        tooltipBgColor: Colors.black87,
+                        tooltipRoundedRadius: 8,
+                        fitInsideHorizontally: true,
+                        fitInsideVertically: true,
+                        getTooltipItems: (touchedSpots) {
+                          return touchedSpots.map((touchedSpot) {
+                            final index = touchedSpot.x.toInt();
+                            if (index >= 0 && index < _statsData.length) {
+                              return LineTooltipItem(
+                                '${_statsData[index].label}\n${_statsData[index].count} utilisateurs',
+                                const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }
+                            return null;
+                          }).toList();
+                        },
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -195,7 +224,11 @@ class _UserStatsChartState extends State<UserStatsChart> {
             items: List.generate(12, (index) {
               return DropdownMenuItem(
                 value: index + 1,
-                child: Text(DateFormat('MMMM').format(DateTime(2024, index + 1))),
+                child: Text(
+                  DateFormat('MMMM', 'fr_FR')
+                    .format(DateTime(2024, index + 1))
+                    .capitalize(),
+                ),
               );
             }),
             onChanged: (value) {
@@ -210,5 +243,11 @@ class _UserStatsChartState extends State<UserStatsChart> {
         ],
       ],
     );
+  }
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1)}";
   }
 }
