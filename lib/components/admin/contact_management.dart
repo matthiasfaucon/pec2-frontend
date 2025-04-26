@@ -21,6 +21,40 @@ class _ContactManagementState extends State<ContactManagement> {
     _fetchContacts();
   }
 
+  String _getStatusFrench(String? status) {
+    if (status == null) return 'N/A';
+    
+    switch (status) {
+      case 'open':
+        return 'Ouvert';
+      case 'processing':
+        return 'En cours de traitement';
+      case 'closed':
+        return 'Fermé';
+      case 'rejected':
+        return 'Rejeté';
+      default:
+        return status;
+    }
+  }
+
+  Color _getStatusColor(String? status) {
+    if (status == null) return Colors.grey;
+    
+    switch (status) {
+      case 'open':
+        return Colors.green;
+      case 'processing':
+        return Colors.blue;
+      case 'closed':
+        return Colors.grey;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -69,6 +103,9 @@ class _ContactManagementState extends State<ContactManagement> {
                         itemCount: _contacts.length,
                         itemBuilder: (context, index) {
                           final contact = _contacts[index];
+                          final statusFrench = _getStatusFrench(contact['status']);
+                          final statusColor = _getStatusColor(contact['status']);
+                          
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                             elevation: 2,
@@ -88,11 +125,34 @@ class _ContactManagementState extends State<ContactManagement> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(contact['email'] ?? 'Email non disponible'),
-                                  Text(
-                                    contact['subject'] ?? 'Pas de sujet',
-                                    style: TextStyle(color: Colors.grey.shade600),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          contact['subject'] ?? 'Pas de sujet',
+                                          style: TextStyle(color: Colors.grey.shade600),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(left: 8),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: statusColor.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: statusColor.withOpacity(0.5)),
+                                        ),
+                                        child: Text(
+                                          statusFrench,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: statusColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -107,6 +167,7 @@ class _ContactManagementState extends State<ContactManagement> {
                                       _buildDetailRow('Nom', contact['lastName'] ?? 'N/A'),
                                       _buildDetailRow('Email', contact['email'] ?? 'N/A'),
                                       _buildDetailRow('Sujet', contact['subject'] ?? 'N/A'),
+                                      _buildDetailRow('Statut', statusFrench, valueColor: statusColor),
                                       const SizedBox(height: 8),
                                       const Text(
                                         'Message:',
@@ -150,7 +211,7 @@ class _ContactManagementState extends State<ContactManagement> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -164,7 +225,10 @@ class _ContactManagementState extends State<ContactManagement> {
             ),
           ),
           Expanded(
-            child: Text(value),
+            child: Text(
+              value,
+              style: valueColor != null ? TextStyle(color: valueColor, fontWeight: FontWeight.bold) : null,
+            ),
           ),
         ],
       ),
