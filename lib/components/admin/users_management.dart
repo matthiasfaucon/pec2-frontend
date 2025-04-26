@@ -312,19 +312,19 @@ class _UsersManagementState extends State<UsersManagement> {
         withAuth: true, // Utilise le token stocké dans les SharedPreferences
       );
 
-      if (response is List) {
+      if (response.data is List) {
         setState(() {
-          _users = response;
+          _users = response.data;
           _loadingUsers = false;
         });
       } else {
-        if (response is Map<String, dynamic>) {
+        if (response.data is Map<String, dynamic>) {
           final possibleListKeys = ['data', 'users', 'results', 'items', 'content'];
           
           for (final key in possibleListKeys) {
-            if (response.containsKey(key) && response[key] is List) {
+            if (response.data.containsKey(key) && response[key] is List) {
               setState(() {
-                _users = response[key];
+                _users = response.data[key];
                 _loadingUsers = false;
               });
               return;

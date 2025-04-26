@@ -149,6 +149,7 @@ class _RegisterViewState extends State<RegisterView> {
                     _submitForm();
                   }
                 },
+                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)) ,
                 child: Text(step == 1 ? "Suivant" : "Créer un compte"),
               ),
             ],
