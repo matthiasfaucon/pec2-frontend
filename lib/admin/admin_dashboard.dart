@@ -5,6 +5,7 @@ import '../utils/route_utils.dart';
 import '../components/admin/admin_layout.dart';
 import '../components/admin/users_management.dart';
 import '../components/admin/contact_management.dart';
+import '../components/admin/chart.dart';
 import 'dart:developer' as developer;
 
 class AdminDashboardPage extends StatefulWidget {
@@ -142,10 +143,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildStatsContent() {
-    return const Center(
-      child: Text(
-        "Page Statistiques en développement",
-        style: TextStyle(fontSize: 18),
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Statistiques",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const UserStatsChart(),
+        ],
       ),
     );
   }
