@@ -1,7 +1,8 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 class LabelAndInput {
-
   Widget buildLabel(String text, {String? error}) {
     return Row(
       children: [
@@ -23,10 +24,12 @@ class LabelAndInput {
     String hint,
     bool obscureText,
     bool hasError,
+    int maxLine,
   ) {
     return TextField(
       controller: controller,
       obscureText: obscureText,
+      maxLines: maxLine,
       decoration: InputDecoration(
         hintText: hint,
         border: OutlineInputBorder(
@@ -50,16 +53,17 @@ class LabelAndInput {
     String labelName,
     TextEditingController controller,
     String placeholder, {
-    bool obscureText = false, // valeur par défaut
-    bool hasError = false, // valeur par défaut
-    String messageError = '', // valeur par défaut
+    bool obscureText = false,
+    bool hasError = false,
+    String messageError = '',
+    int maxLine = 1,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         buildLabel(labelName, error: hasError ? messageError : null),
         SizedBox(height: 8),
-        buildTextField(controller, placeholder, obscureText, hasError),
+        buildTextField(controller, placeholder, obscureText, hasError, maxLine),
         SizedBox(height: 24),
       ],
     );
@@ -115,7 +119,7 @@ class LabelAndInput {
     String messageError,
     list,
     selectedOption,
-      Function(String?) onSexeSelected,
+    Function(String?) onSexeSelected,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

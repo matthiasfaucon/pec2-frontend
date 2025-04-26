@@ -2,6 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  static final ButtonStyle emptyButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    foregroundColor: const Color(0xFF6C3FFE),
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
+  );
+
+  static final ButtonStyle filledButtonStyle  = ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF6C3FFE),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    foregroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  );
+
+  static final ButtonStyle redButtonStyle  = ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFBF3030),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    foregroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  );
+
+
+
+
   static final lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: const Color(0xFFB39DDB),
@@ -41,14 +74,7 @@ class AppTheme {
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF6C3FFE),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        foregroundColor: Colors.white,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
+      style: filledButtonStyle
     ),
   );
 
@@ -92,14 +118,7 @@ class AppTheme {
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF6C3FFE),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        foregroundColor: Colors.white,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
+      style: filledButtonStyle,
     ),
   );
 }

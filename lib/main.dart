@@ -99,13 +99,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _logout() async {
-    await AuthUtils.logout();
-    setState(() {
-      isConnected = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     if (PlatformUtils.isWebPlatform()) {
@@ -132,16 +125,6 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text("Pet Shop"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-            tooltip: "Déconnexion",
-          ),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor:
             Theme.of(context).bottomNavigationBarTheme.backgroundColor,
