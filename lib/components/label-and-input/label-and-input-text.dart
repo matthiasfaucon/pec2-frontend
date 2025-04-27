@@ -1,7 +1,13 @@
+import 'package:firstflutterapp/components/confirm_popup.dart';
 import 'package:flutter/material.dart';
 
 class LabelAndInput {
-  Widget buildLabel(String text, {String? error}) {
+  Widget buildLabel(
+    String text, {
+    String? error,
+    String? helperTitle,
+    String? helperContent,
+  }) {
     return Row(
       children: [
         Text(text, style: TextStyle(fontWeight: FontWeight.bold)),
@@ -11,6 +17,14 @@ class LabelAndInput {
             child: Text(
               error,
               style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        if (helperTitle != null && helperContent != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: ConfirmPopup(
+              headerMessage: helperTitle,
+              contentMessage: helperContent,
             ),
           ),
       ],
@@ -55,11 +69,13 @@ class LabelAndInput {
     bool hasError = false,
     String messageError = '',
     int maxLine = 1,
+    String? helperTitle,
+    String? helperContent,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildLabel(labelName, error: hasError ? messageError : null),
+        buildLabel(labelName, error: hasError ? messageError : null, helperTitle: helperTitle, helperContent: helperContent),
         SizedBox(height: 8),
         buildTextField(controller, placeholder, obscureText, hasError, maxLine),
         SizedBox(height: 24),

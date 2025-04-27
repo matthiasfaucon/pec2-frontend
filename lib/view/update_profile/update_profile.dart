@@ -1,13 +1,16 @@
 import 'package:firstflutterapp/interfaces/user.dart';
+import 'package:firstflutterapp/services/api_service.dart';
+import 'package:firstflutterapp/services/toast_service.dart';
 import 'package:firstflutterapp/view/update_profile/update_profil_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/label-and-input/label-and-input-text.dart';
+import '../../main.dart';
+import '../../utils/check-form-data.dart';
 
 class UpdateProfile extends StatefulWidget {
   final User user;
 
-  // Constructeur
   UpdateProfile({required this.user, super.key});
 
   @override
@@ -15,7 +18,6 @@ class UpdateProfile extends StatefulWidget {
 }
 
 class _UpdateProfileState extends State<UpdateProfile> {
-  // Déclaration des TextEditingController
   late TextEditingController pseudoController;
   late TextEditingController emailController;
   late TextEditingController firstNameController;
@@ -23,21 +25,22 @@ class _UpdateProfileState extends State<UpdateProfile> {
   late TextEditingController bioController;
   final LabelAndInput _labelAndInput = LabelAndInput();
   final UpdateProfileService _updateProfileService = UpdateProfileService();
+  final CheckFormData _checkFormData = CheckFormData();
+  final ApiService _apiService = ApiService();
+  final ToastService _toastService = ToastService();
   DateTime? birthdayDate;
   String? selectedSexe;
-  bool isValidEmail = true;
-  bool isValidPassword = true;
   bool isValidPseudo = true;
   bool isValidFirstName = true;
   bool isValidLastName = true;
   bool isValidBirthdayDate = true;
   bool isValidSexe = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialisation des controllers avec les valeurs du User
     pseudoController = TextEditingController(text: widget.user.userName);
     emailController = TextEditingController(text: widget.user.email);
     firstNameController = TextEditingController(text: widget.user.firstName);
@@ -51,7 +54,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
   @override
   void dispose() {
-    // Libérer les controllers
     pseudoController.dispose();
     emailController.dispose();
     firstNameController.dispose();
@@ -64,75 +66,162 @@ class _UpdateProfileState extends State<UpdateProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Modification profil")),
-      body: SingleChildScrollView( // Ajout de la ScrollView
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _labelAndInput.buildLabelAndInputText(
-              "Pseudo",
-              pseudoController,
-              "Entrez votre pseudo",
-              obscureText: false,
-              hasError: !isValidPseudo,
-              messageError: "*Vous devez rentrer un pseudo",
+      body:  _isLoading
+          ? const Center(
+          child: CircularProgressIndicator(color: Color(0xFF6C3FFE)))
+          : _buildUpdateProfileContent(),
+    );
+  }
+
+  Widget _buildUpdateProfileContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _labelAndInput.buildLabelAndInputText(
+            "Pseudo",
+            pseudoController,
+            "Entrez votre pseudo",
+            obscureText: false,
+            hasError: !isValidPseudo,
+            messageError: "*Vous devez rentrer un pseudo",
+          ),
+          _labelAndInput.buildLabelAndInputText(
+            "Nom de famille",
+            lastNameController,
+            "Entrez votre nom de famille",
+            obscureText: false,
+            hasError: !isValidLastName,
+            messageError: "Le nom est vide",
+          ),
+          _labelAndInput.buildLabelAndInputText(
+            "Prénom",
+            firstNameController,
+            "Entrez votre prénom",
+            obscureText: false,
+            hasError: !isValidFirstName,
+            messageError: "Le prénom est vide",
+          ),
+          _labelAndInput.buildLabelAndInputText(
+            "Bio",
+            bioController,
+            "Entrez votre bio",
+            obscureText: false,
+            maxLine: 5,
+          ),
+          _labelAndInput.buildLabelAndCalendar(
+            "Date d'anniversaire",
+            !isValidBirthdayDate,
+            "La date doit être renseignée",
+            context,
+            setState,
+            birthdayDate,
+                (newDate) => setState(() => birthdayDate = newDate),
+          ),
+          _labelAndInput.buildLabelAndRadioList(
+            "Sexe",
+            !isValidSexe,
+            "Cochez une option",
+            ["Homme", "Femme", "Autre"],
+            selectedSexe,
+                (option) => setState(() => selectedSexe = option),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Ici, tu peux récupérer les nouvelles valeurs du formulaire
+              _submitForm();
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
             ),
-            _labelAndInput.buildLabelAndInputText(
-              "Nom de famille",
-              lastNameController,
-              "Entrez votre nom de famille",
-              obscureText: false,
-              hasError: !isValidLastName,
-              messageError: "Le prénom est vide",
-            ),
-            _labelAndInput.buildLabelAndInputText(
-              "Prénom",
-              firstNameController,
-              "Entrez votre prénom",
-              obscureText: false,
-              hasError: !isValidFirstName,
-              messageError: "Le prénom est vide",
-            ),
-            _labelAndInput.buildLabelAndInputText(
-              "Bio",
-              bioController,
-              "Entrez votre bio",
-              obscureText: false,
-              maxLine: 5
-            ),
-            _labelAndInput.buildLabelAndCalendar(
-              "Date d'anniversaire",
-              !isValidBirthdayDate,
-              "La date doit être renseignée",
-              context,
-              setState,
-              birthdayDate,
-                  (newDate) => setState(() => birthdayDate = newDate),
-            ),
-            _labelAndInput.buildLabelAndRadioList(
-              "Sexe",
-              !isValidSexe,
-              "Cochez une option",
-              ["Homme", "Femme", "Autre"],
-              selectedSexe,
-                  (option) => setState(() => selectedSexe = option),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Ici, tu peux récupérer les nouvelles valeurs du formulaire
-                print('Pseudo: ${pseudoController.text}');
-                print('Email: ${emailController.text}');
-                print('Prénom: ${firstNameController.text}');
-                print('Nom: ${lastNameController.text}');
-                print('Bio: ${bioController.text}');
-              },
-              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)) ,
-              child: const Text("Enregistrer"),
-            ),
-          ],
-        ),
+            child: const Text("Enregistrer"),
+          ),
+        ],
       ),
     );
   }
-}
 
+  Future<void> _submitForm() async {
+    final isValidValid = _updateProfileService.checkFormIsValid(
+      pseudoController.text,
+      lastNameController.text,
+      firstNameController.text,
+      birthdayDate,
+      selectedSexe,
+    );
+
+    if (isValidValid) {
+      widget.user.userName = pseudoController.text;
+      widget.user.firstName = firstNameController.text;
+      widget.user.lastName = lastNameController.text;
+      widget.user.bio = bioController.text;
+
+      if (birthdayDate != null) {
+        widget.user.birthDayDate = birthdayDate ?? DateTime(2023, 12, 4);
+      }
+      widget.user.sexe = selectedSexe ?? "MAN";
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        final response = await _apiService.request(
+          method: 'PUT',
+          endpoint: '/users/profile',
+          body: {
+            "userName": pseudoController.text,
+            "bio": bioController.text,
+            "firstName": firstNameController.text,
+            "email": widget.user.email,
+            "lastName": lastNameController.text,
+            "birthDayDate": birthdayDate?.toUtc().toIso8601String(),
+            "sexe": selectedSexe,
+          },
+          withAuth: true,
+        );
+
+        if (response.success) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomePage(initialIndex: 3),
+            ),
+                (route) => false,
+          );
+        } else {
+          String message = _updateProfileService.getErrorMessage(
+            response.statusCode,
+          );
+          _toastService.showToast(
+            context,
+            "Erreur lors de la création \n du compte \n$message",
+          );
+        }
+      } catch (e) {
+        _toastService.showToast(
+          context,
+          "Erreur lors de la création \n du compte",
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } else {
+      setState(() {
+        isValidPseudo = _checkFormData.inputIsNotEmptyOrNull(
+          pseudoController.text,
+        );
+        isValidFirstName = _checkFormData.inputIsNotEmptyOrNull(
+          firstNameController.text,
+        );
+        isValidLastName = _checkFormData.inputIsNotEmptyOrNull(
+          lastNameController.text,
+        );
+        isValidBirthdayDate = _checkFormData.dateIsNotEmpty(birthdayDate);
+        isValidSexe = _checkFormData.inputIsNotEmptyOrNull(selectedSexe);
+      });
+    }
+    ;
+  }
+}

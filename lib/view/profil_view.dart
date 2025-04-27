@@ -159,15 +159,12 @@ class _ProfileViewState extends State<ProfileView> {
           ),
 
           const SizedBox(height: 8),
-          if (_userProfile['bio'] != null && _userProfile['bio']
-              .toString()
-              .isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
-                _userProfile['bio'],
+               _user!.bio,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   fontStyle: FontStyle.italic,
                   color: Colors.grey[700],
                 ),
@@ -232,97 +229,6 @@ class _ProfileViewState extends State<ProfileView> {
           const SizedBox(height: 8),
           Divider(height: 1),
           const SizedBox(height: 8),
-
-          // _buildInfoCard("Informations personnelles", [
-          //   _buildInfoRow("Pseudonyme", _userProfile['username'] ?? 'Non renseigné'),
-          //   _buildInfoRow("Prénom", _userProfile['firstName'] ?? 'Non renseigné'),
-          //   _buildInfoRow("Nom", _userProfile['lastName'] ?? 'Non renseigné'),
-          //   _buildInfoRow("Email", _userProfile['email'] ?? 'Non renseigné'),
-          //   _buildInfoRow("Date de naissance", DateFormatter.formatDate(_userProfile['birthDayDate'])),
-          //   if (_userProfile['birthDayDate'] != null)
-          //     _buildInfoRow("Âge", DateFormatter.calculateAge(_userProfile['birthDayDate'])),
-          //   _buildInfoRow("Sexe", Translator.translateSexe(_userProfile['sexe'])),
-          //   _buildInfoRow("Rôle", Translator.translateRole(_userProfile['role'])),
-          // ]),
-          //
-
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoCard(String title, List<Widget> children) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF6C3FFE),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Color(0xFF6C3FFE)),
-                  onPressed: () {
-                    setState(() {
-                      _isUpdating = true;
-                    });
-                  },
-                ),
-              ],
-            ),
-            const Divider(
-              color: Color(0xFFE4DAFF),
-              thickness: 1,
-              height: 32,
-            ),
-            ...children,
-          ],
-        ),
-
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
         ],
       ),
     );

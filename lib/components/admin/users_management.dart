@@ -83,14 +83,14 @@ class _UsersManagementState extends State<UsersManagement> {
                               leading: CircleAvatar(
                                 backgroundColor: Colors.blue.shade100,
                                 child: Text(
-                                  user['username'] != null && (user['username'] as String).isNotEmpty 
-                                      ? (user['username'] as String)[0].toUpperCase() 
+                                  user['userName'] != null && (user['userName'] as String).isNotEmpty
+                                      ? (user['userName'] as String)[0].toUpperCase()
                                       : 'U',
                                   style: TextStyle(color: Colors.blue.shade800),
                                 ),
                               ),
                               title: Text(
-                                user['username'] as String? ?? 'Utilisateur inconnu',
+                                user['userName'] as String? ?? 'Utilisateur inconnu',
                                 style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               subtitle: Text(user['email'] as String? ?? 'Email non disponible'),

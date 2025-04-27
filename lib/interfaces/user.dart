@@ -33,7 +33,7 @@ class User {
     return User(
       id: json['id'],
       email: json['email'],
-      userName: json['username'],
+      userName: json['userName'],
       role: json['role'],
       bio: json['bio'],
       profilPicture: json['profilPicture'] ?? "",

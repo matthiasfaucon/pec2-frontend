@@ -57,7 +57,8 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int initialIndex;
+  const HomePage({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -74,6 +75,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkLoginStatus();
+    selectedIndex = widget.initialIndex;
     // _deepLinkService.listenDeepLinks(context);
     if (PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

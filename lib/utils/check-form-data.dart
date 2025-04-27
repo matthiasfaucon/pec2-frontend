@@ -11,4 +11,12 @@ class CheckFormData{
 
     return isValid;
   }
+
+  bool inputIsNotEmptyOrNull(String? input) {
+    return input != null && input.trim() != "";
+  }
+
+  bool dateIsNotEmpty(DateTime? input) {
+    return input != null;
+  }
 }

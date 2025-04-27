@@ -3,16 +3,32 @@ import 'package:firstflutterapp/utils/check-form-data.dart';
 class RegisterService {
   final CheckFormData _checkFormData = CheckFormData();
 
-  bool validPassword(String password1, String password2) {
+  bool isSamePassword(String password1, String password2) {
     return password1 == password2 && password1.trim() != "";
   }
 
-  bool inputIsNotEmptyOrNull(String? input) {
-    return input != null && input.trim() != "";
+  bool isValidPassword(String password) {
+    final hasUpper = password.contains(RegExp(r'[A-Z]'));
+    final hasDigit = password.contains(RegExp(r'[0-9]'));
+    final hasMinimumString = password.length >= 6;
+
+    return hasUpper && hasDigit && hasMinimumString;
   }
 
-  bool dateIsNotEmpty(DateTime? input) {
-    return input != null;
+  String getMessageErrorPassword(String password, String confirmPassword) {
+    final bool validPassword = isValidPassword(password);
+    final bool samePassword = isSamePassword(password, confirmPassword);
+    final bool notEmptyPassword = _checkFormData.inputIsNotEmptyOrNull(password);
+
+    if(!notEmptyPassword){
+      return "Le mot de passe doit être rempli";
+    }else if(!samePassword){
+      return "Les mots ne sont pas identiques";
+    }else if(!validPassword){
+      return "format incorrect";
+    }else{
+      return "format incorrect";
+    }
   }
 
   checkStep1IsOk(
@@ -22,9 +38,14 @@ class RegisterService {
     String pseudo,
   ) {
     final bool validEmail = _checkFormData.validEmail(email);
-    final bool isValidPassword = validPassword(password, confirmPassword);
-    final bool validPseudo = inputIsNotEmptyOrNull(pseudo);
-    return validEmail && isValidPassword && validEmail && validPseudo;
+    final bool samePassword = isSamePassword(password, confirmPassword);
+    final bool validPassword = isValidPassword(password);
+    final bool validPseudo = _checkFormData.inputIsNotEmptyOrNull(pseudo);
+    return validEmail &&
+        samePassword &&
+        validPassword &&
+        validEmail &&
+        validPseudo;
   }
 
   checkStep2IsOk(
@@ -33,10 +54,10 @@ class RegisterService {
     DateTime? birthDay,
     String? sexe,
   ) {
-    final bool validFirstname = inputIsNotEmptyOrNull(firstName);
-    final bool validLastName = inputIsNotEmptyOrNull(lastName);
-    final bool validBirthDay = dateIsNotEmpty(birthDay);
-    final bool validSexe = inputIsNotEmptyOrNull(sexe);
+    final bool validFirstname = _checkFormData.inputIsNotEmptyOrNull(firstName);
+    final bool validLastName = _checkFormData.inputIsNotEmptyOrNull(lastName);
+    final bool validBirthDay = _checkFormData.dateIsNotEmpty(birthDay);
+    final bool validSexe = _checkFormData.inputIsNotEmptyOrNull(sexe);
     return validFirstname && validLastName && validBirthDay && validSexe;
   }
 
