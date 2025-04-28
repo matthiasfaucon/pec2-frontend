@@ -24,6 +24,7 @@ class _ProfileViewState extends State<ProfileView> {
   String _errorMessage = '';
   Map<String, dynamic> _userProfile = {};
   bool _isUpdating = false;
+  String _avatarUrl = 'https://via.placeholder.com/150';
 
 
   @override
@@ -48,7 +49,6 @@ class _ProfileViewState extends State<ProfileView> {
     });
 
     try {
-      // Vérifie si l'utilisateur est connecté
       final bool isLoggedIn = await AuthUtils.isLoggedIn();
       if (!isLoggedIn) {
         developer.log(
@@ -65,6 +65,7 @@ class _ProfileViewState extends State<ProfileView> {
 
       setState(() {
         _user = User.fromJson(userData.data);
+        _avatarUrl = _user?.profilePicture.trim() != ""? _user!.profilePicture : "https://coloriagevip.com/wp-content/uploads/2024/08/Coloriage-Chien-27.webp";
         _isLoading = false;
       });
       developer.log('Profil utilisateur récupéré: $_user');
@@ -113,8 +114,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildProfileContent() {
-    final String avatarUrl = _userProfile['profilePicture'] ??
-        'https://via.placeholder.com/150';
+
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -126,7 +126,7 @@ class _ProfileViewState extends State<ProfileView> {
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundImage: NetworkImage(avatarUrl),
+                backgroundImage: NetworkImage(_avatarUrl),
                 backgroundColor: const Color(0xFFE4DAFF),
               ),
               Column(

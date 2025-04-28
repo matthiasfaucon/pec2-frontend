@@ -1,8 +1,15 @@
+import 'dart:io';
+
+import 'package:firstflutterapp/components/confirm_popup.dart';
 import 'package:firstflutterapp/interfaces/user.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
 import 'package:firstflutterapp/view/update_profile/update_profil_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 
 import '../../components/label-and-input/label-and-input-text.dart';
 import '../../main.dart';
@@ -23,11 +30,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
   late TextEditingController firstNameController;
   late TextEditingController lastNameController;
   late TextEditingController bioController;
+  String avatarUrl = "";
   final LabelAndInput _labelAndInput = LabelAndInput();
   final UpdateProfileService _updateProfileService = UpdateProfileService();
   final CheckFormData _checkFormData = CheckFormData();
   final ApiService _apiService = ApiService();
   final ToastService _toastService = ToastService();
+  final ImagePicker _picker = ImagePicker();
   DateTime? birthdayDate;
   String? selectedSexe;
   bool isValidPseudo = true;
@@ -40,7 +49,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
   @override
   void initState() {
     super.initState();
-
+    avatarUrl =
+        widget.user.profilePicture.trim() != ""
+            ? widget.user.profilePicture
+            : "https://coloriagevip.com/wp-content/uploads/2024/08/Coloriage-Chien-27.webp";
     pseudoController = TextEditingController(text: widget.user.userName);
     emailController = TextEditingController(text: widget.user.email);
     firstNameController = TextEditingController(text: widget.user.firstName);
@@ -66,10 +78,12 @@ class _UpdateProfileState extends State<UpdateProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Modification profil")),
-      body:  _isLoading
-          ? const Center(
-          child: CircularProgressIndicator(color: Color(0xFF6C3FFE)))
-          : _buildUpdateProfileContent(),
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFF6C3FFE)),
+              )
+              : _buildUpdateProfileContent(),
     );
   }
 
@@ -77,8 +91,53 @@ class _UpdateProfileState extends State<UpdateProfile> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Modification image Profile"),
+                    content: const Text(""),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text("Télécharger une image"),
+                        onPressed: () async {
+                          Navigator.of(
+                            context,
+                          ).pop(); // On ferme le Dialog avant
+
+                          final XFile? pickedFile = await _picker.pickImage(
+                            source: ImageSource.gallery,
+                          );
+
+                          if (pickedFile != null) {
+                            print('Image sélectionnée : ${pickedFile.path}');
+                            setState(() {
+                              avatarUrl =
+                                  pickedFile.path; // <<< ICI on met à jour
+                            });
+                          } else {
+                            print('Aucune image sélectionnée.');
+                          }
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: CircleAvatar(
+              radius: 40,
+              backgroundImage:
+                  avatarUrl.startsWith('http')
+                      ? NetworkImage(avatarUrl)
+                      : FileImage(File(avatarUrl)) as ImageProvider,
+              backgroundColor: const Color(0xFFE4DAFF),
+            ),
+          ),
           _labelAndInput.buildLabelAndInputText(
             "Pseudo",
             pseudoController,
@@ -117,7 +176,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
             context,
             setState,
             birthdayDate,
-                (newDate) => setState(() => birthdayDate = newDate),
+            (newDate) => setState(() => birthdayDate = newDate),
           ),
           _labelAndInput.buildLabelAndRadioList(
             "Sexe",
@@ -125,7 +184,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
             "Cochez une option",
             ["Homme", "Femme", "Autre"],
             selectedSexe,
-                (option) => setState(() => selectedSexe = option),
+            (option) => setState(() => selectedSexe = option),
           ),
           ElevatedButton(
             onPressed: () {
@@ -165,20 +224,47 @@ class _UpdateProfileState extends State<UpdateProfile> {
         _isLoading = true;
       });
       try {
-        final response = await _apiService.request(
-          method: 'PUT',
+        String? mimeType = lookupMimeType(avatarUrl);
+        var file = await http.MultipartFile.fromPath(
+          'profilePicture',
+          avatarUrl,
+          contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+        );
+
+        final response = await _apiService.uploadMultipart(
           endpoint: '/users/profile',
-          body: {
+          fields: {
             "userName": pseudoController.text,
             "bio": bioController.text,
             "firstName": firstNameController.text,
             "email": widget.user.email,
             "lastName": lastNameController.text,
-            "birthDayDate": birthdayDate?.toUtc().toIso8601String(),
-            "sexe": selectedSexe,
+            "birthDayDate": birthdayDate?.toUtc().toIso8601String() ?? "",
+            "sexe": selectedSexe ?? "",
           },
-          withAuth: true,
+          file: file,
+          method: 'put'
         );
+
+        //
+        // request.files.add(file);
+        // var response = await request.send();
+
+
+        // final response = await _apiService.request(
+        //   method: 'PUT',
+        //   endpoint: '/users/profile',
+        //   body: {
+        //     "userName": pseudoController.text,
+        //     "bio": bioController.text,
+        //     "firstName": firstNameController.text,
+        //     "email": widget.user.email,
+        //     "lastName": lastNameController.text,
+        //     "birthDayDate": birthdayDate?.toUtc().toIso8601String(),
+        //     "sexe": selectedSexe,
+        //   },
+        //   withAuth: true,
+        // );
 
         if (response.success) {
           Navigator.pushAndRemoveUntil(
@@ -186,7 +272,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
             MaterialPageRoute(
               builder: (context) => const HomePage(initialIndex: 3),
             ),
-                (route) => false,
+            (route) => false,
           );
         } else {
           String message = _updateProfileService.getErrorMessage(

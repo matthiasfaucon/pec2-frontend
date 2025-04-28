@@ -100,6 +100,38 @@ class ApiService {
     }
   }
 
+  Future<ApiResponse> uploadMultipart({
+    required String endpoint,
+    required Map<String, String> fields,
+    required http.MultipartFile file,
+    bool withAuth = true,
+    required String method
+  }) async {
+    var uri = Uri.parse('$baseUrl$endpoint');
+
+    var request = http.MultipartRequest(method.toUpperCase(), uri);
+
+    request.fields.addAll(fields);
+    request.files.add(file);
+
+    if (withAuth) {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+    }
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Erreur d\'envoi multipart : $e');
+    }
+  }
+
+
   ApiResponse _handleResponse(http.Response response) {
     try {
       final decoded = response.body.isNotEmpty ? jsonDecode(response.body) : null;

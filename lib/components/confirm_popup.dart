@@ -1,16 +1,17 @@
+import 'package:firstflutterapp/theme.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmPopup extends StatelessWidget {
-  final String headerMessage;
-  final String contentMessage;
+  final String? headerMessage;
+  final String? contentMessage;
 
   const ConfirmPopup({
     super.key,
-    required this.headerMessage,
-    required this.contentMessage,
+    this.headerMessage,
+    this.contentMessage,
   });
 
-  void _showPopup(BuildContext context) {
+  void showPopup(BuildContext context, headerMessage, contentMessage) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -21,7 +22,7 @@ class ConfirmPopup extends StatelessWidget {
             TextButton(
               child: const Text("OK"),
               onPressed: () {
-                Navigator.of(context).pop(); // Ferme la popup
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -32,31 +33,24 @@ class ConfirmPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return IconButton(
-    //   icon: const Icon(Icons.question_mark_outlined),
-    //   onPressed: () {
-    //     _showPopup(context); // Appel de la popup dans onPressed
-    //   },
-    // );
     return IconButton(
       onPressed: () {
-        // Action à exécuter lorsque l'icône est pressée
-        _showPopup(context);
+        showPopup(context, headerMessage, contentMessage);
       },
       icon: Container(
-        padding: EdgeInsets.all(2), // Ajuster l'espace autour de l'icône
+        padding: EdgeInsets.all(2),
         decoration: BoxDecoration(
-          shape: BoxShape.circle, // Forme circulaire
+          shape: BoxShape.circle,
           border: Border.all(
-            color: const Color(0xFF6C3FFE), // Couleur de la bordure (violette)
-            width: 1, // Épaisseur de la bordure
+            color: AppTheme.darkColor,
+            width: 1,
           ),
-          color: Colors.transparent, // Fond transparent
+          color: Colors.transparent,
         ),
         child: Icon(
-          Icons.question_mark_outlined, // L'icône de point d'interrogation
-          color: const Color(0xFF6C3FFE), // Couleur de l'icône (par exemple, violette)
-          size: 12, // Taille de l'icône
+          Icons.question_mark_outlined,
+          color: AppTheme.darkColor,
+          size: 12,
         ),
       ),
     );
