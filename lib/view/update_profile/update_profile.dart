@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:firstflutterapp/components/confirm_popup.dart';
 import 'package:firstflutterapp/interfaces/user.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
@@ -10,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
-
 import '../../components/label-and-input/label-and-input-text.dart';
 import '../../main.dart';
 import '../../utils/check-form-data.dart';
@@ -45,6 +43,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   bool isValidBirthdayDate = true;
   bool isValidSexe = true;
   bool _isLoading = false;
+  bool isChangeImage = false;
 
   @override
   void initState() {
@@ -114,13 +113,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           );
 
                           if (pickedFile != null) {
-                            print('Image sélectionnée : ${pickedFile.path}');
                             setState(() {
-                              avatarUrl =
-                                  pickedFile.path; // <<< ICI on met à jour
+                              avatarUrl = pickedFile.path;
+                              isChangeImage = true;
                             });
-                          } else {
-                            print('Aucune image sélectionnée.');
                           }
                         },
                       ),
@@ -223,48 +219,47 @@ class _UpdateProfileState extends State<UpdateProfile> {
       setState(() {
         _isLoading = true;
       });
+
+      late final ApiResponse response;
       try {
-        String? mimeType = lookupMimeType(avatarUrl);
-        var file = await http.MultipartFile.fromPath(
-          'profilePicture',
-          avatarUrl,
-          contentType: mimeType != null ? MediaType.parse(mimeType) : null,
-        );
+        if (isChangeImage) {
+          String? mimeType = lookupMimeType(avatarUrl);
+          var file = await http.MultipartFile.fromPath(
+            'profilePicture',
+            avatarUrl,
+            contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+          );
 
-        final response = await _apiService.uploadMultipart(
-          endpoint: '/users/profile',
-          fields: {
-            "userName": pseudoController.text,
-            "bio": bioController.text,
-            "firstName": firstNameController.text,
-            "email": widget.user.email,
-            "lastName": lastNameController.text,
-            "birthDayDate": birthdayDate?.toUtc().toIso8601String() ?? "",
-            "sexe": selectedSexe ?? "",
-          },
-          file: file,
-          method: 'put'
-        );
-
-        //
-        // request.files.add(file);
-        // var response = await request.send();
-
-
-        // final response = await _apiService.request(
-        //   method: 'PUT',
-        //   endpoint: '/users/profile',
-        //   body: {
-        //     "userName": pseudoController.text,
-        //     "bio": bioController.text,
-        //     "firstName": firstNameController.text,
-        //     "email": widget.user.email,
-        //     "lastName": lastNameController.text,
-        //     "birthDayDate": birthdayDate?.toUtc().toIso8601String(),
-        //     "sexe": selectedSexe,
-        //   },
-        //   withAuth: true,
-        // );
+          response = await _apiService.uploadMultipart(
+            endpoint: '/users/profile',
+            fields: {
+              "userName": pseudoController.text,
+              "bio": bioController.text,
+              "firstName": firstNameController.text,
+              "email": widget.user.email,
+              "lastName": lastNameController.text,
+              "birthDayDate": birthdayDate?.toUtc().toIso8601String() ?? "",
+              "sexe": selectedSexe ?? "",
+            },
+            file: file,
+            method: 'put',
+          );
+        } else {
+          response = await _apiService.request(
+            method: 'put',
+            endpoint: '/users/profile',
+            body: {
+              "userName": pseudoController.text,
+              "bio": bioController.text,
+              "firstName": firstNameController.text,
+              "email": widget.user.email,
+              "lastName": lastNameController.text,
+              "birthDayDate": birthdayDate?.toUtc().toIso8601String(),
+              "sexe": selectedSexe,
+            },
+            withAuth: true,
+          );
+        }
 
         if (response.success) {
           Navigator.pushAndRemoveUntil(

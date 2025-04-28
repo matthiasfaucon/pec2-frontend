@@ -1,10 +1,10 @@
+import 'dart:developer' as developer;
 import 'package:firstflutterapp/view/register/register_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
-import 'dart:developer' as developer;
 
 class LoginView extends StatefulWidget {
   @override

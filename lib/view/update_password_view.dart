@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../utils/auth_utils.dart';
 import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
-import '../utils/auth_utils.dart';
-import 'dart:developer' as developer;
 
 class UpdatePasswordView extends StatefulWidget {
   const UpdatePasswordView({Key? key}) : super(key: key);

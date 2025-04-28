@@ -1,13 +1,13 @@
+import 'dart:developer' as developer;
 import 'package:firstflutterapp/interfaces/user.dart';
+import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/theme.dart';
+import 'package:firstflutterapp/utils/auth_utils.dart';
+import 'package:firstflutterapp/utils/platform_utils.dart';
+import 'package:firstflutterapp/utils/route_utils.dart';
 import 'package:firstflutterapp/view/setting-user/setting-user.dart';
 import 'package:firstflutterapp/view/update_profile/update_profile.dart';
 import 'package:flutter/material.dart';
-import 'package:firstflutterapp/services/api_service.dart';
-import 'package:firstflutterapp/utils/platform_utils.dart';
-import 'package:firstflutterapp/utils/route_utils.dart';
-import 'package:firstflutterapp/utils/auth_utils.dart';
-import 'dart:developer' as developer;
 import 'update_password_view.dart';
 
 class ProfileView extends StatefulWidget {
@@ -22,8 +22,6 @@ class _ProfileViewState extends State<ProfileView> {
   User? _user;
   bool _isLoading = true;
   String _errorMessage = '';
-  Map<String, dynamic> _userProfile = {};
-  bool _isUpdating = false;
   String _avatarUrl = 'https://via.placeholder.com/150';
 
 

@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show Platform;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as developer;
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PlatformUtils {
   // Détermine l'URL de l'API en fonction de la plateforme

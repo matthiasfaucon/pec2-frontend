@@ -1,18 +1,18 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:firstflutterapp/theme.dart';
-import 'package:firstflutterapp/view/login_view.dart';
-import 'package:firstflutterapp/view/profil_view.dart';
-import 'package:flutter/material.dart';
+import 'package:firstflutterapp/components/bottom-navigation/container.dart';
+import 'package:firstflutterapp/components/categories/categories-list.dart';
 import 'package:firstflutterapp/components/free-feed/container.dart';
 import 'package:firstflutterapp/components/header/container.dart';
 import 'package:firstflutterapp/components/search-bar/search-bar.dart';
-import 'package:firstflutterapp/components/bottom-navigation/container.dart';
-import 'package:firstflutterapp/components/categories/categories-list.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firstflutterapp/services/api_service.dart';
+import 'package:firstflutterapp/theme.dart';
+import 'package:firstflutterapp/utils/auth_utils.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
-import 'package:firstflutterapp/utils/auth_utils.dart';
+import 'package:firstflutterapp/view/login_view.dart';
+import 'package:firstflutterapp/view/profil_view.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 
