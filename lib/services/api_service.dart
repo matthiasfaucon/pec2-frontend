@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/platform_utils.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show Platform;
 
 class ApiResponse<T> {
   final T? data;
@@ -99,6 +96,38 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
+
+  Future<ApiResponse> uploadMultipart({
+    required String endpoint,
+    required Map<String, String> fields,
+    required http.MultipartFile file,
+    bool withAuth = true,
+    required String method
+  }) async {
+    var uri = Uri.parse('$baseUrl$endpoint');
+
+    var request = http.MultipartRequest(method.toUpperCase(), uri);
+
+    request.fields.addAll(fields);
+    request.files.add(file);
+
+    if (withAuth) {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+    }
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Erreur d\'envoi multipart : $e');
+    }
+  }
+
 
   ApiResponse _handleResponse(http.Response response) {
     try {

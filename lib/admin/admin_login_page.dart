@@ -1,11 +1,12 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../services/api_service.dart';
 import '../utils/auth_utils.dart';
 import '../utils/platform_utils.dart';
 import '../utils/route_utils.dart';
-import 'admin_dashboard.dart';
-import 'dart:developer' as developer;
 
 class AdminLoginPage extends StatefulWidget {
   @override
@@ -75,23 +76,18 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
       
-      // Déboguer le contenu du token
       await AuthUtils.debugToken();
 
-      // Vérifie si l'utilisateur a le rôle admin
       final bool isAdmin = await AuthUtils.isAdmin();
       developer.log('L\'utilisateur est-il admin? $isAdmin');
       
       if (isAdmin) {
-        // Redirige vers le tableau de bord admin
         RouteUtils.navigateToAdminDashboard(context);
       } else {
-        // Si l'utilisateur n'est pas un admin, affiche un message d'erreur et le déconnecte
         await AuthUtils.logout();
         
         try {
-          // Récupère et affiche le contenu du token pour le débogage
-          final Map<String, dynamic> decodedToken = token != null ? 
+          final Map<String, dynamic> decodedToken = token != null ?
               await Future.value(AuthUtils.debugToken()).then((_) => {}) :
               {};
           

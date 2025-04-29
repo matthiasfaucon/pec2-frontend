@@ -1,8 +1,13 @@
+import 'package:firstflutterapp/components/confirm_popup.dart';
 import 'package:flutter/material.dart';
 
 class LabelAndInput {
-
-  Widget buildLabel(String text, {String? error}) {
+  Widget buildLabel(
+    String text, {
+    String? error,
+    String? helperTitle,
+    String? helperContent,
+  }) {
     return Row(
       children: [
         Text(text, style: TextStyle(fontWeight: FontWeight.bold)),
@@ -14,6 +19,14 @@ class LabelAndInput {
               style: TextStyle(color: Colors.red, fontSize: 12),
             ),
           ),
+        if (helperTitle != null && helperContent != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: ConfirmPopup(
+              headerMessage: helperTitle,
+              contentMessage: helperContent,
+            ),
+          ),
       ],
     );
   }
@@ -23,10 +36,12 @@ class LabelAndInput {
     String hint,
     bool obscureText,
     bool hasError,
+    int maxLine,
   ) {
     return TextField(
       controller: controller,
       obscureText: obscureText,
+      maxLines: maxLine,
       decoration: InputDecoration(
         hintText: hint,
         border: OutlineInputBorder(
@@ -50,16 +65,19 @@ class LabelAndInput {
     String labelName,
     TextEditingController controller,
     String placeholder, {
-    bool obscureText = false, // valeur par défaut
-    bool hasError = false, // valeur par défaut
-    String messageError = '', // valeur par défaut
+    bool obscureText = false,
+    bool hasError = false,
+    String messageError = '',
+    int maxLine = 1,
+    String? helperTitle,
+    String? helperContent,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildLabel(labelName, error: hasError ? messageError : null),
+        buildLabel(labelName, error: hasError ? messageError : null, helperTitle: helperTitle, helperContent: helperContent),
         SizedBox(height: 8),
-        buildTextField(controller, placeholder, obscureText, hasError),
+        buildTextField(controller, placeholder, obscureText, hasError, maxLine),
         SizedBox(height: 24),
       ],
     );
@@ -115,7 +133,7 @@ class LabelAndInput {
     String messageError,
     list,
     selectedOption,
-      Function(String?) onSexeSelected,
+    Function(String?) onSexeSelected,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

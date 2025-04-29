@@ -2,6 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  static final darkColor = const Color(0xFF6C3FFE);
+  static final ButtonStyle emptyButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    foregroundColor:  darkColor,
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
+  );
+
+  static final ButtonStyle filledButtonStyle  = ElevatedButton.styleFrom(
+    backgroundColor: darkColor,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    foregroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  );
+
+  static final ButtonStyle redButtonStyle  = ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFBF3030),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    foregroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  );
+
+
+
+
   static final lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: const Color(0xFFB39DDB),
@@ -41,20 +75,13 @@ class AppTheme {
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF6C3FFE),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        foregroundColor: Colors.white,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
+      style: filledButtonStyle
     ),
   );
 
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primaryColor: const Color(0xFF6C63FF),
+    primaryColor: darkColor,
     scaffoldBackgroundColor: const Color(0xFF121212),
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF1F1F1F),
@@ -62,7 +89,7 @@ class AppTheme {
       foregroundColor: Colors.white,
     ),
     colorScheme: ColorScheme.dark(
-      primary: const Color(0xFF6C63FF),
+      primary: darkColor,
       secondary: const Color(0xFF9575CD),
     ),
 
@@ -92,14 +119,7 @@ class AppTheme {
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF6C3FFE),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        foregroundColor: Colors.white,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
+      style: filledButtonStyle,
     ),
   );
 }

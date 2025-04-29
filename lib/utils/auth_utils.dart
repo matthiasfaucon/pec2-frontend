@@ -1,7 +1,7 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthUtils {
   // Vérifie si l'utilisateur est connecté

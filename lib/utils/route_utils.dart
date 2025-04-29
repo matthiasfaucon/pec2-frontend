@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../utils/platform_utils.dart';
-import '../admin/admin_login_page.dart';
 import '../admin/admin_dashboard.dart';
+import '../admin/admin_login_page.dart';
 import '../main.dart';
+import '../utils/platform_utils.dart';
 
 class RouteUtils {
   // Routes de l'application
@@ -51,6 +51,12 @@ class RouteUtils {
   
   // Navigation vers la page d'accueil mobile
   static void navigateToMobileHome(BuildContext context) {
-    Navigator.of(context).pushReplacementNamed(mobileHomeRoute);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomePage(),
+      ),
+          (route) => false,
+    );
   }
 } 

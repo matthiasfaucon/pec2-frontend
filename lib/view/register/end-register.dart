@@ -1,3 +1,4 @@
+import 'package:firstflutterapp/theme.dart';
 import 'package:firstflutterapp/view/login_view.dart';
 import 'package:flutter/material.dart';
 
@@ -7,33 +8,46 @@ class EndRegisterView extends StatefulWidget {
 }
 
 class _EndRegisterViewState extends State<EndRegisterView> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inscription terminée'),
-        centerTitle: true,
-      ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Merci de vous être inscrit à",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20),
+                ),
+                Text(
+                  " OnlyFlick",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkColor,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 24),
             Image.asset(
               'assets/images/fin-register.png',
-              width: 200,
-              height: 200,
+              width: 400,
+              height: 400,
             ),
-            const SizedBox(height: 24),
-            const Text(
-              "Merci de vous être inscrit à OnlyFlick\n"
-                  "Vous devez confirmer votre email avant de pouvoir vous connecter.\n"
-                  "Si vous ne le trouvez pas, regardez dans vos spams.",
+            SizedBox(height: 32),
+            Text(
+              "Vous devez confirmer votre email avant de pouvoir vous connecter.\n \n Si vous ne le trouvez pas, regardez dans vos spams.",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushReplacement(
@@ -48,7 +62,7 @@ class _EndRegisterViewState extends State<EndRegisterView> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 "Se connecter",
                 style: TextStyle(
                   fontSize: 16,

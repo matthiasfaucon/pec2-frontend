@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../services/api_service.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import '../../services/api_service.dart';
 
 class _UserStatsResponse {
   final String period;

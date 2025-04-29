@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import '../../utils/auth_utils.dart';
-import '../../services/api_service.dart';
-import '../../utils/date_formatter.dart';
 import 'dart:developer' as developer;
+import 'package:flutter/material.dart';
+import '../../services/api_service.dart';
+import '../../utils/auth_utils.dart';
+import '../../utils/date_formatter.dart';
 
 class UsersManagement extends StatefulWidget {
   const UsersManagement({Key? key}) : super(key: key);
@@ -83,14 +83,14 @@ class _UsersManagementState extends State<UsersManagement> {
                               leading: CircleAvatar(
                                 backgroundColor: Colors.blue.shade100,
                                 child: Text(
-                                  user['username'] != null && (user['username'] as String).isNotEmpty 
-                                      ? (user['username'] as String)[0].toUpperCase() 
+                                  user['userName'] != null && (user['userName'] as String).isNotEmpty
+                                      ? (user['userName'] as String)[0].toUpperCase()
                                       : 'U',
                                   style: TextStyle(color: Colors.blue.shade800),
                                 ),
                               ),
                               title: Text(
-                                user['username'] as String? ?? 'Utilisateur inconnu',
+                                user['userName'] as String? ?? 'Utilisateur inconnu',
                                 style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               subtitle: Text(user['email'] as String? ?? 'Email non disponible'),

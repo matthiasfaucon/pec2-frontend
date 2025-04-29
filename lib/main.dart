@@ -1,18 +1,18 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:firstflutterapp/theme.dart';
-import 'package:firstflutterapp/view/login_view.dart';
-import 'package:firstflutterapp/view/profil_view.dart';
-import 'package:flutter/material.dart';
+import 'package:firstflutterapp/components/bottom-navigation/container.dart';
+import 'package:firstflutterapp/components/categories/categories-list.dart';
 import 'package:firstflutterapp/components/free-feed/container.dart';
 import 'package:firstflutterapp/components/header/container.dart';
 import 'package:firstflutterapp/components/search-bar/search-bar.dart';
-import 'package:firstflutterapp/components/bottom-navigation/container.dart';
-import 'package:firstflutterapp/components/categories/categories-list.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firstflutterapp/services/api_service.dart';
+import 'package:firstflutterapp/theme.dart';
+import 'package:firstflutterapp/utils/auth_utils.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
-import 'package:firstflutterapp/utils/auth_utils.dart';
+import 'package:firstflutterapp/view/login_view.dart';
+import 'package:firstflutterapp/view/profil_view.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 
@@ -57,7 +57,8 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int initialIndex;
+  const HomePage({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -74,6 +75,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkLoginStatus();
+    selectedIndex = widget.initialIndex;
     // _deepLinkService.listenDeepLinks(context);
     if (PlatformUtils.isWebPlatform()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -97,13 +99,6 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
     }
-  }
-
-  Future<void> _logout() async {
-    await AuthUtils.logout();
-    setState(() {
-      isConnected = false;
-    });
   }
 
   @override
@@ -132,16 +127,6 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text("Pet Shop"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-            tooltip: "Déconnexion",
-          ),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor:
             Theme.of(context).bottomNavigationBarTheme.backgroundColor,

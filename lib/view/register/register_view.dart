@@ -46,114 +46,129 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Inscription")),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: Text(
-                          "Bienvenue sur \nOnlyFlick",
-                          textAlign: TextAlign.center,
+      body:
+      _isLoading
+          ? const Center(
+        child: CircularProgressIndicator(color: Color(0xFF6C3FFE)),
+      )
+          : _buildRegisterContent(),
+    );
+  }
+
+  Widget _buildRegisterContent(){
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        "Bienvenue sur \nOnlyFlick",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    if (step == 2)
+                      GestureDetector(
+                        onTap: () => setState(() => step = 1),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.arrow_back,
+                              size: 18,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(width: 4),
+                            Text("Retour"),
+                          ],
+                        ),
+                      ),
+                    SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          step == 1
+                              ? "Informations générales"
+                              : "Informations personnelles",
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      SizedBox(height: 30),
-                      if (step == 2)
-                        GestureDetector(
-                          onTap: () => setState(() => step = 1),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.arrow_back,
-                                size: 18,
-                                color: Colors.blue,
-                              ),
-                              SizedBox(width: 4),
-                              Text("Retour"),
-                            ],
+                        Text(
+                          "Étape \n ${step}/2",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            step == 1
-                                ? "Informations générales"
-                                : "Informations personnelles",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "Étape \n ${step}/2",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      if (step == 1) ..._buildStep1(),
-                      if (step == 2) ..._buildStep2(),
-                    ],
-                  ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    if (step == 1) ..._buildStep1(),
+                    if (step == 2) ..._buildStep2(),
+                  ],
                 ),
               ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (step == 1) {
-                    final bool formIsValid = _registerService.checkStep1IsOk(
-                      emailController.text,
-                      passwordController.text,
-                      confirmPasswordController.text,
-                      pseudoController.text,
-                    );
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                if (step == 1) {
+                  final bool formIsValid = _registerService.checkStep1IsOk(
+                    emailController.text,
+                    passwordController.text,
+                    confirmPasswordController.text,
+                    pseudoController.text,
+                  );
 
-                    if (formIsValid) {
-                      setState(() {
-                        step = 2;
-                        isValidEmail = true;
-                        isValidPassword = true;
-                        isValidPseudo = true;
-                      });
-                    } else {
-                      setState(() {
-                        isValidEmail = _checkFormData.validEmail(
-                          emailController.text,
-                        );
-                        isValidPassword = _registerService.validPassword(
-                          passwordController.text,
-                          confirmPasswordController.text,
-                        );
-
-                        isValidPseudo = _registerService.inputIsNotEmptyOrNull(
-                          pseudoController.text,
-                        );
-                      });
-                    }
+                  if (formIsValid) {
+                    setState(() {
+                      step = 2;
+                      isValidEmail = true;
+                      isValidPassword = true;
+                      isValidPseudo = true;
+                    });
                   } else {
-                    _submitForm();
+                    setState(() {
+                      isValidEmail = _checkFormData.validEmail(
+                        emailController.text,
+                      );
+                      isValidPassword =
+                          _registerService.isSamePassword(
+                            passwordController.text,
+                            confirmPasswordController.text,
+                          ) &&
+                              _registerService.isValidPassword(
+                                passwordController.text,
+                              );
+
+                      isValidPseudo = _checkFormData.inputIsNotEmptyOrNull(
+                        pseudoController.text,
+                      );
+                    });
                   }
-                },
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)) ,
-                child: Text(step == 1 ? "Suivant" : "Créer un compte"),
+                } else {
+                  _submitForm();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
               ),
-            ],
-          ),
+              child: Text(step == 1 ? "Suivant" : "Créer un compte"),
+            ),
+          ],
         ),
       ),
     );
@@ -185,10 +200,13 @@ class _RegisterViewState extends State<RegisterView> {
         "Entrez votre mot de passe",
         obscureText: true,
         hasError: !isValidPassword,
-        messageError:
-            _registerService.inputIsNotEmptyOrNull(passwordController.text)
-                ? "Le mot de passe doit être rempli"
-                : "*Les mots ne sont pas identiques",
+        messageError: _registerService.getMessageErrorPassword(
+          passwordController.text,
+          confirmPasswordController.text,
+        ),
+        helperContent:
+            "Le mot de passe doit contenir les caractères suivant: \n - 1 majuscule \n - 1 chiffre \n - Avoir une longueure minimale de 6 caractères",
+        helperTitle: "Format de mot de passe",
       ),
       _labelAndInput.buildLabelAndInputText(
         "Retaper le mot de passe",
@@ -215,7 +233,7 @@ class _RegisterViewState extends State<RegisterView> {
         "Entrez votre nom de famille",
         obscureText: false,
         hasError: !isValidLastName,
-        messageError: "Le prénom est vide",
+        messageError: "Le nom est vide",
       ),
       _labelAndInput.buildLabelAndCalendar(
         "Date d'anniversaire",
@@ -250,13 +268,14 @@ class _RegisterViewState extends State<RegisterView> {
         isValidSexe = true;
         isValidBirthdayDate = true;
         isValidFirstName = true;
-        isValidBirthdayDate = true;
+        isValidLastName = true;
         _isLoading = true;
         _errorMessage = '';
+        _isLoading = true;
       });
 
       try {
-       final response = await _apiService.request(
+        final response = await _apiService.request(
           method: 'POST',
           endpoint: '/register',
           body: {
@@ -265,38 +284,43 @@ class _RegisterViewState extends State<RegisterView> {
             "userName": pseudoController.text,
             "firstName": firstNameController.text,
             "lastName": lastNameController.text,
-            "birthDayDate":  birthdayDate?.toUtc().toIso8601String(),
+            "birthDayDate": birthdayDate?.toUtc().toIso8601String(),
             "sexe": _registerService.getSexe(selectedSexe),
           },
           withAuth: false,
         );
 
-       if(response.success){
-         Navigator.pushReplacement(
-           context,
-           MaterialPageRoute(builder: (context) => EndRegisterView()),
-         );
-       }else{
-         String message =  response.statusCode == 409? "L'email déjà utilisé":"";
-         _toastService.showToast(context, "Erreur lors de la création \n du compte \n$message");
-       }
-
-      }catch (e) {
-        _toastService.showToast(context, "Erreur lors de la création \n du compte");
+        if (response.success) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => EndRegisterView()),
+          );
+        } else {
+          String message =
+              response.statusCode == 409 ? "L'email déjà utilisé" : "";
+          _toastService.showToast(
+            context,
+            "Erreur lors de la création \n du compte \n$message",
+          );
+        }
+      } catch (e) {
+        _toastService.showToast(
+          context,
+          "Erreur lors de la création \n du compte",
+        );
       } finally {
         setState(() {
           _isLoading = false;
         });
       }
-
     } else {
       setState(() {
-        isValidSexe = _registerService.inputIsNotEmptyOrNull(selectedSexe);
-        isValidBirthdayDate = _registerService.dateIsNotEmpty(birthdayDate);
-        isValidFirstName = _registerService.inputIsNotEmptyOrNull(
+        isValidSexe = _checkFormData.inputIsNotEmptyOrNull(selectedSexe);
+        isValidBirthdayDate = _checkFormData.dateIsNotEmpty(birthdayDate);
+        isValidFirstName = _checkFormData.inputIsNotEmptyOrNull(
           firstNameController.text,
         );
-        isValidBirthdayDate = _registerService.inputIsNotEmptyOrNull(
+        isValidLastName = _checkFormData.inputIsNotEmptyOrNull(
           lastNameController.text,
         );
       });
