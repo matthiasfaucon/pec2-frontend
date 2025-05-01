@@ -10,11 +10,11 @@ import 'package:firstflutterapp/utils/auth_utils.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
 import 'package:firstflutterapp/view/login_view.dart';
+import 'package:firstflutterapp/view/post-creation/upload-photo.dart';
 import 'package:firstflutterapp/view/profil_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -113,10 +113,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    final bottomNavigationItems = ContainerBottomNavigation().buildItems(
-      context,
-    );
-
     if (isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -127,31 +123,45 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor:
-            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor:
-            Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
-        currentIndex: selectedIndex,
-        onTap: (index) => setState(() => selectedIndex = index),
-        items: bottomNavigationItems,
+      bottomNavigationBar: ContainerBottomNavigation(
+        selectedIndex: selectedIndex,
+        onItemSelected: (index) {
+          setState(() => selectedIndex = index);
+          _navigateToPage(index);
+        },
       ),
-      body: _getPageForIndex(selectedIndex),
+      body: _buildHomePage(), // Default view
     );
   }
 
-  Widget _getPageForIndex(int index) {
+  void _navigateToPage(int index) {
+    Widget page;
     switch (index) {
       case 0:
-        return _buildHomePage();
+        page = _buildHomePage();
+        break;
       case 1:
-        return Center(child: Text("Page Favorites en construction"));
+        page = Center(child: Text("Page Recherche en construction"));
+        break;
       case 2:
-        return Center(child: Text("Page Catalogue en construction"));
+        page = const UploadPhotoView();
+        break;
       case 3:
-        return const ProfileView();
+        page = Center(child: Text("Page Tendances en construction"));
+        break;
+      case 4:
+        page = const ProfileView();
+        break;
       default:
-        return _buildHomePage();
+        page = _buildHomePage();
+    }
+
+    if (index != 0) {
+      // Don't push home page if already there
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Scaffold(body: page)),
+      );
     }
   }
 

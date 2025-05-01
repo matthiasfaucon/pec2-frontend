@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:firstflutterapp/interfaces/category.dart';
+import 'package:firstflutterapp/utils/platform_utils.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/platform_utils.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class ApiResponse<T> {
   final T? data;
@@ -25,6 +30,11 @@ class ApiService {
   ApiService._internal();
   
   String get baseUrl => PlatformUtils.getApiBaseUrl();
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
   
   Future<Map<String, String>> _getHeaders({bool withAuth = true}) async {
     Map<String, String> headers = {
@@ -41,7 +51,88 @@ class ApiService {
     
     return headers;
   }
-  
+
+  // Récupérer la liste des catégories
+  Future<List<Category>> getCategories() async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/categories'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Category.fromJson(json)).toList();
+      } else {
+        throw Exception(
+          'Erreur lors du chargement des catégories: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Erreur réseau: $e');
+    }
+  }
+
+  // Publier un nouveau post
+  Future<Map<String, dynamic>> createPost({
+    required File imageFile,
+    required String name,
+    required String description,
+    List<String>? categoryIds, // Ajout du support pour plusieurs catégories
+    required bool isFree,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        throw Exception('Non autorisé: Vous devez être connecté');
+      }
+
+      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/posts'));
+
+      request.headers['Authorization'] = 'Bearer $token';
+
+      final mimeType = lookupMimeType(imageFile.path);
+      if (mimeType == null) {
+        throw Exception('Type de fichier non supporté');
+      }
+
+      final mimeTypeData = mimeType.split('/');
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'picture',
+          imageFile.path,
+          contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+        ),
+      );
+
+      request.fields['name'] = name;
+      request.fields['description'] = description;
+      
+      if (categoryIds != null && categoryIds.isNotEmpty) {
+        request.fields['categories'] = json.encode(categoryIds);
+      } else {
+        request.fields['categories'] = '[]'; // Valeur par défaut si aucune catégorie n'est sélectionnée
+      }
+      
+      request.fields['isFree'] = isFree.toString();
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(
+          'Erreur lors de la création du post: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Erreur réseau: $e');
+    }
+  }
+
   Future<dynamic> request({
     required String method,
     required String endpoint,
