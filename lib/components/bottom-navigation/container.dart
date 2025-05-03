@@ -69,23 +69,32 @@ class ContainerBottomNavigation extends StatelessWidget {
   }
 
   Widget _buildAddButton(BuildContext context) {
-    return InkWell(
-      onTap: () => onItemSelected(2),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Theme.of(context).primaryColor,
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).primaryColor.withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+    return SizedBox(
+      width: 55,
+      height: 55,
+      child: Center(
+        child: Transform.translate(
+          offset: const Offset(0, -15), // Move the button upward to protrude
+          child: InkWell(
+            onTap: () => onItemSelected(2),
+            child: Container(
+              width: 55,
+              height: 55,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).primaryColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).primaryColor.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.add, color: Colors.white, size: 30),
             ),
-          ],
+          ),
         ),
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
     );
   }

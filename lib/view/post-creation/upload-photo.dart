@@ -1,27 +1,32 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firstflutterapp/utils/platform_utils.dart';
-import 'package:firstflutterapp/view/post-creation/post-details.dart';
 import 'package:camera/camera.dart';
+import 'package:firstflutterapp/view/post-creation/post-details.dart';
 
 class UploadPhotoView extends StatefulWidget {
-  const UploadPhotoView({Key? key}) : super(key: key);
+  const UploadPhotoView({super.key});
 
   @override
-  _UploadPhotoViewState createState() => _UploadPhotoViewState();
+  UploadPhotoViewState createState() => UploadPhotoViewState();
 }
 
-class _UploadPhotoViewState extends State<UploadPhotoView> {
-  File? _image;
+class UploadPhotoViewState extends State<UploadPhotoView> {
   final ImagePicker _picker = ImagePicker();
-  
   CameraController? _cameraController;
   List<CameraDescription> _cameras = [];
   bool _isCameraInitialized = false;
-  bool _isCameraPermissionGranted = false;
   int _selectedCameraIndex = 0;
   bool _isCapturing = false;
+  File? _image;
+
+  // Instagram-style constants
+  double _minAvailableZoom = 1.0;
+  double _maxAvailableZoom = 1.0;
+  double _currentZoomLevel = 1.0;
+  double _minAvailableExposureOffset = 0.0;
+  double _maxAvailableExposureOffset = 0.0;
+  double _currentExposureOffset = 0.0;
 
   @override
   void initState() {
@@ -38,12 +43,12 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
   Future<void> _initializeCamera() async {
     try {
       _cameras = await availableCameras();
-      
       if (_cameras.isNotEmpty) {
-        _selectedCameraIndex = 0; // Par défaut, caméra arrière
+        _selectedCameraIndex = 0;
         await _setupCamera(_selectedCameraIndex);
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur lors de l\'initialisation de la caméra: $e')),
       );
@@ -61,14 +66,27 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
       _cameras[index],
       ResolutionPreset.high,
       enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
     try {
       await _cameraController!.initialize();
+      
+      // Récupérer les limites de zoom
+      _maxAvailableZoom = await _cameraController!.getMaxZoomLevel();
+      _minAvailableZoom = await _cameraController!.getMinZoomLevel();
+      
+      // Récupérer les limites d'exposition
+      _minAvailableExposureOffset = await _cameraController!.getMinExposureOffset();
+      _maxAvailableExposureOffset = await _cameraController!.getMaxExposureOffset();
+      _currentExposureOffset = 0.0;
+            
+      if (!mounted) return;
       setState(() {
         _isCameraInitialized = true;
       });
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur lors de l\'initialisation de la caméra: $e')),
       );
@@ -77,19 +95,19 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
 
   void _switchCamera() async {
     if (_cameras.length <= 1) return;
-    
+
     _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras.length;
     await _setupCamera(_selectedCameraIndex);
   }
 
   Future<void> _takePhoto() async {
     if (!_isCameraInitialized || _cameraController == null || _isCapturing) return;
-    
+
     try {
       setState(() {
         _isCapturing = true;
       });
-      
+
       final XFile photo = await _cameraController!.takePicture();
       setState(() {
         _image = File(photo.path);
@@ -99,6 +117,7 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
       setState(() {
         _isCapturing = false;
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur lors de la prise de photo: $e')),
       );
@@ -114,9 +133,34 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur lors de la sélection de l\'image: $e')),
       );
+    }
+  }
+
+  // Contrôle du zoom
+  Future<void> _setZoomLevel(double value) async {
+    try {
+      await _cameraController?.setZoomLevel(value);
+      setState(() {
+        _currentZoomLevel = value;
+      });
+    } catch (e) {
+      // Ignorer l'erreur - peut se produire si le zoom n'est pas pris en charge
+    }
+  }
+
+  // Contrôle de l'exposition
+  Future<void> _setExposureOffset(double value) async {
+    try {
+      await _cameraController?.setExposureOffset(value);
+      setState(() {
+        _currentExposureOffset = value;
+      });
+    } catch (e) {
+      // Ignorer l'erreur - peut se produire si l'ajustement d'exposition n'est pas pris en charge
     }
   }
 
@@ -138,7 +182,7 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _image != null 
+      body: _image != null
           ? _buildImagePreview()
           : _buildCameraView(),
     );
@@ -153,57 +197,164 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
 
     return Stack(
       children: [
-        // Vue de la caméra en plein écran
-        SizedBox(
+        // Fond noir pour un aspect Instagram
+        Container(
+          color: Colors.black,
           width: double.infinity,
           height: double.infinity,
-          child: CameraPreview(_cameraController!),
         ),
         
-        // Boutons d'interface caméra
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            color: Colors.black.withOpacity(0.5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Bouton Galerie
-                FloatingActionButton(
-                  heroTag: "galleryBtn",
-                  onPressed: _pickImage,
-                  backgroundColor: Colors.white,
-                  mini: true,
-                  child: const Icon(Icons.photo_library, color: Colors.black),
-                ),
-                
-                // Bouton pour prendre une photo
-                FloatingActionButton(
-                  heroTag: "cameraBtn",
-                  onPressed: _isCapturing ? null : _takePhoto,
-                  backgroundColor: Colors.white,
-                  child: _isCapturing 
-                    ? const CircularProgressIndicator(strokeWidth: 2)
-                    : const Icon(Icons.camera_alt, color: Colors.black),
-                ),
-                
-                // Bouton pour retourner la caméra
-                FloatingActionButton(
-                  heroTag: "switchBtn",
-                  onPressed: _cameras.length <= 1 ? null : _switchCamera,
-                  backgroundColor: Colors.white,
-                  mini: true,
-                  child: const Icon(Icons.flip_camera_ios, color: Colors.black),
-                ),
-              ],
+        // Aperçu de la caméra en plein écran
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: CameraPreview(_cameraController!),
             ),
           ),
         ),
         
-        // Bouton pour fermer
+        // Contrôle du zoom
+        Positioned(
+          top: 60,
+          right: 20,
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    const Icon(Icons.zoom_in, color: Colors.white),
+                    Container(
+                      height: 150,
+                      width: 30,
+                      child: RotatedBox(
+                        quarterTurns: 3,
+                        child: Slider(
+                          value: _currentZoomLevel,
+                          min: _minAvailableZoom,
+                          max: _maxAvailableZoom,
+                          activeColor: Colors.white,
+                          inactiveColor: Colors.white30,
+                          onChanged: (value) {
+                            _setZoomLevel(value);
+                          },
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.zoom_out, color: Colors.white),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    const Icon(Icons.brightness_6, color: Colors.white),
+                    Container(
+                      height: 150,
+                      width: 30,
+                      child: RotatedBox(
+                        quarterTurns: 3,
+                        child: Slider(
+                          value: _currentExposureOffset,
+                          min: _minAvailableExposureOffset,
+                          max: _maxAvailableExposureOffset,
+                          activeColor: Colors.white,
+                          inactiveColor: Colors.white30,
+                          onChanged: (value) {
+                            _setExposureOffset(value);
+                          },
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.brightness_4, color: Colors.white),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Contrôles en bas (bouton photo, etc.)
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Column(
+            children: [
+              // Boutons de contrôle
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                color: Colors.black,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FloatingActionButton(
+                      heroTag: "galleryBtn",
+                      onPressed: _pickImage,
+                      backgroundColor: Colors.grey.shade800,
+                      mini: true,
+                      child: const Icon(Icons.photo_library, color: Colors.white),
+                    ),
+                    GestureDetector(
+                      onTap: _isCapturing ? null : _takePhoto,
+                      child: Container(
+                        height: 70,
+                        width: 70,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          color: _isCapturing ? Colors.grey : Colors.transparent,
+                        ),
+                        child: Center(
+                          child: Container(
+                            height: 60,
+                            width: 60,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: _isCapturing
+                                ? const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.black,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Container(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    FloatingActionButton(
+                      heroTag: "switchBtn",
+                      onPressed: _cameras.length <= 1 ? null : _switchCamera,
+                      backgroundColor: Colors.grey.shade800,
+                      mini: true,
+                      child: const Icon(Icons.flip_camera_ios, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Bouton de fermeture
         Positioned(
           top: 40,
           left: 20,
@@ -213,13 +364,12 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               } else {
-                // Provide feedback if we can't pop
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Cannot go back from this screen')),
+                  const SnackBar(content: Text('Impossible de revenir en arrière depuis cet écran')),
                 );
               }
             },
-            backgroundColor: Colors.black.withOpacity(0.5),
+            backgroundColor: Colors.black.withAlpha(128),
             mini: true,
             child: const Icon(Icons.close, color: Colors.white),
           ),
@@ -231,35 +381,43 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
   Widget _buildImagePreview() {
     return Stack(
       children: [
-        // Aperçu de l'image en plein écran
+        // Fond noir
         Container(
           width: double.infinity,
           height: double.infinity,
           color: Colors.black,
+        ),
+        
+        // Image avec filtre en plein écran
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           child: Image.file(
             _image!,
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
           ),
         ),
         
-        // Bouton pour utiliser cette image
+        // Bouton "Utiliser cette image" avec style Instagram
         Positioned(
           bottom: 30,
           left: 30,
           right: 30,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
             ),
             onPressed: _continueToNextStep,
-            child: const Text('Utiliser cette image', style: TextStyle(fontSize: 16)),
+            child: const Text('Suivant', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ),
         
-        // Bouton pour réessayer
+        // Bouton de retour
         Positioned(
           top: 40,
           left: 20,
@@ -276,37 +434,6 @@ class _UploadPhotoViewState extends State<UploadPhotoView> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildIconButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
-            ),
-            child: Icon(icon, color: Theme.of(context).primaryColor, size: 28),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).textTheme.bodyMedium?.color,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
