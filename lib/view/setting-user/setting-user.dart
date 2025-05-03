@@ -1,5 +1,6 @@
 import 'package:firstflutterapp/theme.dart';
 import 'package:firstflutterapp/view/update_password_view.dart';
+import 'package:firstflutterapp/view/support.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/auth_utils.dart' show AuthUtils;
@@ -31,10 +32,10 @@ class SettingUser extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => UpdatePasswordView()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SupportPage()),
+                );
               },
               style: AppTheme.emptyButtonStyle.merge(ElevatedButton.styleFrom(
                 fixedSize: const Size(300, 50)
