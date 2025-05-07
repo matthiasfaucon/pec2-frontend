@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'package:firstflutterapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:firstflutterapp/interfaces/category.dart';
-import 'package:firstflutterapp/services/api_service.dart';
+import 'package:firstflutterapp/view/post-creation/post-creation-service.dart';
 
 class PostDetailsView extends StatefulWidget {
   final File imageFile;
@@ -19,7 +20,7 @@ class _PostDetailsViewState extends State<PostDetailsView> {
   List<Category> _selectedCategories = [];
   bool _isFree = false;
   bool _isLoading = false;
-  final ApiService _apiService = ApiService();
+  final PostCreationService _postCreationService = PostCreationService();
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _PostDetailsViewState extends State<PostDetailsView> {
     });
 
     try {
-      final categories = await _apiService.getCategories();
+      final categories = await _postCreationService.loadCategories();
       setState(() {
         _categories = categories;
         _isLoading = false;
@@ -49,33 +50,28 @@ class _PostDetailsViewState extends State<PostDetailsView> {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors du chargement des catégories: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors du chargement des catégories: $e'),
+          ),
+        );
+      }
     }
-}
+  }
 
   Future<void> _publishPost() async {
-    if (_selectedCategories.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez sélectionner au moins une catégorie'),
-        ),
-      );
-      return;
-    }
+    // Validation des données du post
+    final error = _postCreationService.validatePostData(
+      selectedCategories: _selectedCategories,
+      name: _nameController.text,
+      description: _descriptionController.text,
+    );
 
-    if (_nameController.text.trim().isEmpty) {
+    if (error != null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Veuillez ajouter un nom')));
-      return;
-    }
-
-    if (_descriptionController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez ajouter une description')),
-      );
+      ).showSnackBar(SnackBar(content: Text(error)));
       return;
     }
 
@@ -84,33 +80,35 @@ class _PostDetailsViewState extends State<PostDetailsView> {
     });
 
     try {
-      // Extraction des IDs des catégories sélectionnées
-      List<String> categoryIds =
-          _selectedCategories.map((category) => category.id).toList();
-
-      // Utilisation d'une compatibilité arrière
-      final categoryId = categoryIds.isNotEmpty ? categoryIds.first : "";
-
-      await _apiService.createPost(
+      await _postCreationService.publishPost(
         imageFile: widget.imageFile,
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim(),
-        categoryIds: categoryIds, // Nouveau paramètre multi-catégories
+        name: _nameController.text,
+        description: _descriptionController.text,
+        selectedCategories: _selectedCategories,
         isFree: _isFree,
       );
 
-      Navigator.of(context).popUntil((route) => route.isFirst);
-
+      // Message de succès
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Publication réussie')));
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomePage(initialIndex: 4),
+        ),
+        (route) => false,
+      );
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de la publication: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la publication: $e')),
+        );
+      }
     }
   }
 

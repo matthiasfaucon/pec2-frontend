@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
 import 'package:firstflutterapp/view/post-creation/post-details.dart';
+import 'package:firstflutterapp/view/post-creation/post-creation-service.dart';
 
 class UploadPhotoView extends StatefulWidget {
   const UploadPhotoView({super.key});
@@ -19,6 +20,7 @@ class UploadPhotoViewState extends State<UploadPhotoView> {
   int _selectedCameraIndex = 0;
   bool _isCapturing = false;
   File? _image;
+  final PostCreationService _postCreationService = PostCreationService();
 
   // Instagram-style constants
   double _minAvailableZoom = 1.0;
@@ -42,7 +44,7 @@ class UploadPhotoViewState extends State<UploadPhotoView> {
 
   Future<void> _initializeCamera() async {
     try {
-      _cameras = await availableCameras();
+      _cameras = await _postCreationService.getAvailableCameras();
       if (_cameras.isNotEmpty) {
         _selectedCameraIndex = 0;
         await _setupCamera(_selectedCameraIndex);
@@ -110,7 +112,7 @@ class UploadPhotoViewState extends State<UploadPhotoView> {
 
       final XFile photo = await _cameraController!.takePicture();
       setState(() {
-        _image = File(photo.path);
+        _image = _postCreationService.convertXFileToFile(photo);
         _isCapturing = false;
       });
     } catch (e) {
@@ -129,7 +131,7 @@ class UploadPhotoViewState extends State<UploadPhotoView> {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         setState(() {
-          _image = File(image.path);
+          _image = _postCreationService.convertXFileToFile(image);
         });
       }
     } catch (e) {

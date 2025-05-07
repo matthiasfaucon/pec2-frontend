@@ -125,43 +125,26 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: ContainerBottomNavigation(
         selectedIndex: selectedIndex,
-        onItemSelected: (index) {
-          setState(() => selectedIndex = index);
-          _navigateToPage(index);
-        },
+        onItemSelected: (index) => setState(() => selectedIndex = index),
       ),
-      body: _buildHomePage(), // Default view
+      body: _getPageForIndex(selectedIndex),
     );
   }
 
-  void _navigateToPage(int index) {
-    Widget page;
+  Widget _getPageForIndex(int index) {
     switch (index) {
       case 0:
-        page = _buildHomePage();
-        break;
+        return _buildHomePage();
       case 1:
-        page = Center(child: Text("Page Recherche en construction"));
-        break;
+        return Center(child: Text("Page Recherche en construction"));
       case 2:
-        page = const UploadPhotoView();
-        break;
+        return const UploadPhotoView();
       case 3:
-        page = Center(child: Text("Page Tendances en construction"));
-        break;
+        return Center(child: Text("Page Tendances en construction"));
       case 4:
-        page = const ProfileView();
-        break;
+        return const ProfileView();
       default:
-        page = _buildHomePage();
-    }
-
-    if (index != 0) {
-      // Don't push home page if already there
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Scaffold(body: page)),
-      );
+        return _buildHomePage();
     }
   }
 
