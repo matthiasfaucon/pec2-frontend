@@ -10,11 +10,11 @@ import 'package:firstflutterapp/utils/auth_utils.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
 import 'package:firstflutterapp/view/login_view.dart';
+import 'package:firstflutterapp/view/post-creation/upload-photo.dart';
 import 'package:firstflutterapp/view/profil_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -113,10 +113,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    final bottomNavigationItems = ContainerBottomNavigation().buildItems(
-      context,
-    );
-
     if (isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -127,14 +123,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor:
-            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor:
-            Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
-        currentIndex: selectedIndex,
-        onTap: (index) => setState(() => selectedIndex = index),
-        items: bottomNavigationItems,
+      bottomNavigationBar: ContainerBottomNavigation(
+        selectedIndex: selectedIndex,
+        onItemSelected: (index) => setState(() => selectedIndex = index),
       ),
       body: _getPageForIndex(selectedIndex),
     );
@@ -145,10 +136,12 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return _buildHomePage();
       case 1:
-        return Center(child: Text("Page Favorites en construction"));
+        return Center(child: Text("Page Recherche en construction"));
       case 2:
-        return Center(child: Text("Page Catalogue en construction"));
+        return const UploadPhotoView();
       case 3:
+        return Center(child: Text("Page Tendances en construction"));
+      case 4:
         return const ProfileView();
       default:
         return _buildHomePage();

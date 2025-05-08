@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/platform_utils.dart';
 
 class ApiResponse<T> {
   final T? data;
@@ -25,6 +26,7 @@ class ApiService {
   ApiService._internal();
   
   String get baseUrl => PlatformUtils.getApiBaseUrl();
+
   
   Future<Map<String, String>> _getHeaders({bool withAuth = true}) async {
     Map<String, String> headers = {
@@ -41,7 +43,7 @@ class ApiService {
     
     return headers;
   }
-  
+
   Future<dynamic> request({
     required String method,
     required String endpoint,
@@ -100,16 +102,28 @@ class ApiService {
   Future<ApiResponse> uploadMultipart({
     required String endpoint,
     required Map<String, String> fields,
-    required http.MultipartFile file,
+    required Object file,
     bool withAuth = true,
     required String method
   }) async {
+    late http.MultipartFile multipartFile;
     var uri = Uri.parse('$baseUrl$endpoint');
 
     var request = http.MultipartRequest(method.toUpperCase(), uri);
 
     request.fields.addAll(fields);
-    request.files.add(file);
+
+
+    if (file is http.MultipartFile) {
+      multipartFile = file;
+    } else if (file is File) {
+      final fileName = file.path.split('/').last;
+      multipartFile = await http.MultipartFile.fromPath('file', file.path, filename: fileName);
+    } else {
+      throw ArgumentError('file must be a File or http.MultipartFile');
+    }
+
+    request.files.add(multipartFile);
 
     if (withAuth) {
       final prefs = await SharedPreferences.getInstance();

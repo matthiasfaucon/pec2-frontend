@@ -265,7 +265,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const HomePage(initialIndex: 3),
+              builder: (context) => const HomePage(initialIndex: 4),
             ),
             (route) => false,
           );
