@@ -5,6 +5,7 @@ import 'package:firstflutterapp/theme.dart';
 import 'package:firstflutterapp/utils/auth_utils.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:firstflutterapp/utils/route_utils.dart';
+import 'package:firstflutterapp/view/creator/creator-view.dart';
 import 'package:firstflutterapp/view/setting-user/setting-user.dart';
 import 'package:firstflutterapp/view/update_profile/update_profile.dart';
 import 'package:flutter/material.dart';
@@ -208,7 +209,7 @@ class _ProfileViewState extends State<ProfileView> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UpdatePasswordView()),
+                MaterialPageRoute(builder: (context) => CreatorView()),
               );
             },
             style: ElevatedButton.styleFrom(

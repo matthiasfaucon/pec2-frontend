@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firstflutterapp/components/confirm_popup.dart';
 import 'package:flutter/material.dart';
 
@@ -75,7 +76,12 @@ class LabelAndInput {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildLabel(labelName, error: hasError ? messageError : null, helperTitle: helperTitle, helperContent: helperContent),
+        buildLabel(
+          labelName,
+          error: hasError ? messageError : null,
+          helperTitle: helperTitle,
+          helperContent: helperContent,
+        ),
         SizedBox(height: 8),
         buildTextField(controller, placeholder, obscureText, hasError, maxLine),
         SizedBox(height: 24),
@@ -152,6 +158,28 @@ class LabelAndInput {
               }).toList(),
         ),
         SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget buildLabelAndSearchList(
+    String labelName,
+    bool hasError,
+    String messageError,
+    List<String> countries,
+    Function(String?) onCountrySelected,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildLabel(labelName, error: hasError ? messageError : null),
+        SizedBox(height: 8),
+        DropdownSearch<String>(
+          items: (f, cs) => countries,
+
+          popupProps: PopupProps.menu(showSearchBox: true),
+          onChanged: onCountrySelected,
+        ),
       ],
     );
   }
