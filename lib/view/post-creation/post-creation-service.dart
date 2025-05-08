@@ -1,11 +1,8 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:firstflutterapp/interfaces/category.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../utils/platform_utils.dart';
 
 class PostCreationService {
   final ApiService _apiService = ApiService();

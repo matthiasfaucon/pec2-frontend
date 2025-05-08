@@ -1,12 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:firstflutterapp/interfaces/category.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
 
 class ApiResponse<T> {
   final T? data;
