@@ -31,10 +31,6 @@ class ApiService {
   
   String get baseUrl => PlatformUtils.getApiBaseUrl();
 
-  Future<String?> _getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token');
-  }
   
   Future<Map<String, String>> _getHeaders({bool withAuth = true}) async {
     Map<String, String> headers = {
@@ -50,87 +46,6 @@ class ApiService {
     }
     
     return headers;
-  }
-
-  // Récupérer la liste des catégories
-  Future<List<Category>> getCategories() async {
-    try {
-      final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse('$baseUrl/categories'),
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Category.fromJson(json)).toList();
-      } else {
-        throw Exception(
-          'Erreur lors du chargement des catégories: ${response.statusCode}',
-        );
-      }
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-
-  // Publier un nouveau post
-  Future<Map<String, dynamic>> createPost({
-    required File imageFile,
-    required String name,
-    required String description,
-    List<String>? categoryIds, // Ajout du support pour plusieurs catégories
-    required bool isFree,
-  }) async {
-    try {
-      final token = await _getToken();
-      if (token == null) {
-        throw Exception('Non autorisé: Vous devez être connecté');
-      }
-
-      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/posts'));
-
-      request.headers['Authorization'] = 'Bearer $token';
-
-      final mimeType = lookupMimeType(imageFile.path);
-      if (mimeType == null) {
-        throw Exception('Type de fichier non supporté');
-      }
-
-      final mimeTypeData = mimeType.split('/');
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'picture',
-          imageFile.path,
-          contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
-        ),
-      );
-
-      request.fields['name'] = name;
-      request.fields['description'] = description;
-      
-      if (categoryIds != null && categoryIds.isNotEmpty) {
-        request.fields['categories'] = json.encode(categoryIds);
-      } else {
-        request.fields['categories'] = '[]'; // Valeur par défaut si aucune catégorie n'est sélectionnée
-      }
-      
-      request.fields['isFree'] = isFree.toString();
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode == 201) {
-        return json.decode(response.body);
-      } else {
-        throw Exception(
-          'Erreur lors de la création du post: ${response.statusCode}',
-        );
-      }
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
   }
 
   Future<dynamic> request({
@@ -191,16 +106,28 @@ class ApiService {
   Future<ApiResponse> uploadMultipart({
     required String endpoint,
     required Map<String, String> fields,
-    required http.MultipartFile file,
+    required Object file,
     bool withAuth = true,
     required String method
   }) async {
+    late http.MultipartFile multipartFile;
     var uri = Uri.parse('$baseUrl$endpoint');
 
     var request = http.MultipartRequest(method.toUpperCase(), uri);
 
     request.fields.addAll(fields);
-    request.files.add(file);
+
+
+    if (file is http.MultipartFile) {
+      multipartFile = file;
+    } else if (file is File) {
+      final fileName = file.path.split('/').last;
+      multipartFile = await http.MultipartFile.fromPath('file', file.path, filename: fileName);
+    } else {
+      throw ArgumentError('file must be a File or http.MultipartFile');
+    }
+
+    request.files.add(multipartFile);
 
     if (withAuth) {
       final prefs = await SharedPreferences.getInstance();
