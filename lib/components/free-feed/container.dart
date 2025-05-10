@@ -1,3 +1,5 @@
+import 'package:firstflutterapp/interfaces/post.dart';
+import 'package:firstflutterapp/view/home/home-service.dart';
 import 'package:flutter/material.dart';
 
 class FreeFeed extends StatefulWidget {
@@ -6,161 +8,114 @@ class FreeFeed extends StatefulWidget {
 }
 
 class _FreeFeedState extends State<FreeFeed> {
+  bool _isLoading = false;
+  List<Post> _posts = [];
+  final PostsListingService _postListingService = PostsListingService();
 
-  final List<Map<String, String>> pets = [
-    {
-      "name": "Puppy Max",
-      "location": "New-York, USA",
-      "price": "\$200",
-      "image": "https://i.imgur.com/30wOxPJ.jpeg",
-    },
-    {
-      "name": "Cat Chip",
-      "location": "New-York, USA",
-      "price": "\$180",
-      "image": "https://i.imgur.com/hZ1TnYm.png",
-    },
-    {
-      "name": "Cat Chip",
-      "location": "New-York, USA",
-      "price": "\$180",
-      "image": "https://i.imgur.com/hZ1TnYm.png",
-    },
-    {
-      "name": "Cat Chip",
-      "location": "New-York, USA",
-      "price": "\$180",
-      "image": "https://i.imgur.com/hZ1TnYm.png",
-    },
-    {
-      "name": "Cat Chip",
-      "location": "New-York, USA",
-      "price": "\$180",
-      "image": "https://i.imgur.com/hZ1TnYm.png",
-    },
-    {
-      "name": "Cat Chip",
-      "location": "New-York, USA",
-      "price": "\$180",
-      "image": "https://i.imgur.com/hZ1TnYm.png",
-    },
-    {
-      "name": "Cat Chip",
-      "location": "New-York, USA",
-      "price": "\$180",
-      "image": "https://i.imgur.com/hZ1TnYm.png",
-    },
-    {
-      "name": "Cat Chip",
-      "location": "New-York, USA",
-      "price": "\$180",
-      "image": "https://i.imgur.com/hZ1TnYm.png",
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadPosts();
+  }
 
+  Future<void> _loadPosts() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final posts = await _postListingService.loadPosts();
+      setState(() {
+        _posts = posts;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        print(e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors du chargement des posts: $e')),
+        );
+      }
+    }
+  }
 
   Widget _buildForYouSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "Pour vous",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              "Voir tout",
-              style: TextStyle(color: Theme.of(context).primaryColor),
-            ),
-          ],
+        Text(
+          "Pour vous",
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 24),
         GridView.builder(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 0.6,
+            crossAxisCount: 1,
+            mainAxisSpacing: 0,
+            childAspectRatio: 1,
+            crossAxisSpacing: 0,
           ),
-          itemCount: pets.length,
+          itemCount: _posts.length,
           itemBuilder: (_, index) {
-            final pet = pets[index];
-            return _buildPetCard(pet);
+            final post = _posts[index];
+            return _buildPostCard({
+              "name": post.name,
+              "image": post.pictureUrl,
+            });
           },
         ),
       ],
     );
   }
 
-  Widget _buildPetCard(Map<String, String> pet) {
+  Widget _buildPostCard(Map<String, String> pet) {
     return Container(
-      width: 160,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
+          ClipRRect(
+            child: Image.network(
+              pet["image"]!,
+              fit: BoxFit.cover,
+              height: 200,
+              width: double.infinity,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(16),
-                  top: Radius.circular(16),
-                ),
-                child: Image.network(
-                  pet["image"]!,
-                  height: 184,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(0),
-                  child: Icon(
-                    Icons.favorite_border,
-                    size: 32,
-                    color: Theme.of(context).colorScheme.primary,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.thumb_up),
+                    onPressed: () {},
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.comment),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.report),
+                    onPressed: () {},
+                  ),
+                ],
               ),
             ],
           ),
+          const SizedBox(height: 8),
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        pet["name"]!,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  pet["location"]!,
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  pet["price"]!,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              pet["name"]!,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -172,5 +127,4 @@ class _FreeFeedState extends State<FreeFeed> {
   Widget build(BuildContext context) {
     return _buildForYouSection();
   }
-
 }
