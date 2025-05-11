@@ -1,12 +1,15 @@
 import 'dart:developer' as developer;
+import 'package:firstflutterapp/config/router.dart';
+import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../components/admin/admin_layout.dart';
 import '../components/admin/chart.dart';
 import '../components/admin/contact_management.dart';
 import '../components/admin/users_management.dart';
 import '../utils/auth_utils.dart';
 import '../utils/platform_utils.dart';
-import '../utils/route_utils.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   @override
@@ -14,58 +17,48 @@ class AdminDashboardPage extends StatefulWidget {
 }
 
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
-  bool _isLoading = true;
-  bool _isAdmin = false;
+  bool _isLoading = false;
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _checkAdminStatus();
+    // _checkAdminStatus();
   }
 
-  Future<void> _checkAdminStatus() async {
-    setState(() {
-      _isLoading = true;
-    });
+  // Future<void> _checkAdminStatus() async {
+  //   setState(() {
+  //     _isLoading = false;
+  //   });
 
-    if (!PlatformUtils.isWebPlatform()) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("L'interface d'administration n'est disponible que sur le web."),
-            backgroundColor: Colors.red,
-          ),
-        );
-        Navigator.of(context).pop();
-      });
-      return;
-    }
-
-    final bool canAccess = await AuthUtils.canAccessAdminPanel();
-    developer.log('Accès admin vérifié: $canAccess');
-    
-    setState(() {
-      _isAdmin = canAccess;
-      _isLoading = false;
-    });
-
-    if (!canAccess) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Vous n'avez pas les droits administrateur nécessaires."),
-            backgroundColor: Colors.red,
-          ),
-        );
-        RouteUtils.navigateToAdminLogin(context);
-      });
-    }
-  }
+    // final bool canAccess = await AuthUtils.canAccessAdminPanel();
+    // developer.log('Accès admin vérifié: $canAccess');
+    //
+    // setState(() {
+    //   _isAdmin = canAccess;
+    //   _isLoading = false;
+    // });
+    //
+    // if (!canAccess) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       const SnackBar(
+    //         content: Text("Vous n'avez pas les droits administrateur nécessaires."),
+    //         backgroundColor: Colors.red,
+    //       ),
+    //     );
+    //     context.go(homeRoute);
+    //   });
+    // }
+  // }
 
   Future<void> _logout() async {
-    await AuthUtils.logout();
-    RouteUtils.navigateToAdminLogin(context);
+    final userNotifier = context.read<UserNotifier>();
+    userNotifier.logout();
+
+    if (context.mounted) {
+      context.go(loginRoute);
+    }
   }
 
   void _onMenuItemSelected(int index) {
@@ -79,12 +72,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (!_isAdmin) {
-      return const Scaffold(
-        body: Center(child: Text("Accès non autorisé")),
       );
     }
 

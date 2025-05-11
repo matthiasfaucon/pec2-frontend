@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:firstflutterapp/interfaces/category.dart';
-import 'package:firstflutterapp/view/post-creation/post-creation-service.dart';
+import 'package:firstflutterapp/screens/post-creation/post-creation-service.dart';
+import 'package:go_router/go_router.dart';
 
 class PostDetailsView extends StatefulWidget {
   final File imageFile;
@@ -93,13 +95,7 @@ class _PostDetailsViewState extends State<PostDetailsView> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Publication réussie')));
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(initialIndex: 4),
-        ),
-        (route) => false,
-      );
+      context.go(homeRoute);
     } catch (e) {
       setState(() {
         _isLoading = false;

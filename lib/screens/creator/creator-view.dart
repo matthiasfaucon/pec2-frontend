@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:firstflutterapp/view/creator/creator-service.dart';
+import 'package:firstflutterapp/screens/creator/creator-service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;

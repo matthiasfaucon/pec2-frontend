@@ -1,22 +1,26 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
+import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/interfaces/user.dart';
+import 'package:firstflutterapp/utils/platform_utils.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
-import 'package:firstflutterapp/view/update_profile/update_profil_service.dart';
+import 'package:firstflutterapp/screens/update_profile/update_profil_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import '../../components/label-and-input/label-and-input-text.dart';
-import '../../main.dart';
 import '../../utils/check-form-data.dart';
 
 class UpdateProfile extends StatefulWidget {
-  final User user;
-
-  UpdateProfile({required this.user, super.key});
+  const UpdateProfile({Key? key}) : super(key: key);
 
   @override
   _UpdateProfileState createState() => _UpdateProfileState();
@@ -35,6 +39,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   final ApiService _apiService = ApiService();
   final ToastService _toastService = ToastService();
   final ImagePicker _picker = ImagePicker();
+  late UserNotifier userNotifier;
   DateTime? birthdayDate;
   String? selectedSexe;
   bool isValidPseudo = true;
@@ -44,22 +49,25 @@ class _UpdateProfileState extends State<UpdateProfile> {
   bool isValidSexe = true;
   bool _isLoading = false;
   bool isChangeImage = false;
+  late User user;
 
   @override
   void initState() {
     super.initState();
+    userNotifier = context.read<UserNotifier>();
+    user = userNotifier.user!;
     avatarUrl =
-        widget.user.profilePicture.trim() != ""
-            ? widget.user.profilePicture
+        user.profilePicture.trim() != ""
+            ? userNotifier.user!.profilePicture
             : "https://coloriagevip.com/wp-content/uploads/2024/08/Coloriage-Chien-27.webp";
-    pseudoController = TextEditingController(text: widget.user.userName);
-    emailController = TextEditingController(text: widget.user.email);
-    firstNameController = TextEditingController(text: widget.user.firstName);
-    lastNameController = TextEditingController(text: widget.user.lastName);
-    bioController = TextEditingController(text: widget.user.bio ?? "");
+    pseudoController = TextEditingController(text: user.userName);
+    emailController = TextEditingController(text: user.email);
+    firstNameController = TextEditingController(text: user.firstName);
+    lastNameController = TextEditingController(text: user.lastName);
+    bioController = TextEditingController(text: user.bio ?? "");
     setState(() {
-      birthdayDate = widget.user.birthDayDate;
-      selectedSexe = _updateProfileService.getSexe(widget.user.sexe);
+      birthdayDate = user.birthDayDate;
+      selectedSexe = _updateProfileService.getSexe(user.sexe);
     });
   }
 
@@ -108,15 +116,36 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             context,
                           ).pop(); // On ferme le Dialog avant
 
-                          final XFile? pickedFile = await _picker.pickImage(
-                            source: ImageSource.gallery,
-                          );
+                          if (PlatformUtils.isWebPlatform()) {
+                            final FilePickerResult? resultPicker =
+                                await FilePicker.platform.pickFiles(
+                                  type: FileType.image,
+                                );
 
-                          if (pickedFile != null) {
-                            setState(() {
-                              avatarUrl = pickedFile.path;
-                              isChangeImage = true;
-                            });
+                            if (resultPicker != null &&
+                                resultPicker.files.isNotEmpty) {
+                              final PlatformFile pickedFile =
+                                  resultPicker.files.single;
+
+                              final Uint8List fileBytes = pickedFile.bytes!;
+                              final base64Image = base64Encode(fileBytes);
+
+                              setState(() {
+                                avatarUrl =
+                                    "data:image/${pickedFile.extension};base64,$base64Image"; // Encodage en base64
+                                isChangeImage = true;
+                              });
+                            }
+                          } else {
+                            XFile? pickedFile = await _picker.pickImage(
+                              source: ImageSource.gallery,
+                            );
+                            if (pickedFile != null) {
+                              setState(() {
+                                avatarUrl = pickedFile.path;
+                                isChangeImage = true;
+                              });
+                            }
                           }
                         },
                       ),
@@ -128,9 +157,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
             child: CircleAvatar(
               radius: 40,
               backgroundImage:
-                  avatarUrl.startsWith('http')
-                      ? NetworkImage(avatarUrl)
-                      : FileImage(File(avatarUrl)) as ImageProvider,
+                  avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
               backgroundColor: const Color(0xFFE4DAFF),
             ),
           ),
@@ -207,28 +234,53 @@ class _UpdateProfileState extends State<UpdateProfile> {
     );
 
     if (isValidValid) {
-      widget.user.userName = pseudoController.text;
-      widget.user.firstName = firstNameController.text;
-      widget.user.lastName = lastNameController.text;
-      widget.user.bio = bioController.text;
+      user.userName = pseudoController.text;
+      user.firstName = firstNameController.text;
+      user.lastName = lastNameController.text;
+      user.bio = bioController.text;
 
       if (birthdayDate != null) {
-        widget.user.birthDayDate = birthdayDate ?? DateTime(2023, 12, 4);
+        user.birthDayDate = birthdayDate ?? DateTime(2023, 12, 4);
       }
-      widget.user.sexe = selectedSexe ?? "MAN";
+      user.sexe = selectedSexe ?? "MAN";
       setState(() {
         _isLoading = true;
       });
 
       late final ApiResponse response;
       try {
+        var file;
         if (isChangeImage) {
-          String? mimeType = lookupMimeType(avatarUrl);
-          var file = await http.MultipartFile.fromPath(
-            'profilePicture',
-            avatarUrl,
-            contentType: mimeType != null ? MediaType.parse(mimeType) : null,
-          );
+          if (PlatformUtils.isWebPlatform()) {
+            final imageData =
+                avatarUrl.split(
+                  ',',
+                )[1]; // Enlève la partie "data:image/...;base64,"
+            final imageBytes = base64Decode(imageData);
+            final headerSplit = avatarUrl.split(',');
+            final mime =
+                headerSplit[0].split(':')[1].split(';')[0]; // e.g. image/png
+            final ext = mime.split('/')[1];
+            final mimeType = lookupMimeType('', headerBytes: imageBytes);
+            final mediaType =
+                mimeType != null
+                    ? MediaType.parse(mimeType)
+                    : MediaType('application', 'octet-stream');
+            file = http.MultipartFile.fromBytes(
+              'profilePicture',
+              imageBytes,
+              filename: 'profile.$ext',
+              contentType:
+                  mediaType, // Utiliser le mimeType de l'image, adapte-le à ton besoin
+            );
+          } else {
+            String? mimeType = lookupMimeType(avatarUrl);
+            file = await http.MultipartFile.fromPath(
+              'profilePicture',
+              avatarUrl,
+              contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+            );
+          }
 
           response = await _apiService.uploadMultipart(
             endpoint: '/users/profile',
@@ -236,7 +288,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
               "userName": pseudoController.text,
               "bio": bioController.text,
               "firstName": firstNameController.text,
-              "email": widget.user.email,
+              "email": user.email,
               "lastName": lastNameController.text,
               "birthDayDate": birthdayDate?.toUtc().toIso8601String() ?? "",
               "sexe": selectedSexe ?? "",
@@ -252,7 +304,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
               "userName": pseudoController.text,
               "bio": bioController.text,
               "firstName": firstNameController.text,
-              "email": widget.user.email,
+              "email": user.email,
               "lastName": lastNameController.text,
               "birthDayDate": birthdayDate?.toUtc().toIso8601String(),
               "sexe": selectedSexe,
@@ -262,13 +314,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
         }
 
         if (response.success) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomePage(initialIndex: 4),
-            ),
-            (route) => false,
-          );
+          userNotifier.updateUser(response.data);
+          context.pushReplacement(profileRoute);
         } else {
           String message = _updateProfileService.getErrorMessage(
             response.statusCode,
