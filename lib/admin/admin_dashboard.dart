@@ -1,4 +1,3 @@
-import 'dart:developer' as developer;
 import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +7,6 @@ import '../components/admin/admin_layout.dart';
 import '../components/admin/chart.dart';
 import '../components/admin/contact_management.dart';
 import '../components/admin/users_management.dart';
-import '../utils/auth_utils.dart';
-import '../utils/platform_utils.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   @override
