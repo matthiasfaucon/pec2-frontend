@@ -72,23 +72,7 @@ class UserNotifier extends ChangeNotifier {
         }
       }
 
-      // Vérification supplémentaire pour les formats avec "authorities"
-      // if (decodedToken.containsKey('authorities')) {
-      //   developer.log('Vérification du champ "authorities": ${decodedToken['authorities']}');
-      //   var authorities = decodedToken['authorities'];
-      //   if (authorities is List) {
-      //     for (var auth in authorities) {
-      //       if (auth is String && (auth.contains('admin') || auth.contains('ADMIN'))) {
-      //         return true;
-      //       } else if (auth is Map && auth.containsKey('authority')) {
-      //         var authority = auth['authority'];
-      //         if (authority is String && (authority.contains('admin') || authority.contains('ADMIN'))) {
-      //           return true;
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
+
       developer.log('Aucun rôle admin trouvé dans le token');
       return false;
     } catch (e) {
