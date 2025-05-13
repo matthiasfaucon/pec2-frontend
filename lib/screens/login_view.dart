@@ -46,15 +46,15 @@ class _LoginViewState extends State<LoginView> {
     final email = _emailController.text;
     final password = _passwordController.text;
 
-    if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Veuillez renseigner tous les champs'),
-        ),
-      );
-      return;
-    }
+    // if (!_formKey.currentState!.validate()) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       backgroundColor: Colors.red,
+    //       content: Text('Veuillez renseigner tous les champs'),
+    //     ),
+    //   );
+    //   return;
+    // }
 
     try {
       final response = await _apiService.request(
