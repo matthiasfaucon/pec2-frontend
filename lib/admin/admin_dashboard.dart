@@ -21,8 +21,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   final List<String> _routes = [
     adminDashboard,
     adminUsersChart,
-    adminContacts,    
     adminUsersManagement,
+    adminContacts,   
+    adminContentCreator,
    
   ];
 

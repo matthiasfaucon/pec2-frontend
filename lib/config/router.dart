@@ -18,7 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:firstflutterapp/admin/users_management.dart';
 import 'package:firstflutterapp/admin/contact_management.dart';
 import 'package:firstflutterapp/admin/users_chart.dart';
-
+import 'package:firstflutterapp/admin/content_creator.dart';
 
 
 
@@ -38,6 +38,7 @@ const adminDashboard = '/admin/dashboard';
 const adminUsersManagement = '/admin/users';
 const adminContacts = '/admin/contacts';
 const adminUsersChart = '/admin/users-chart';
+const adminContentCreator = '/admin/content-creator';
 const searchRoute = '/search';
 
 Future<String?> hasAdminPermissions(
@@ -163,6 +164,10 @@ final router = GoRouter(
         GoRoute(
           path: '$adminRoute/users-chart',
           builder: (context, state) => const UserStatsChart(),
+        ),
+        GoRoute(
+          path: '$adminRoute/content-creator',
+          builder: (context, state) => const AdminContentCreator(),
         ),
       ],
     ),
