@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../components/admin/admin_layout.dart';
-import '../components/admin/chart.dart';
-import '../components/admin/contact_management.dart';
-import '../components/admin/users_management.dart';
 
 class AdminDashboardPage extends StatefulWidget {
+  final Widget child;
+
+  const AdminDashboardPage({Key? key, required this.child}) : super(key: key);
+
   @override
   _AdminDashboardPageState createState() => _AdminDashboardPageState();
 }
@@ -16,6 +17,14 @@ class AdminDashboardPage extends StatefulWidget {
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
   bool _isLoading = false;
   int _selectedIndex = 0;
+
+  final List<String> _routes = [
+    adminDashboard,
+    adminUsersChart,
+    adminContacts,    
+    adminUsersManagement,
+   
+  ];
 
   Future<void> _logout() async {
     final userNotifier = context.read<UserNotifier>();
@@ -30,6 +39,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     setState(() {
       _selectedIndex = index;
     });
+    context.go(_routes[index]);
   }
 
   @override
@@ -52,100 +62,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       body: AdminDashboardLayout(
         selectedIndex: _selectedIndex,
         onMenuItemSelected: _onMenuItemSelected,
-        content: _buildContent(),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildDashboardContent();
-      case 1:
-        return _buildStatsContent();
-      case 2:
-        return const UsersManagement();
-      case 3:
-        return const ContactManagement();
-      case 4:
-        return _buildSettingsContent();
-      default:
-        return _buildDashboardContent();
-    }
-  }
-
-  Widget _buildDashboardContent() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Tableau de bord",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsContent() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Statistiques",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          const UserStatsChart(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsContent() {
-    return const Center(
-      child: Text(
-        "Page Paramètres en développement",
-        style: TextStyle(fontSize: 18),
-      ),
-    );
-  }
-
-  Widget _buildKpiCard(String title, String value, IconData icon, Color color) {
-    return SizedBox(
-      width: 200,
-      height: 200,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 48, color: color),
-              const SizedBox(height: 16),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
+        content: widget.child,
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
-import '../../utils/date_formatter.dart';
-import 'contact_status_update_dialog.dart';
+import '../services/api_service.dart';
+import '../utils/date_formatter.dart';
+import '../components/admin/contact_status_update_dialog.dart';
 
 class ContactManagement extends StatefulWidget {
   const ContactManagement({Key? key}) : super(key: key);
