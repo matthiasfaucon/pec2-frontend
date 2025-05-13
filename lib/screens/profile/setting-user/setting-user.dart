@@ -1,10 +1,9 @@
+import 'package:firstflutterapp/config/router.dart';
+import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:firstflutterapp/theme.dart';
-import 'package:firstflutterapp/view/update_password_view.dart';
-import 'package:firstflutterapp/view/support.dart';
 import 'package:flutter/material.dart';
-
-import '../../utils/auth_utils.dart' show AuthUtils;
-import '../../utils/route_utils.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class SettingUser extends StatelessWidget {
   @override
@@ -17,10 +16,7 @@ class SettingUser extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UpdatePasswordView()),
-                );
+                context.push(profileUpdatePassword);
               },
               style: AppTheme.emptyButtonStyle.merge(ElevatedButton.styleFrom(
                   fixedSize: const Size(300, 50)
@@ -32,10 +28,7 @@ class SettingUser extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SupportPage()),
-                );
+                context.go(profileSupport);
               },
               style: AppTheme.emptyButtonStyle.merge(ElevatedButton.styleFrom(
                 fixedSize: const Size(300, 50)
@@ -47,9 +40,10 @@ class SettingUser extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
-                  await AuthUtils.logout();
-                  if (context.mounted) {
-                    RouteUtils.navigateToMobileHome(context);
+                final userNotifier = context.read<UserNotifier>();
+                userNotifier.logout();
+                if (context.mounted) {
+                  context.go(loginRoute);
                   }
               },
               style: AppTheme.filledButtonStyle.merge(ElevatedButton.styleFrom(

@@ -28,27 +28,8 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
   @override
   void initState() {
     super.initState();
-    
-    // Vérifie si l'utilisateur est sur le web, redirige vers l'interface admin
-    if (PlatformUtils.isWebPlatform()) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        RouteUtils.navigateToAdminLogin(context);
-      });
-      return;
-    }
-    
-    // Vérifie si l'utilisateur est connecté
-    _checkLoginStatus();
   }
-  
-  Future<void> _checkLoginStatus() async {
-    final bool isLoggedIn = await AuthUtils.isLoggedIn();
-    if (!isLoggedIn) {
-      if (mounted) {
-        RouteUtils.navigateToMobileHome(context);
-      }
-    }
-  }
+
 
   @override
   void dispose() {
@@ -124,15 +105,6 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
 
   @override
   Widget build(BuildContext context) {
-    // Si nous sommes sur le web, ne pas afficher cette page
-    if (PlatformUtils.isWebPlatform()) {
-      return const Scaffold(
-        body: Center(
-          child: Text("Cette page n'est pas disponible sur le web."),
-        ),
-      );
-    }
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mettre à jour le mot de passe'),

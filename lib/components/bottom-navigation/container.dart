@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firstflutterapp/config/router.dart';
 
-class ContainerBottomNavigation extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onItemSelected;
-  
-  const ContainerBottomNavigation({
-    super.key,
-    required this.selectedIndex,
-    required this.onItemSelected,
-  });
+class BottomNavBar extends StatelessWidget {
+  final String currentPath;
+
+  const BottomNavBar({required this.currentPath, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +45,42 @@ class ContainerBottomNavigation extends StatelessWidget {
     IconData activeIcon,
     BuildContext context,
   ) {
-    final bool isSelected = selectedIndex == index;
+    final bool isSelected = _getIndex(currentPath) == index;
     final Color iconColor =
         isSelected ? Theme.of(context).primaryColor : Colors.grey;
 
+    goTo() {
+      switch (index) {
+        case 0:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(homeRoute);
+          });
+          break;
+        case 1:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(searchRoute);
+          });
+          break;
+        case 2:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(uploadPhotoRoute);
+          });
+          break;
+        case 3:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(subFeedRoute);
+          });
+          break;
+        case 4:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(profileRoute);
+          });
+          break;
+      }
+    }
+
     return InkWell(
-      onTap: () => onItemSelected(index),
+      onTap: goTo,
       child: SizedBox(
         width: 50,
         height: 60,
@@ -69,6 +96,12 @@ class ContainerBottomNavigation extends StatelessWidget {
   }
 
   Widget _buildAddButton(BuildContext context) {
+    changeView() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.go(uploadPhotoRoute);
+      });
+    }
+
     return SizedBox(
       width: 55,
       height: 55,
@@ -76,7 +109,7 @@ class ContainerBottomNavigation extends StatelessWidget {
         child: Transform.translate(
           offset: const Offset(0, -15), // Move the button upward to protrude
           child: InkWell(
-            onTap: () => onItemSelected(2),
+            onTap: changeView,
             child: Container(
               width: 55,
               height: 55,
@@ -97,5 +130,13 @@ class ContainerBottomNavigation extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int _getIndex(String path) {
+    if (path.startsWith(searchRoute)) return 1;
+    if (path.startsWith(uploadPhotoRoute)) return 2;
+    if (path.startsWith(subFeedRoute)) return 3;
+    if (path.startsWith(profileRoute)) return 4;
+    return 0;
   }
 }

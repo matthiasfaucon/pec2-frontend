@@ -1,5 +1,5 @@
 import 'package:firstflutterapp/theme.dart';
-import 'package:firstflutterapp/view/login_view.dart';
+import 'package:firstflutterapp/screens/login_view.dart';
 import 'package:flutter/material.dart';
 
 class EndRegisterView extends StatefulWidget {
