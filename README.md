@@ -17,5 +17,7 @@ samples, guidance on mobile development, and a full API reference.
 
 ## installer les dépendences
 ```bash
+
 flutter pub get
+
 ```

@@ -1,7 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
-import '../../utils/auth_utils.dart';
 import '../../utils/date_formatter.dart';
 
 class UsersManagement extends StatefulWidget {
@@ -294,17 +293,7 @@ class _UsersManagementState extends State<UsersManagement> {
     });
 
     try {
-      final token = await AuthUtils.getToken();
       
-      if (token == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erreur d'authentification"), backgroundColor: Colors.red),
-        );
-        setState(() {
-          _loadingUsers = false;
-        });
-        return;
-      }
 
       final response = await ApiService().request(
         method: 'GET',

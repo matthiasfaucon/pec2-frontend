@@ -1,7 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
-import '../../utils/auth_utils.dart';
 import '../../utils/date_formatter.dart';
 import 'contact_status_update_dialog.dart';
 
@@ -276,17 +275,8 @@ class _ContactManagementState extends State<ContactManagement> {
     });
 
     try {
-      final token = await AuthUtils.getToken();
       
-      if (token == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erreur d'authentification"), backgroundColor: Colors.red),
-        );
-        setState(() {
-          _loadingContacts = false;
-        });
-        return;
-      }
+  
 
       final response = await ApiService().request(
         method: 'GET',

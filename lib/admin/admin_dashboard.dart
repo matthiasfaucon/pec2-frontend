@@ -35,9 +35,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -54,7 +52,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       body: AdminDashboardLayout(
         selectedIndex: _selectedIndex,
         onMenuItemSelected: _onMenuItemSelected,
-        content:  _buildContent(),
+        content: _buildContent(),
       ),
     );
   }
@@ -84,10 +82,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         children: [
           const Text(
             "Tableau de bord",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -102,10 +97,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         children: [
           const Text(
             "Statistiques",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           const UserStatsChart(),
@@ -135,11 +127,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 48,
-                color: color,
-              ),
+              Icon(icon, size: 48, color: color),
               const SizedBox(height: 16),
               Text(
                 value,
@@ -152,9 +140,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               const SizedBox(height: 8),
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
+                style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
             ],
