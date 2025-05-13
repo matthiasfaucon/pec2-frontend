@@ -1,4 +1,5 @@
-import '../../utils/check-form-data.dart';
+
+import 'package:firstflutterapp/utils/check-form-data.dart';
 
 class UpdateProfileService {
   final CheckFormData _checkFormData = CheckFormData();

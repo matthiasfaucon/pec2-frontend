@@ -2,11 +2,10 @@ import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/interfaces/user.dart';
 import 'package:firstflutterapp/theme.dart';
 import 'package:firstflutterapp/screens/creator/creator-view.dart';
-import 'package:firstflutterapp/screens/setting-user/setting-user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../notifiers/userNotififers.dart';
+import '../../notifiers/userNotififers.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({Key? key}) : super(key: key);

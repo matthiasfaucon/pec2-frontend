@@ -17,38 +17,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   bool _isLoading = false;
   int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    // _checkAdminStatus();
-  }
-
-  // Future<void> _checkAdminStatus() async {
-  //   setState(() {
-  //     _isLoading = false;
-  //   });
-
-    // final bool canAccess = await AuthUtils.canAccessAdminPanel();
-    // developer.log('Accès admin vérifié: $canAccess');
-    //
-    // setState(() {
-    //   _isAdmin = canAccess;
-    //   _isLoading = false;
-    // });
-    //
-    // if (!canAccess) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(
-    //         content: Text("Vous n'avez pas les droits administrateur nécessaires."),
-    //         backgroundColor: Colors.red,
-    //       ),
-    //     );
-    //     context.go(homeRoute);
-    //   });
-    // }
-  // }
-
   Future<void> _logout() async {
     final userNotifier = context.read<UserNotifier>();
     userNotifier.logout();
@@ -86,7 +54,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       body: AdminDashboardLayout(
         selectedIndex: _selectedIndex,
         onMenuItemSelected: _onMenuItemSelected,
-        content: _buildContent(),
+        content:  _buildContent(),
       ),
     );
   }

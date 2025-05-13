@@ -2,22 +2,23 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
+import 'package:firstflutterapp/components/label-and-input/label-and-input-text.dart';
 import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/interfaces/user.dart';
+import 'package:firstflutterapp/utils/check-form-data.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
-import 'package:firstflutterapp/screens/update_profile/update_profil_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
-import '../../components/label-and-input/label-and-input-text.dart';
-import '../../utils/check-form-data.dart';
+
+import 'update_profil_service.dart';
 
 class UpdateProfile extends StatefulWidget {
   const UpdateProfile({Key? key}) : super(key: key);

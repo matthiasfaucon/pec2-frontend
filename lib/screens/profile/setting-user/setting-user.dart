@@ -1,14 +1,9 @@
 import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:firstflutterapp/theme.dart';
-import 'package:firstflutterapp/screens/update_password_view.dart';
-import 'package:firstflutterapp/screens/support.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-import '../../utils/auth_utils.dart' show AuthUtils;
-import '../../utils/route_utils.dart';
 
 class SettingUser extends StatelessWidget {
   @override
