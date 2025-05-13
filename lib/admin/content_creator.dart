@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../components/admin/content_creator_update_dialogue.dart';
 
 class AdminContentCreator extends StatefulWidget {
   const AdminContentCreator({Key? key}) : super(key: key);
@@ -49,6 +50,49 @@ class _AdminContentCreatorState extends State<AdminContentCreator> {
       default:
         return Colors.grey;
     }
+  }
+
+  Widget _buildStatusBadge(dynamic creator) {
+    final statusFrench = _getStatusFrench(creator['status']);
+    final statusColor = _getStatusColor(creator['status']);
+
+    return InkWell(
+      onTap: () async {
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ContentCreatorUpdateDialog(
+              contentCreator: creator,
+              onStatusUpdated: _fetchContentCreators,
+            );
+          },
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(left: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: statusColor.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: statusColor.withOpacity(0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              statusFrench,
+              style: TextStyle(
+                fontSize: 12,
+                color: statusColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.edit, size: 14, color: statusColor),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -104,11 +148,6 @@ class _AdminContentCreatorState extends State<AdminContentCreator> {
                       itemCount: _contentCreators.length,
                       itemBuilder: (context, index) {
                         final creator = _contentCreators[index];
-                        final statusFrench = _getStatusFrench(
-                          creator['status'],
-                        );
-                        final statusColor = _getStatusColor(creator['status']);
-
                         return Card(
                           margin: const EdgeInsets.symmetric(
                             vertical: 8,
@@ -147,28 +186,7 @@ class _AdminContentCreatorState extends State<AdminContentCreator> {
                                         ),
                                       ),
                                     ),
-                                    Container(
-                                      margin: const EdgeInsets.only(left: 8),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: statusColor.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: statusColor.withOpacity(0.5),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        statusFrench,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: statusColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+                                    _buildStatusBadge(creator),
                                   ],
                                 ),
                               ],
@@ -250,24 +268,6 @@ class _AdminContentCreatorState extends State<AdminContentCreator> {
                                       'Document justificatif',
                                       creator['documentProofUrl'] ?? 'N/A',
                                       isLink: true,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      children: [
-                                        const Text(
-                                          'Statut: ',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          statusFrench,
-                                          style: TextStyle(
-                                            color: statusColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
                                     ),
                                     const SizedBox(height: 16),
                                     _buildDetailRow(

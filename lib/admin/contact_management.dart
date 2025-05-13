@@ -23,7 +23,7 @@ class _ContactManagementState extends State<ContactManagement> {
 
   String _getStatusFrench(String? status) {
     if (status == null) return 'N/A';
-    
+
     switch (status) {
       case 'open':
         return 'Ouvert';
@@ -40,7 +40,7 @@ class _ContactManagementState extends State<ContactManagement> {
 
   Color _getStatusColor(String? status) {
     if (status == null) return Colors.grey;
-    
+
     switch (status) {
       case 'open':
         return Colors.green;
@@ -67,6 +67,39 @@ class _ContactManagementState extends State<ContactManagement> {
     );
   }
 
+  Widget _buildStatusBadge(dynamic contact) {
+    final statusFrench = _getStatusFrench(contact['status']);
+    final statusColor = _getStatusColor(contact['status']);
+
+    return InkWell(
+      onTap: () => _showStatusUpdateDialog(contact),
+      child: Container(
+        margin: const EdgeInsets.only(left: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: statusColor.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: statusColor.withOpacity(0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              statusFrench,
+              style: TextStyle(
+                fontSize: 12,
+                color: statusColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.edit, size: 14, color: statusColor),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -79,166 +112,194 @@ class _ContactManagementState extends State<ContactManagement> {
             children: [
               const Text(
                 "Gestion des contacts",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               ElevatedButton.icon(
                 onPressed: _fetchContacts,
-                icon: Icon(_loadingContacts ? Icons.hourglass_empty : Icons.refresh),
+                icon: Icon(
+                  _loadingContacts ? Icons.hourglass_empty : Icons.refresh,
+                ),
                 label: Text(_loadingContacts ? "Chargement..." : "Actualiser"),
               ),
             ],
           ),
           const SizedBox(height: 24),
           Expanded(
-            child: _loadingContacts
-                ? const Center(child: CircularProgressIndicator())
-                : _contacts.isEmpty
+            child:
+                _loadingContacts
+                    ? const Center(child: CircularProgressIndicator())
+                    : _contacts.isEmpty
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.contact_mail_outlined, size: 64, color: Colors.grey),
-                            const SizedBox(height: 16),
-                            const Text("Aucun contact trouvé", style: TextStyle(fontSize: 18)),
-                            const SizedBox(height: 24),
-                            ElevatedButton(
-                              onPressed: _fetchContacts,
-                              child: const Text("Essayer à nouveau"),
-                            ),
-                          ],
-                        ),
-                      )
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.contact_mail_outlined,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            "Aucun contact trouvé",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _fetchContacts,
+                            child: const Text("Essayer à nouveau"),
+                          ),
+                        ],
+                      ),
+                    )
                     : ListView.builder(
-                        itemCount: _contacts.length,
-                        itemBuilder: (context, index) {
-                          final contact = _contacts[index];
-                          final statusFrench = _getStatusFrench(contact['status']);
-                          final statusColor = _getStatusColor(contact['status']);
-                          
-                          return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                            elevation: 2,
-                            child: ExpansionTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.blue.shade100,
-                                child: Text(
-                                  contact['firstName'] != null ? contact['firstName'][0].toUpperCase() : 'C',
-                                  style: TextStyle(color: Colors.blue.shade800),
-                                ),
+                      itemCount: _contacts.length,
+                      itemBuilder: (context, index) {
+                        final contact = _contacts[index];
+                        final statusFrench = _getStatusFrench(
+                          contact['status'],
+                        );
+                        final statusColor = _getStatusColor(contact['status']);
+
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 4,
+                          ),
+                          elevation: 2,
+                          child: ExpansionTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.blue.shade100,
+                              child: Text(
+                                contact['firstName'] != null
+                                    ? contact['firstName'][0].toUpperCase()
+                                    : 'C',
+                                style: TextStyle(color: Colors.blue.shade800),
                               ),
-                              title: Text(
-                                '${contact['firstName']} ${contact['lastName']}',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            title: Text(
+                              '${contact['firstName']} ${contact['lastName']}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
                               ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(contact['email'] ?? 'Email non disponible'),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          contact['subject'] ?? 'Pas de sujet',
-                                          style: TextStyle(color: Colors.grey.shade600),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(left: 8),
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: statusColor.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: statusColor.withOpacity(0.5)),
-                                        ),
-                                        child: Text(
-                                          statusFrench,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: statusColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      _buildDetailRow('ID', contact['id']?.toString() ?? 'N/A'),
-                                      _buildDetailRow('Prénom', contact['firstName'] ?? 'N/A'),
-                                      _buildDetailRow('Nom', contact['lastName'] ?? 'N/A'),
-                                      _buildDetailRow('Email', contact['email'] ?? 'N/A'),
-                                      _buildDetailRow('Sujet', contact['subject'] ?? 'N/A'),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 120,
-                                            child: Text(
-                                              'Statut:',
-                                              style: const TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              statusFrench,
-                                              style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.edit, size: 20),
-                                            onPressed: () => _showStatusUpdateDialog(contact),
-                                            tooltip: "Modifier le statut",
-                                            color: Colors.blue,
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      const Text(
-                                        'Message:',
-                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(top: 8),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.shade100,
-                                          borderRadius: BorderRadius.circular(8),
+                                Text(
+                                  contact['email'] ?? 'Email non disponible',
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        contact['subject'] ?? 'Pas de sujet',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
                                         ),
-                                        child: Text(contact['message'] ?? 'Pas de message'),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      const SizedBox(height: 16),
-                                      _buildDetailRow(
-                                        'Soumis le',
-                                        DateFormatter.formatDateTime(contact['submittedAt']),
-                                      ),
-                                      if (contact['createdAt'] != null)
-                                        _buildDetailRow(
-                                          'Créé le',
-                                          DateFormatter.formatDateTime(contact['createdAt']),
-                                        ),
-                                      if (contact['updatedAt'] != null)
-                                        _buildDetailRow(
-                                          'Mis à jour le',
-                                          DateFormatter.formatDateTime(contact['updatedAt']),
-                                        ),
-                                    ],
-                                  ),
+                                    ),
+                                    _buildStatusBadge(contact),
+                                  ],
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildDetailRow(
+                                      'ID',
+                                      contact['id']?.toString() ?? 'N/A',
+                                    ),
+                                    _buildDetailRow(
+                                      'Prénom',
+                                      contact['firstName'] ?? 'N/A',
+                                    ),
+                                    _buildDetailRow(
+                                      'Nom',
+                                      contact['lastName'] ?? 'N/A',
+                                    ),
+                                    _buildDetailRow(
+                                      'Email',
+                                      contact['email'] ?? 'N/A',
+                                    ),
+                                    _buildDetailRow(
+                                      'Sujet',
+                                      contact['subject'] ?? 'N/A',
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 120,
+                                          child: Text(
+                                            'Statut:',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            statusFrench,
+                                            style: TextStyle(
+                                              color: statusColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'Message:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 8),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade100,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        contact['message'] ?? 'Pas de message',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDetailRow(
+                                      'Soumis le',
+                                      DateFormatter.formatDateTime(
+                                        contact['submittedAt'],
+                                      ),
+                                    ),
+                                    if (contact['createdAt'] != null)
+                                      _buildDetailRow(
+                                        'Créé le',
+                                        DateFormatter.formatDateTime(
+                                          contact['createdAt'],
+                                        ),
+                                      ),
+                                    if (contact['updatedAt'] != null)
+                                      _buildDetailRow(
+                                        'Mis à jour le',
+                                        DateFormatter.formatDateTime(
+                                          contact['updatedAt'],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
           ),
         ],
       ),
@@ -261,7 +322,13 @@ class _ContactManagementState extends State<ContactManagement> {
           Expanded(
             child: Text(
               value,
-              style: valueColor != null ? TextStyle(color: valueColor, fontWeight: FontWeight.bold) : null,
+              style:
+                  valueColor != null
+                      ? TextStyle(
+                        color: valueColor,
+                        fontWeight: FontWeight.bold,
+                      )
+                      : null,
             ),
           ),
         ],
@@ -275,9 +342,6 @@ class _ContactManagementState extends State<ContactManagement> {
     });
 
     try {
-      
-  
-
       final response = await ApiService().request(
         method: 'GET',
         endpoint: '/contacts',
@@ -290,8 +354,14 @@ class _ContactManagementState extends State<ContactManagement> {
           _loadingContacts = false;
         });
       } else if (response.data is Map<String, dynamic>) {
-        final possibleListKeys = ['data', 'contacts', 'results', 'items', 'content'];
-        
+        final possibleListKeys = [
+          'data',
+          'contacts',
+          'results',
+          'items',
+          'content',
+        ];
+
         for (final key in possibleListKeys) {
           if (response.data.containsKey(key) && response.data[key] is List) {
             setState(() {
@@ -301,8 +371,10 @@ class _ContactManagementState extends State<ContactManagement> {
             return;
           }
         }
-        
-        developer.log('Réponse reçue mais pas au format attendu: ${response.data}');
+
+        developer.log(
+          'Réponse reçue mais pas au format attendu: ${response.data}',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Format de réponse inattendu de l'API"),
