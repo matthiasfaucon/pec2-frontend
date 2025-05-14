@@ -1,4 +1,5 @@
 import 'package:firstflutterapp/interfaces/category.dart';
+import 'package:firstflutterapp/interfaces/comment.dart';
 
 class Post {
   final String id;
@@ -11,7 +12,7 @@ class Post {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
+  List<Comment> comments;
   Post({
     required this.id,
     required this.userId,
@@ -23,8 +24,8 @@ class Post {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.comments = const [],
   });
-
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['id'],
@@ -37,6 +38,10 @@ class Post {
           ?.map((category) => Category.fromJson(category))
           .toList() ??
           [],
+      comments: (json['comments'] as List<dynamic>?)
+          ?.map((comment) => Comment.fromJson(comment))
+          .toList() ??
+          [],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       deletedAt: json['deleted_at'] != null
@@ -44,7 +49,6 @@ class Post {
           : null,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -54,6 +58,7 @@ class Post {
       'is_free': isFree,
       'enable': enable,
       'categories': categories.map((category) => category.toJson()).toList(),
+      'comments': comments.map((comment) => comment.toJson()).toList(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'deleted_at': deletedAt?.toIso8601String(),

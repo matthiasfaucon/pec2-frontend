@@ -49,6 +49,8 @@ dependencies:
   mime: ^1.0.4
   http_parser: ^4.1.2
   camera: ^0.11.1
+  web_socket_channel: ^3.0.3
+  universal_html: ^2.2.4
 
 dev_dependencies:
   flutter_test:
