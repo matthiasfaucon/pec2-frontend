@@ -1,7 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 
-import '../../view/login_view.dart';
+import '../../screens//login_view.dart';
 
 
 class Header extends StatefulWidget {

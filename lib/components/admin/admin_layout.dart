@@ -20,10 +20,8 @@ class AdminDashboardLayout extends StatelessWidget {
           selectedIndex: selectedIndex,
           onMenuItemSelected: onMenuItemSelected,
         ),
-        
-        Expanded(
-          child: content,
-        ),
+
+        Expanded(child: content),
       ],
     );
   }
@@ -67,16 +65,14 @@ class SideMenu extends StatelessWidget {
             const SizedBox(height: 10),
             const Text(
               "Admin Panel",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
             _buildMenuItem(0, "Tableau de bord", Icons.dashboard),
             _buildMenuItem(1, "Statistiques", Icons.insert_chart),
             _buildMenuItem(2, "Utilisateurs", Icons.group),
             _buildMenuItem(3, "Contacts", Icons.contact_mail),
+            _buildMenuItem(4, "Créateurs ", Icons.group),
             const Spacer(),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -93,10 +89,7 @@ class SideMenu extends StatelessWidget {
                     children: const [
                       Text(
                         "Statut: Connecté",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       Text(
                         "Admin",
@@ -106,7 +99,7 @@ class SideMenu extends StatelessWidget {
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -147,4 +140,4 @@ class SideMenu extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
-import 'package:firstflutterapp/view/post-creation/post-details.dart';
-import 'package:firstflutterapp/view/post-creation/post-creation-service.dart';
+import 'package:firstflutterapp/screens/post-creation/post-details.dart';
+import 'package:firstflutterapp/screens/post-creation/post-creation-service.dart';
 
 class UploadPhotoView extends StatefulWidget {
   const UploadPhotoView({super.key});

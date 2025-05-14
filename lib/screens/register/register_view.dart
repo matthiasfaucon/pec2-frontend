@@ -1,8 +1,10 @@
+import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
 import 'package:firstflutterapp/utils/check-form-data.dart';
-import 'package:firstflutterapp/view/register/end-register.dart';
-import 'package:firstflutterapp/view/register/register-service.dart';
+import 'package:firstflutterapp/screens/register/end-register.dart';
+import 'package:firstflutterapp/screens/register/register-service.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../components/label-and-input/label-and-input-text.dart';
 import '../../services/api_service.dart';
@@ -291,10 +293,7 @@ class _RegisterViewState extends State<RegisterView> {
         );
 
         if (response.success) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => EndRegisterView()),
-          );
+          context.go(profileRoute);
         } else {
           String message =
               response.statusCode == 409 ? "L'email déjà utilisé" : "";
