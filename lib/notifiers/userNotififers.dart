@@ -31,10 +31,13 @@ class UserNotifier extends ChangeNotifier {
       return false;
     }
 
-    if(user == null){
+    if(user == null && tokenSaved != null){
      var request = await _apiService.request(method: 'GET', endpoint: '/users/profile');
-     user = User.fromJson(request.data);
-     token = tokenSaved;
+
+     if(request != null && request.data != null){
+       user = User.fromJson(request.data);
+       token = tokenSaved;
+     }
     }
 
 
