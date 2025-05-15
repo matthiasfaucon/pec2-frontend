@@ -1,5 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firstflutterapp/config/router.dart';
 
 class Header extends StatefulWidget {
   @override
@@ -32,7 +34,7 @@ class _HeaderState extends State<Header> {
             IconButton(
               icon: const Icon(Icons.send_outlined),
               onPressed: () {
-                // Action pour envoyer un message
+                context.go(messageRoute);
               },
             ),
           ],

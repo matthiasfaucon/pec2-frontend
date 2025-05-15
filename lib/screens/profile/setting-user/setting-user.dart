@@ -4,7 +4,7 @@ import 'package:firstflutterapp/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../setting-preferences/setting-preferences.dart';
+
 
 class SettingUser extends StatelessWidget {
   @override
@@ -37,10 +37,7 @@ class SettingUser extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingPreferences()),
-                );
+                context.push(profilePreferences);
               },
               style: AppTheme.emptyButtonStyle.merge(
                 ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),
