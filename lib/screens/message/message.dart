@@ -116,8 +116,14 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   void _openConversation(PrivateMessage message) {
-    if (!message.isCurrentUser && message.status == 'UNREAD') {
-      _markMessageAsRead(message.id);
+    final otherPersonId =
+        message.isCurrentUser ? message.receiverId : message.senderId;
+
+    final conversationMessages = _conversationMessages[otherPersonId] ?? [];
+    for (var msg in conversationMessages) {
+      if (!msg.isCurrentUser && msg.status == 'UNREAD') {
+        _markMessageAsRead(msg.id);
+      }
     }
 
     setState(() {
