@@ -4,6 +4,7 @@ import 'package:firstflutterapp/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../setting-preferences/setting-preferences.dart';
 
 class SettingUser extends StatelessWidget {
   @override
@@ -18,24 +19,33 @@ class SettingUser extends StatelessWidget {
               onPressed: () {
                 context.push(profileUpdatePassword);
               },
-              style: AppTheme.emptyButtonStyle.merge(ElevatedButton.styleFrom(
-                  fixedSize: const Size(300, 50)
-              )) ,
-              child: const Text(
-                "Changer le mot de passe",
+              style: AppTheme.emptyButtonStyle.merge(
+                ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),
               ),
+              child: const Text("Changer le mot de passe"),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 context.go(profileSupport);
               },
-              style: AppTheme.emptyButtonStyle.merge(ElevatedButton.styleFrom(
-                fixedSize: const Size(300, 50)
-              )) ,
-              child: const Text(
-                "Demande/Support",
+              style: AppTheme.emptyButtonStyle.merge(
+                ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),
               ),
+              child: const Text("Demande/Support"),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingPreferences()),
+                );
+              },
+              style: AppTheme.emptyButtonStyle.merge(
+                ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),
+              ),
+              child: const Text("Préférences"),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -44,14 +54,12 @@ class SettingUser extends StatelessWidget {
                 userNotifier.logout();
                 if (context.mounted) {
                   context.go(loginRoute);
-                  }
+                }
               },
-              style: AppTheme.filledButtonStyle.merge(ElevatedButton.styleFrom(
-                  fixedSize: const Size(300, 50)
-              )) ,
-              child: const Text(
-                "Deconnexion",
+              style: AppTheme.filledButtonStyle.merge(
+                ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),
               ),
+              child: const Text("Deconnexion"),
             ),
           ],
         ),
