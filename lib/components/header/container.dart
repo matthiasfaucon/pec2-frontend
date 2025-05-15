@@ -1,16 +1,12 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 
-import '../../screens//login_view.dart';
-
-
 class Header extends StatefulWidget {
   @override
   _HeaderState createState() => _HeaderState();
 }
 
 class _HeaderState extends State<Header> {
-
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -20,42 +16,31 @@ class _HeaderState extends State<Header> {
           children: const [
             Text("Salut,", style: TextStyle(fontSize: 16)),
             Text(
-              "Test",
+              "John Doe",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        IconButton(
-          icon:
-          Theme.of(context).brightness == Brightness.light
-              ? const Icon(Icons.dark_mode)
-              : const Icon(Icons.light_mode),
-          onPressed: () {
-            if (Theme.of(context).brightness == Brightness.light) {
-              AdaptiveTheme.of(context).setDark();
-            } else {
-              AdaptiveTheme.of(context).setLight();
-            }
-          },
-        ),
-
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginView(),
-              )
-            );
-          },
-          child: const CircleAvatar(
-            radius: 30,
-            backgroundImage: NetworkImage("https://i.imgur.com/QCNbOAo.png"),
-          ),
+        Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined),
+              onPressed: () {
+                // Action pour les notifications
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.send_outlined),
+              onPressed: () {
+                // Action pour envoyer un message
+              },
+            ),
+          ],
         ),
       ],
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return _buildHeader();
