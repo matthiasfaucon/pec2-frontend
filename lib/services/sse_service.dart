@@ -2,10 +2,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:firstflutterapp/interfaces/comment.dart';
-import 'package:firstflutterapp/utils/auth_utils.dart';
+import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:universal_html/html.dart' if (dart.library.html) 'dart:html' as html;
 
@@ -27,7 +28,8 @@ class SSEService {
   });
 
   Future<void> connect() async {
-    final token = await AuthUtils.getToken();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
     if (token == null) {
       throw Exception('Utilisateur non connecté');
     }    
@@ -76,33 +78,34 @@ class SSEService {
     }
   }
 
-  Future<void> sendComment(String content) async {
-    if (!_isConnected) {
-      throw Exception('Not connected to SSE');
-    }
+  static Future<Comment> sendComment(String postId, String content) async {
 
-    final token = await AuthUtils.getToken();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    print('Token: $token');
     if (token == null) {
       throw Exception('Utilisateur non connecté');
     }
 
-    final baseUrl = PlatformUtils.getApiBaseUrl();
-    final commentUrl = '${baseUrl}/posts/$postId/comments?token=$token';
+    final commentUrl = '/posts/$postId/comments';
+    final ApiService _apiService = ApiService();
 
     try {
-      final response = await http.post(
-        Uri.parse(commentUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
+      final ApiResponse response = await _apiService.request(
+        method: 'post',
+        endpoint: commentUrl,
+        body: {
           'content': content,
-        }),
+        }
       );
+        
+      print('Response request: ${response.data}');
 
       if (response.statusCode != 201) {
         throw Exception('Failed to send comment: ${response.statusCode}');
       }
+
+      return Comment.fromJson(response.data['comment']);
     } catch (e) {
       debugPrint('Error sending comment: $e');
       rethrow;
@@ -146,7 +149,9 @@ class WebEventSource implements EventSourceBase {
         _eventSource = html.EventSource(url);
         
         _eventSource!.onOpen.listen((event) {
-          _streamController.add(SSEEvent(type: 'connected'));
+          _streamController.add(SSEEvent(
+            type: 'connected'
+          ));
         });
         
         _eventSource!.onMessage.listen((event) {
@@ -207,7 +212,6 @@ class WebEventSource implements EventSourceBase {
   }
 }
 
-// Non-web implementation using http package
 class IoEventSource implements EventSourceBase {
   final String url;
   final StreamController<SSEEvent> _streamController = StreamController<SSEEvent>.broadcast();

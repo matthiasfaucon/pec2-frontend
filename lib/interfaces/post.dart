@@ -1,9 +1,9 @@
 import 'package:firstflutterapp/interfaces/category.dart';
 import 'package:firstflutterapp/interfaces/comment.dart';
+import 'package:firstflutterapp/interfaces/user.dart';
 
 class Post {
   final String id;
-  final String userId;
   final String name;
   final String pictureUrl;
   final bool isFree;
@@ -12,12 +12,17 @@ class Post {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final PostCreatorUser user;
+  final int likesCount;
+  final int commentsCount;
+  final int reportsCount;
   List<Comment> comments;
+  
   Post({
     required this.id,
-    required this.userId,
     required this.name,
     required this.pictureUrl,
+    required this.user,
     this.isFree = false,
     this.enable = true,
     this.categories = const [],
@@ -25,15 +30,19 @@ class Post {
     required this.updatedAt,
     this.deletedAt,
     this.comments = const [],
+    this.likesCount = 0,
+    this.commentsCount = 0,
+    this.reportsCount = 0,
   });
+  
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['id'],
-      userId: json['userId'],
       name: json['name'],
       pictureUrl: json['pictureUrl'],
       isFree: json['isFree'] ?? false,
       enable: json['enable'] ?? true,
+      user: PostCreatorUser.fromJson(json['user']),
       categories: (json['categories'] as List<dynamic>?)
           ?.map((category) => Category.fromJson(category))
           .toList() ??
@@ -44,24 +53,31 @@ class Post {
           [],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      deletedAt: json['deleted_at'] != null
+      deletedAt: json['deletedAt'] != null
           ? DateTime.parse(json['deletedAt'])
           : null,
+      likesCount: json['likesCount'] ?? 0,
+      commentsCount: json['commentsCount'] ?? 0,
+      reportsCount: json['reportsCount'] ?? 0,
     );
   }
+  
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'user_id': userId,
       'name': name,
-      'picture_url': pictureUrl,
-      'is_free': isFree,
+      'pictureUrl': pictureUrl,
+      'isFree': isFree,
       'enable': enable,
+      'user': user.toJson(),
       'categories': categories.map((category) => category.toJson()).toList(),
       'comments': comments.map((comment) => comment.toJson()).toList(),
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'deleted_at': deletedAt?.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'deletedAt': deletedAt?.toIso8601String(),
+      'likesCount': likesCount,
+      'commentsCount': commentsCount,
+      'reportsCount': reportsCount,
     };
   }
 }

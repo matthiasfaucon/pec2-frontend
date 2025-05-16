@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:firstflutterapp/utils/platform_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,8 +58,18 @@ class ApiService {
     if (queryParams != null) {
       uri = uri.replace(queryParameters: queryParams);
     }
-    
+
+    String? data;
+
+    if(body != null){
+      data = jsonEncode(body);
+    }  
     http.Response response;
+
+    if(kDebugMode){
+      print('$method : $uri');
+      print(data);
+    }
     
     try {
       switch (method.toUpperCase()) {
@@ -69,14 +80,14 @@ class ApiService {
           response = await http.post(
             uri,
             headers: headers,
-            body: body != null ? jsonEncode(body) : null,
+            body: data,
           );
           break;
         case 'PUT':
           response = await http.put(
             uri,
             headers: headers,
-            body: body != null ? jsonEncode(body) : null,
+            body: data,
           );
           break;
         case 'DELETE':
@@ -86,15 +97,21 @@ class ApiService {
           response = await http.patch(
             uri,
             headers: headers,
-            body: body != null ? jsonEncode(body) : null,
+            body: data,
           );
           break;
         default:
           throw Exception('Unsupported HTTP method: $method');
       }
+
+      if (kDebugMode) {
+        print('Response: ${response.statusCode}');
+        print('Data: ${response.body}');
+      }
       
       return _handleResponse(response);
     } catch (e) {
+      print('Error: $e');
       throw Exception('Network error: $e');
     }
   }
@@ -144,28 +161,21 @@ class ApiService {
 
 
   ApiResponse _handleResponse(http.Response response) {
-    try {
-      final decoded = response.body.isNotEmpty ? jsonDecode(response.body) : null;
+    print('Decoding response: ${response.body}');
+    final decoded = response.body.isNotEmpty ? jsonDecode(response.body) : null;
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return ApiResponse(
-          statusCode: response.statusCode,
-          success: true,
-          data: decoded,
-        );
-      } else {
-        final message = decoded?['error'] ?? decoded?['message'] ?? response.reasonPhrase;
-        return ApiResponse(
-          statusCode: response.statusCode,
-          success: false,
-          error: message,
-        );
-      }
-    } catch (e) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return ApiResponse(
+        statusCode: response.statusCode,
+        success: true,
+        data: decoded,
+      );
+    } else {
+      final message = decoded?['error'] ?? decoded?['message'] ?? response.reasonPhrase;
       return ApiResponse(
         statusCode: response.statusCode,
         success: false,
-        error: "Erreur de parsing JSON: $e",
+        error: message,
       );
     }
   }

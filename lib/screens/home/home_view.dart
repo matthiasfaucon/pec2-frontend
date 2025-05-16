@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
-import '../components/categories/categories-list.dart';
-import '../components/free-feed/container.dart';
-import '../components/header/container.dart';
-import '../components/search-bar/search-bar.dart';
-import '../config/router.dart';
-import '../notifiers/userNotififers.dart';
+import '../../components/categories/categories-list.dart';
+import '../../components/free-feed/container.dart';
+import '../../components/header/container.dart';
+import '../../components/search-bar/search-bar.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -17,7 +13,6 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-
   @override
   void initState() {
     super.initState();
@@ -35,9 +30,8 @@ class _HomeViewState extends State<HomeView> {
     // }
     // // });
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return Scaffold(
+      body: SafeArea(
         child: ListView(
           children: [
             Header(),

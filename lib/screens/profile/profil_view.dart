@@ -16,7 +16,7 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   User? _user;
-  String _avatarUrl = 'https://via.placeholder.com/150';
+  String _avatarUrl = 'https://coloriagevip.com/wp-content/uploads/2024/08/Coloriage-Chien-27.webp';
 
   @override
   void initState() {
