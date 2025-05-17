@@ -19,7 +19,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   int _selectedIndex = 0;
 
   final List<String> _routes = [
-    adminDashboard,
+    adminKpiDashboard,
     adminUsersChart,
     adminUsersManagement,
     adminContacts,   

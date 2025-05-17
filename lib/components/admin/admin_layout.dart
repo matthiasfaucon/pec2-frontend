@@ -68,7 +68,7 @@ class SideMenu extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
-            _buildMenuItem(0, "Tableau de bord", Icons.dashboard),
+            _buildMenuItem(0, "Kpi Dashboard", Icons.dashboard),
             _buildMenuItem(1, "Statistiques", Icons.insert_chart),
             _buildMenuItem(2, "Utilisateurs", Icons.group),
             _buildMenuItem(3, "Contacts", Icons.contact_mail),

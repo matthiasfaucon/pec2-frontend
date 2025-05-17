@@ -175,7 +175,7 @@ class _UsersManagementState extends State<UsersManagement> {
     }
 
     if (user['sexe'] != null) {
-      details.add(_buildDetailRow('Sexe', user['sexe']));
+      details.add(_buildDetailRow('Sexe', _translateSexe(user['sexe'])));
     }
 
     if (user['bio'] != null) {
@@ -331,6 +331,19 @@ class _UsersManagementState extends State<UsersManagement> {
     }
 
     return details;
+  }
+
+  String _translateSexe(String sexe) {
+    switch (sexe) {
+      case 'MAN':
+        return 'Homme';
+      case 'WOMAN':
+        return 'Femme';
+      case 'OTHER':
+        return 'Autre';
+      default:
+        return sexe;
+    }
   }
 
   Widget _buildDetailRow(String label, String value) {
