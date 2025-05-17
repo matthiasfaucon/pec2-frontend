@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/admin/category_create_dialog.dart';
+import '../components/admin/category_delete_dialog.dart';
 
 class CategoriesManagement extends StatefulWidget {
   const CategoriesManagement({Key? key}) : super(key: key);
@@ -20,6 +21,48 @@ class _CategoriesManagementState extends State<CategoriesManagement> {
   void initState() {
     super.initState();
     _fetchCategories();
+  }
+
+  Future<void> _deleteCategory(Map<String, dynamic> category) async {
+    try {
+      final response = await ApiService().request(
+        method: 'DELETE',
+        endpoint: '/categories/${category['id']}',
+        withAuth: true,
+      );
+
+      if (response.success) {
+        setState(() {
+          _categories.removeWhere((c) => c['id'] == category['id']);
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Catégorie supprimée avec succès'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur: ${response.error ?? "Une erreur est survenue"}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la suppression: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -136,9 +179,22 @@ class _CategoriesManagementState extends State<CategoriesManagement> {
                                     tooltip: 'Modifier',
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete_outline),
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
                                     onPressed: () {
-                                      // TODO: Implémenter la suppression
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return CategoryDeleteDialog(
+                                            category: category,
+                                            onConfirm: () {
+                                              _deleteCategory(category);
+                                            },
+                                          );
+                                        },
+                                      );
                                     },
                                     tooltip: 'Supprimer',
                                   ),
