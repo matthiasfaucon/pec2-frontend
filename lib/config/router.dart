@@ -21,6 +21,7 @@ import 'package:firstflutterapp/admin/contact_management.dart';
 import 'package:firstflutterapp/admin/users_chart.dart';
 import 'package:firstflutterapp/admin/content_creator.dart';
 import 'package:firstflutterapp/screens/message/message.dart';
+import 'package:firstflutterapp/admin/admin_kpi.dart';
 
 const homeRoute = '/';
 const loginRoute = '/login';
@@ -41,6 +42,7 @@ const adminContentCreator = '/admin/content-creator';
 const profilePreferences = '/profile/params/preferences';
 const searchRoute = '/search';
 const messageRoute = '/message';
+const adminKpiDashboard = '/admin/kpi-dashboard';
 
 Future<String?> hasAdminPermissions(
   BuildContext context,
@@ -161,9 +163,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '$adminRoute/dashboard',
-          builder:
-              (context, state) =>
-                  const Center(child: Text('Dashboard Content')),
+          builder: (context, state) => const AdminKpiDashboard(),
         ),
         GoRoute(
           path: '$adminRoute/users',
@@ -180,6 +180,10 @@ final router = GoRouter(
         GoRoute(
           path: '$adminRoute/content-creator',
           builder: (context, state) => const AdminContentCreator(),
+        ),
+        GoRoute(
+          path: '$adminRoute/kpi-dashboard',
+          builder: (context, state) => const AdminKpiDashboard(),
         ),
       ],
     ),
