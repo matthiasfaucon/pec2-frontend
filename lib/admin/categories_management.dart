@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../components/admin/category_create_dialog.dart';
 
 class CategoriesManagement extends StatefulWidget {
   const CategoriesManagement({Key? key}) : super(key: key);
@@ -37,7 +38,16 @@ class _CategoriesManagementState extends State<CategoriesManagement> {
               ),
               ElevatedButton.icon(
                 onPressed: () {
-                  // TODO: Implémenter l'ajout de catégorie
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return CategoryCreateDialog(
+                        onCategoryCreated: () {
+                          _fetchCategories();
+                        },
+                      );
+                    },
+                  );
                 },
                 icon: const Icon(Icons.add),
                 label: const Text("Nouvelle catégorie"),
