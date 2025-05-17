@@ -17,7 +17,6 @@ class _SupportPageState extends State<SupportPage> {
   final TextEditingController _objetController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
   bool _isLoading = false;
-  String _errorMessage = '';
 
   Future<void> _sendSupportMessage() async {
     if (_prenomController.text.isEmpty ||
@@ -68,7 +67,9 @@ class _SupportPageState extends State<SupportPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: ${response.error ?? "Une erreur est survenue"}'),
+            content: Text(
+              'Erreur: ${response.error ?? "Une erreur est survenue"}',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -76,10 +77,7 @@ class _SupportPageState extends State<SupportPage> {
     } catch (e) {
       developer.log('Erreur envoi message support: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Erreur: $e'), backgroundColor: Colors.red),
       );
     } finally {
       setState(() {
@@ -91,30 +89,51 @@ class _SupportPageState extends State<SupportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Support'),
-      ),
+      appBar: AppBar(title: const Text('Support')),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              _labelAndInput.buildLabelAndInputText('Prénom', _prenomController, 'Entrez votre prénom'),
-              _labelAndInput.buildLabelAndInputText('Nom', _nomController, 'Entrez votre nom'),
-              _labelAndInput.buildLabelAndInputText('Email', _emailController, 'Entrez votre email'),
-              _labelAndInput.buildLabelAndInputText('Objet', _objetController, 'Entrez l\'objet de votre message'),
-              _labelAndInput.buildLabelAndInputText('Message', _messageController, 'Entrez votre message', maxLine: 5),
-              const SizedBox(height: 20),
-              _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _sendSupportMessage,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50)
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                _labelAndInput.buildLabelAndInputText(
+                  'Prénom',
+                  _prenomController,
+                  'Entrez votre prénom',
+                ),
+                _labelAndInput.buildLabelAndInputText(
+                  'Nom',
+                  _nomController,
+                  'Entrez votre nom',
+                ),
+                _labelAndInput.buildLabelAndInputText(
+                  'Email',
+                  _emailController,
+                  'Entrez votre email',
+                ),
+                _labelAndInput.buildLabelAndInputText(
+                  'Objet',
+                  _objetController,
+                  'Entrez l\'objet de votre message',
+                ),
+                _labelAndInput.buildLabelAndInputText(
+                  'Message',
+                  _messageController,
+                  'Entrez votre message',
+                  maxLine: 5,
+                ),
+                const SizedBox(height: 20),
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ElevatedButton(
+                      onPressed: _sendSupportMessage,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      child: const Text('Envoyer'),
                     ),
-                    child: const Text('Envoyer'),
-                  ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -131,4 +150,3 @@ class _SupportPageState extends State<SupportPage> {
     super.dispose();
   }
 }
-

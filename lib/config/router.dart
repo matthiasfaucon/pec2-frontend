@@ -4,6 +4,7 @@ import 'package:firstflutterapp/screens/confirm_email_view.dart';
 import 'package:firstflutterapp/screens/home_view.dart';
 import 'package:firstflutterapp/screens/post-creation/upload-photo.dart';
 import 'package:firstflutterapp/screens/profile/profil_view.dart';
+import 'package:firstflutterapp/screens/profile/setting-preferences/setting-preferences.dart';
 import 'package:firstflutterapp/screens/profile/setting-user/setting-user.dart';
 import 'package:firstflutterapp/screens/profile/update_profile/update_profile.dart';
 import 'package:firstflutterapp/screens/register/end-register.dart';
@@ -21,6 +22,9 @@ import 'package:firstflutterapp/admin/users_management.dart';
 import 'package:firstflutterapp/admin/contact_management.dart';
 import 'package:firstflutterapp/admin/users_chart.dart';
 import 'package:firstflutterapp/admin/content_creator.dart';
+import 'package:firstflutterapp/screens/message/message.dart';
+import 'package:firstflutterapp/admin/admin_kpi.dart';
+
 
 const homeRoute = '/';
 const loginRoute = '/login';
@@ -40,7 +44,10 @@ const adminUsersManagement = '/admin/users';
 const adminContacts = '/admin/contacts';
 const adminUsersChart = '/admin/users-chart';
 const adminContentCreator = '/admin/content-creator';
+const profilePreferences = '/profile/params/preferences';
 const searchRoute = '/search';
+const messageRoute = '/message';
+const adminKpiDashboard = '/admin/kpi-dashboard';
 
 Future<String?> hasAdminPermissions(
   BuildContext context,
@@ -110,6 +117,13 @@ final router = GoRouter(
           },
         ),
         GoRoute(
+          path: messageRoute,
+          builder: (context, state) => const MessagePage(),
+          redirect: (context, state) {
+            return isAuthenticated(context, state);
+          },
+        ),
+        GoRoute(
           path: profileRoute,
           builder: (context, state) => ProfileView(),
           redirect: (context, state) {
@@ -128,6 +142,10 @@ final router = GoRouter(
                 GoRoute(
                   path: 'support',
                   builder: (context, state) => SupportPage(),
+                ),
+                GoRoute(
+                  path: 'preferences',
+                  builder: (context, state) => SettingPreferences(),
                 ),
               ],
             ),
@@ -157,9 +175,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '$adminRoute/dashboard',
-          builder:
-              (context, state) =>
-                  const Center(child: Text('Dashboard Content')),
+          builder: (context, state) => const AdminKpiDashboard(),
         ),
         GoRoute(
           path: '$adminRoute/users',
@@ -176,6 +192,10 @@ final router = GoRouter(
         GoRoute(
           path: '$adminRoute/content-creator',
           builder: (context, state) => const AdminContentCreator(),
+        ),
+        GoRoute(
+          path: '$adminRoute/kpi-dashboard',
+          builder: (context, state) => const AdminKpiDashboard(),
         ),
       ],
     ),
