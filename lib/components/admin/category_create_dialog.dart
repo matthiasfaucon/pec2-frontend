@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import '../../services/api_service.dart';
-import '../../utils/platform_utils.dart';
 
 class CategoryCreateDialog extends StatefulWidget {
   final Function onCategoryCreated;
