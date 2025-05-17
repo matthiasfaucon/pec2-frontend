@@ -1,13 +1,12 @@
+import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/theme.dart';
 import 'package:firstflutterapp/screens/login_view.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-class EndRegisterView extends StatefulWidget {
-  @override
-  _EndRegisterViewState createState() => _EndRegisterViewState();
-}
+class EndRegisterView extends StatelessWidget {
+  const EndRegisterView({super.key});
 
-class _EndRegisterViewState extends State<EndRegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,10 +49,7 @@ class _EndRegisterViewState extends State<EndRegisterView> {
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginView()),
-                );
+                context.go(confirmEmailRoute);
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
@@ -63,7 +59,7 @@ class _EndRegisterViewState extends State<EndRegisterView> {
                 ),
               ),
               child: Text(
-                "Se connecter",
+                "Confirmer mon email",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:toastification/toastification.dart';
 
 import 'update_profil_service.dart';
 
@@ -327,14 +328,14 @@ class _UpdateProfileState extends State<UpdateProfile> {
             response.statusCode,
           );
           _toastService.showToast(
-            context,
             "Erreur lors de la création \n du compte \n$message",
+            ToastificationType.error
           );
         }
       } catch (e) {
         _toastService.showToast(
-          context,
           "Erreur lors de la création \n du compte",
+            ToastificationType.error
         );
       } finally {
         setState(() {

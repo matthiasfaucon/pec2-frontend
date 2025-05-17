@@ -4,12 +4,14 @@ import 'package:firstflutterapp/components/form/loading_button.dart';
 import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:firstflutterapp/services/api_service.dart';
+import 'package:firstflutterapp/services/toast_service.dart';
 import 'package:firstflutterapp/services/validators_service.dart';
 import 'package:firstflutterapp/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 
 class LoginView extends StatefulWidget {
   @override
@@ -19,6 +21,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final ToastService toastService = ToastService();
   final ApiService _apiService = ApiService();
   bool _isSubmitted = false;
   final _formKey = GlobalKey<FormState>();
@@ -75,19 +78,16 @@ class _LoginViewState extends State<LoginView> {
           context.go(homeRoute);
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Erreur lors de la connexion'),
-          ),
+        toastService.showToast(
+          'Erreur lors de la connexion',
+          ToastificationType.error,
         );
       }
     } catch (e) {
-      setState(() {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text('Erreur')),
-        );
-      });
+      toastService.showToast(
+        'Erreur lors de la connexion',
+        ToastificationType.error,
+      );
       developer.log('Erreur login: $e');
     } finally {
       setState(() {
@@ -103,10 +103,9 @@ class _LoginViewState extends State<LoginView> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             double formWidth =
-            constraints.maxWidth > 800
-                ? constraints.maxWidth /
-                3
-                : double.infinity;
+                constraints.maxWidth > 800
+                    ? constraints.maxWidth / 3
+                    : double.infinity;
 
             return Center(
               child: Container(
@@ -149,6 +148,7 @@ class _LoginViewState extends State<LoginView> {
                             controller: _passwordController,
                             label: 'Mot de passe',
                             obscure: true,
+                            showText: false,
                             validators: [RequiredValidator()],
                           ),
                           const SizedBox(height: 16),
@@ -160,9 +160,9 @@ class _LoginViewState extends State<LoginView> {
                                 style: TextStyle(fontSize: 14),
                               ),
                               InkWell(
-                                onTap: () => context.go(registerRoute),
+                                onTap: () => context.push(registerRoute),
                                 child: Text(
-                                  " (S'inscrire)",
+                                  "(S'inscrire)",
                                   style: TextStyle(
                                     color: AppTheme.darkColor,
                                     decoration: TextDecoration.underline,
