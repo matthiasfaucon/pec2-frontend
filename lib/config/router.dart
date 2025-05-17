@@ -181,6 +181,10 @@ final router = GoRouter(
           path: '$adminRoute/content-creator',
           builder: (context, state) => const AdminContentCreator(),
         ),
+        GoRoute(
+          path: '$adminRoute/kpi-dashboard',
+          builder: (context, state) => const AdminKpiDashboard(),
+        ),
       ],
     ),
   ],

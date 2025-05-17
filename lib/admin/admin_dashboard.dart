@@ -22,7 +22,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     adminKpiDashboard,
     adminUsersChart,
     adminUsersManagement,
-    adminContacts,   
+    adminContacts,
     adminContentCreator,
    
   ];
