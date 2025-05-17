@@ -73,6 +73,7 @@ class SideMenu extends StatelessWidget {
             _buildMenuItem(2, "Utilisateurs", Icons.group),
             _buildMenuItem(3, "Contacts", Icons.contact_mail),
             _buildMenuItem(4, "Créateurs ", Icons.group),
+            _buildMenuItem(5, "Catégories", Icons.category),
             const Spacer(),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
