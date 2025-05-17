@@ -4,7 +4,8 @@ import '../services/api_service.dart';
 import '../utils/date_formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/admin/category_create_dialog.dart';
-import '../components/admin/category_delete_dialog.dart';
+import '../components/admin/category_delete.dart';
+import '../components/admin/category_update.dart';
 
 class CategoriesManagement extends StatefulWidget {
   const CategoriesManagement({Key? key}) : super(key: key);
@@ -16,6 +17,8 @@ class CategoriesManagement extends StatefulWidget {
 class _CategoriesManagementState extends State<CategoriesManagement> {
   List<dynamic> _categories = [];
   bool _loadingCategories = false;
+  late CategoryDelete _deleteHandler;
+  late CategoryUpdate _updateHandler;
 
   @override
   void initState() {
@@ -23,46 +26,25 @@ class _CategoriesManagementState extends State<CategoriesManagement> {
     _fetchCategories();
   }
 
-  Future<void> _deleteCategory(Map<String, dynamic> category) async {
-    try {
-      final response = await ApiService().request(
-        method: 'DELETE',
-        endpoint: '/categories/${category['id']}',
-        withAuth: true,
-      );
-
-      if (response.success) {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _deleteHandler = CategoryDelete(
+      context: context,
+      onDeleteSuccess: () {
         setState(() {
-          _categories.removeWhere((c) => c['id'] == category['id']);
+          _fetchCategories();
         });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Catégorie supprimée avec succès'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erreur: ${response.error ?? "Une erreur est survenue"}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur lors de la suppression: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+      },
+    );
+    _updateHandler = CategoryUpdate(
+      context: context,
+      onUpdateSuccess: () {
+        setState(() {
+          _fetchCategories();
+        });
+      },
+    );
   }
 
   @override
@@ -161,20 +143,14 @@ class _CategoriesManagementState extends State<CategoriesManagement> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              subtitle: Text(
-                                '${category['posts']?.length ?? 0} articles',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                              ),
+                              subtitle: null,
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit_outlined),
                                     onPressed: () {
-                                      // TODO: Implémenter l'édition
+                                      _updateHandler.showUpdateDialog(category);
                                     },
                                     tooltip: 'Modifier',
                                   ),
@@ -184,17 +160,7 @@ class _CategoriesManagementState extends State<CategoriesManagement> {
                                       color: Colors.red,
                                     ),
                                     onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return CategoryDeleteDialog(
-                                            category: category,
-                                            onConfirm: () {
-                                              _deleteCategory(category);
-                                            },
-                                          );
-                                        },
-                                      );
+                                      _deleteHandler.showDeleteDialog(category);
                                     },
                                     tooltip: 'Supprimer',
                                   ),
@@ -221,10 +187,6 @@ class _CategoriesManagementState extends State<CategoriesManagement> {
                                       _buildDetailRow(
                                         'Mis à jour le',
                                         DateFormatter.formatDateTime(category['updatedAt']),
-                                      ),
-                                      _buildDetailRow(
-                                        'Nombre d\'articles',
-                                        '${category['posts']?.length ?? 0}',
                                       ),
                                     ],
                                   ),
