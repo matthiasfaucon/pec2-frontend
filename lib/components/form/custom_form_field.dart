@@ -27,9 +27,9 @@ class CustomTextField extends StatelessWidget {
         colorScheme: colorScheme,
         label: label,
       ),
-      validator: (value) {
+      validator: (String? value) {
         for (final validator in validators) {
-          final result = validator.validate(value ?? '');
+          final result = validator.validate(value);
           if (result != null) return result;
         }
         return null;

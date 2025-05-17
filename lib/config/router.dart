@@ -20,9 +20,6 @@ import 'package:firstflutterapp/admin/contact_management.dart';
 import 'package:firstflutterapp/admin/users_chart.dart';
 import 'package:firstflutterapp/admin/content_creator.dart';
 
-
-
-
 const homeRoute = '/';
 const loginRoute = '/login';
 const uploadPhotoRoute = '/upload-photo';

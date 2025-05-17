@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:firstflutterapp/components/label-and-input/label-and-input-text.dart';
+import 'package:firstflutterapp/config/constantes.dart';
 import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/interfaces/user.dart';
 import 'package:firstflutterapp/utils/check-form-data.dart';
@@ -60,7 +61,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
     avatarUrl =
         user.profilePicture.trim() != ""
             ? userNotifier.user!.profilePicture
-            : "https://coloriagevip.com/wp-content/uploads/2024/08/Coloriage-Chien-27.webp";
+            : "";
     pseudoController = TextEditingController(text: user.userName);
     emailController = TextEditingController(text: user.email);
     firstNameController = TextEditingController(text: user.firstName);
@@ -158,7 +159,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
             child: CircleAvatar(
               radius: 40,
               backgroundImage:
-                  avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+                  avatarUrl.isNotEmpty
+                      ? PlatformUtils.isWebPlatform()
+                          ? NetworkImage(avatarUrl)
+                          : FileImage(File(avatarUrl)) as ImageProvider
+                      : AssetImage('assets/images/dog.webp'),
               backgroundColor: const Color(0xFFE4DAFF),
             ),
           ),

@@ -1,11 +1,12 @@
 abstract class Validator {
-  String? validate(String value);
+  String? validate(String? value);
 }
 
 class RequiredValidator implements Validator {
   @override
-  String? validate(String value) {
-    if (value.isEmpty) {
+  String? validate(String? value) {
+
+    if (value == null || value.isEmpty) {
       return 'Vous devez remplir ce champs';
     }
 
@@ -15,8 +16,11 @@ class RequiredValidator implements Validator {
 
 class EmailValidator implements Validator {
   @override
-  String? validate(String value) {
-    final emailRegex = RegExp(r'^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
+  String? validate(String? value) {
+    if(value == null){
+      return 'Email non valide';
+    }
+    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Email non valide';
     }

@@ -20,7 +20,6 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final ApiService _apiService = ApiService();
-  bool _isLoading = false;
   bool _isSubmitted = false;
   final _formKey = GlobalKey<FormState>();
 
@@ -38,7 +37,6 @@ class _LoginViewState extends State<LoginView> {
 
   Future<void> _onSubmit() async {
     setState(() {
-      _isLoading = true;
       _isSubmitted = true;
     });
 
@@ -46,15 +44,12 @@ class _LoginViewState extends State<LoginView> {
     final email = _emailController.text;
     final password = _passwordController.text;
 
-    // if (!_formKey.currentState!.validate()) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       backgroundColor: Colors.red,
-    //       content: Text('Veuillez renseigner tous les champs'),
-    //     ),
-    //   );
-    //   return;
-    // }
+    if (!_formKey.currentState!.validate()) {
+      setState(() {
+        _isSubmitted = false;
+      });
+      return;
+    }
 
     try {
       final response = await _apiService.request(
@@ -64,20 +59,28 @@ class _LoginViewState extends State<LoginView> {
         withAuth: false,
       );
 
-      final token = response.data['token'];
-      developer.log('Mobile login - Token reçu: $token');
+      if (response.success) {
+        final token = response.data['token'];
+        developer.log('Mobile login - Token reçu: $token');
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        userNotifier.onAuthenticationSuccess(response.data);
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      userNotifier.onAuthenticationSuccess(response.data);
-
-      if (!mounted) {
-        return;
-      }
-      if (await userNotifier.isAdmin()) {
-        context.go(adminDashboard);
+        if (!mounted) {
+          return;
+        }
+        if (await userNotifier.isAdmin()) {
+          context.go(adminDashboard);
+        } else {
+          context.go(homeRoute);
+        }
       } else {
-        context.go(homeRoute);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Erreur lors de la connexion'),
+          ),
+        );
       }
     } catch (e) {
       setState(() {
@@ -88,7 +91,7 @@ class _LoginViewState extends State<LoginView> {
       developer.log('Erreur login: $e');
     } finally {
       setState(() {
-        _isLoading = false;
+        _isSubmitted = false;
       });
     }
   }
@@ -99,9 +102,11 @@ class _LoginViewState extends State<LoginView> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            double formWidth = constraints.maxWidth > 800
-                ? constraints.maxWidth / 3 // 1/3 de largeur si large écran
-                : double.infinity; // plein écran sur mobile
+            double formWidth =
+            constraints.maxWidth > 800
+                ? constraints.maxWidth /
+                3
+                : double.infinity;
 
             return Center(
               child: Container(
@@ -116,13 +121,17 @@ class _LoginViewState extends State<LoginView> {
                       "Ravis de vous revoir sur",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w500),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const Text(
                       "OnlyFlick",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 28, fontWeight: FontWeight.bold),
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 40),
                     Form(
@@ -146,8 +155,10 @@ class _LoginViewState extends State<LoginView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              const Text("Pas de compte ?",
-                                  style: TextStyle(fontSize: 14)),
+                              const Text(
+                                "Pas de compte ?",
+                                style: TextStyle(fontSize: 14),
+                              ),
                               InkWell(
                                 onTap: () => context.go(registerRoute),
                                 child: Text(
