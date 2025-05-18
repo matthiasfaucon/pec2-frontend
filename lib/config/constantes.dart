@@ -1,0 +1,1 @@
+const String defaultImage = "https://coloriagevip.com/wp-content/uploads/2024/08/Coloriage-Chien-27.webp";

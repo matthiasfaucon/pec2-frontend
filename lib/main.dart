@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 
 Future<void> main() async {
@@ -15,7 +16,9 @@ Future<void> main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => UserNotifier()),
     ],
-    child: const MyApp(),
+    child: const ToastificationWrapper(
+      child: MyApp(),
+    ),
   );
 
   runApp(multiProvider);

@@ -3,65 +3,21 @@ import 'package:firstflutterapp/utils/check-form-data.dart';
 class RegisterService {
   final CheckFormData _checkFormData = CheckFormData();
 
-  bool isSamePassword(String password1, String password2) {
-    return password1 == password2 && password1.trim() != "";
+  bool checkStep2IsOk(DateTime? birthDay, String? sexe) {
+    final bool validBirthDay = isValidBirthdate(birthDay);
+    final bool validSexe = isValidSexe(sexe);
+    return validBirthDay && validSexe;
   }
 
-  bool isValidPassword(String password) {
-    final hasUpper = password.contains(RegExp(r'[A-Z]'));
-    final hasDigit = password.contains(RegExp(r'[0-9]'));
-    final hasMinimumString = password.length >= 6;
-
-    return hasUpper && hasDigit && hasMinimumString;
+  bool isValidBirthdate(DateTime? birthDay){
+    return _checkFormData.dateIsNotEmpty(birthDay);
   }
 
-  String getMessageErrorPassword(String password, String confirmPassword) {
-    final bool validPassword = isValidPassword(password);
-    final bool samePassword = isSamePassword(password, confirmPassword);
-    final bool notEmptyPassword = _checkFormData.inputIsNotEmptyOrNull(password);
-
-    if(!notEmptyPassword){
-      return "Le mot de passe doit être rempli";
-    }else if(!samePassword){
-      return "Les mots ne sont pas identiques";
-    }else if(!validPassword){
-      return "format incorrect";
-    }else{
-      return "format incorrect";
-    }
+  bool isValidSexe(String? sexe){
+    return _checkFormData.inputIsNotEmptyOrNull(sexe);
   }
 
-  checkStep1IsOk(
-    String email,
-    String password,
-    String confirmPassword,
-    String pseudo,
-  ) {
-    final bool validEmail = _checkFormData.validEmail(email);
-    final bool samePassword = isSamePassword(password, confirmPassword);
-    final bool validPassword = isValidPassword(password);
-    final bool validPseudo = _checkFormData.inputIsNotEmptyOrNull(pseudo);
-    return validEmail &&
-        samePassword &&
-        validPassword &&
-        validEmail &&
-        validPseudo;
-  }
-
-  checkStep2IsOk(
-    String firstName,
-    String lastName,
-    DateTime? birthDay,
-    String? sexe,
-  ) {
-    final bool validFirstname = _checkFormData.inputIsNotEmptyOrNull(firstName);
-    final bool validLastName = _checkFormData.inputIsNotEmptyOrNull(lastName);
-    final bool validBirthDay = _checkFormData.dateIsNotEmpty(birthDay);
-    final bool validSexe = _checkFormData.inputIsNotEmptyOrNull(sexe);
-    return validFirstname && validLastName && validBirthDay && validSexe;
-  }
-
-  getSexe(String? selectedSexe) {
+  String getSexe(String? selectedSexe) {
     if (selectedSexe != null) {
       switch (selectedSexe) {
         case "Femme":
@@ -70,9 +26,21 @@ class RegisterService {
           return "MAN";
         case "Autre":
           return "OTHER";
+        default: return "MAN";
       }
     } else {
-      return "";
+      return "MAN";
+    }
+  }
+
+  String getMessageError(String message) {
+    switch (message) {
+      case 'This username is already taken':
+        return 'Pseudo déjà utilisé';
+      case 'This email is already used':
+        return 'Email déjà utilisé';
+      default:
+        return "Erreur lors de l'inscription";
     }
   }
 }
