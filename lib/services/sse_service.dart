@@ -38,57 +38,46 @@ class SSEService {
     
     try {
       final sseUrl = '${baseUrl}/posts/$postId/comments/sse?token=$token';
-      debugPrint('Connecting to SSE: $sseUrl');
       
       _eventSource = EventSourceFactory.create(sseUrl);
       _isConnected = true;
       onConnectionStatusChanged(true);
         _subscription = _eventSource!.events.listen(
         (event) {
-          debugPrint('SSE event received: ${event.type}, data: ${event.data}');
           if (event.type == 'connected') {
             debugPrint('SSE Connected successfully');
-          } else if (event.type == 'comment') {            try {
-              debugPrint('Comment event received: ${event.data}');
+          } else if (event.type == 'comment') {            
+            try {
               if (event.data == null || event.data!.isEmpty) {
-                debugPrint('Empty comment data received');
                 return;
               }
               
               final dynamic data = jsonDecode(event.data!);
-              debugPrint('Parsed comment JSON: $data');
 
               if (data['type'] == 'new_comment' && data.containsKey('payload')) {
                 // Format normal: type + payload
                 final payload = data['payload'];
-                debugPrint('New comment payload: $payload');
                 
                 if (payload is Map<String, dynamic>) {
                   final comment = Comment.fromJson(payload);
-                  debugPrint('New comment created: ${comment.content} from ${comment.userName}');
                   onNewComment(comment);
                 } else {
                   final comment = Comment.fromJson(Map<String, dynamic>.from(payload));
-                  debugPrint('New comment created (converted): ${comment.content}');
                   onNewComment(comment);
                 }
               } else if (data['type'] == 'existing_comment' && data.containsKey('payload')) {
                 // Format pour les commentaires existants
                 final payload = data['payload'];
-                debugPrint('Existing comment payload: $payload');
                 
                 if (payload is Map<String, dynamic>) {
                   final comment = Comment.fromJson(payload);
-                  debugPrint('Existing comment created: ${comment.content}');
                   onExistingComments([comment]);
                 } else {
                   final comment = Comment.fromJson(Map<String, dynamic>.from(payload));
-                  debugPrint('Existing comment created (converted): ${comment.content}');
                   onExistingComments([comment]);
                 }
               } else if (data is Map && data.containsKey('id')) {
                 // Format alternatif: directement le commentaire
-                debugPrint('Direct comment data received: $data');
                 Map<String, dynamic> commentData;
                 
                 if (data is Map<String, dynamic>) {
@@ -98,7 +87,6 @@ class SSEService {
                 }
                 
                 final comment = Comment.fromJson(commentData);
-                debugPrint('Direct comment created: ${comment.content}');
                 onNewComment(comment);
               } else {
                 debugPrint('Unknown comment format: $data');
@@ -113,7 +101,6 @@ class SSEService {
         onDone: () {
           _isConnected = false;
           onConnectionStatusChanged(false);
-          debugPrint('SSE connection closed');
         },
         onError: (error) {
           _isConnected = false;

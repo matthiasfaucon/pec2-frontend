@@ -76,9 +76,7 @@ class _CommentsModalState extends State<CommentsModal> {
     }
     
     try {
-      debugPrint('CommentsModal: Envoi du commentaire: ${_commentController.text}');
       final sseProvider = context.read<SSEProvider>();
-      debugPrint('CommentsModal: Envoi du commentaire via le provider SSE');
       
       // Store the comment text and clear the input field immediately for better UX
       final String commentText = _commentController.text;
@@ -86,18 +84,14 @@ class _CommentsModalState extends State<CommentsModal> {
       FocusScope.of(context).unfocus();
       
       final comment = await sseProvider.sendComment(widget.post.id, commentText);
-      debugPrint('CommentsModal: Commentaire envoyé avec succès: ${comment?.id}');
       
       // Update local state with the new comment
       setState(() {
         if (comment != null && !_comments.any((c) => c.id == comment.id)) {
-          debugPrint('CommentsModal: Ajout du commentaire à la liste locale');
-          _comments.add(comment);
+          _comments.insert(0, comment);
         }
       });
     } catch (e, stackTrace) {
-      debugPrint('CommentsModal: Erreur lors de l\'envoi du commentaire: $e');
-      debugPrint('Stack trace: $stackTrace');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur lors de l\'envoi du commentaire: ${e.toString().substring(0, 100)}...'),
@@ -144,7 +138,6 @@ class _CommentsModalState extends State<CommentsModal> {
           Expanded(
             child: Consumer<SSEProvider>(
               builder: (context, sseProvider, _) {                // Créer une liste combinée de tous les commentaires (SSE + chargés)
-                debugPrint('CommentsModal: Fusion des commentaires pour le post ${widget.post.id}');
                 
                 // Commencer avec tous les commentaires du SSE provider
                 final List<Comment> allComments = [];
@@ -152,13 +145,11 @@ class _CommentsModalState extends State<CommentsModal> {
                 
                 // Toujours afficher les commentaires du SSE provider en priorité
                 if (sseComments.isNotEmpty) {
-                  debugPrint('CommentsModal: ${sseComments.length} commentaires SSE trouvés');
                   allComments.addAll(sseComments);
                 }
                 
                 // Ajouter les commentaires chargés via API REST qui ne sont pas déjà présents
                 if (_comments.isNotEmpty) {
-                  debugPrint('CommentsModal: ${_comments.length} commentaires locaux trouvés');
                   for (final comment in _comments) {
                     if (!allComments.any((c) => c.id == comment.id)) {
                       allComments.add(comment);
@@ -166,15 +157,13 @@ class _CommentsModalState extends State<CommentsModal> {
                   }
                 }
                 
-                // Trier les commentaires par date (plus récent en dernier)
+                // Trier les commentaires par date (plus récent en premier)
                 allComments.sort((a, b) {
                   final dateA = DateTime.parse(a.createdAt);
                   final dateB = DateTime.parse(b.createdAt);
-                  return dateA.compareTo(dateB);
+                  return dateB.compareTo(dateA);
                 });
-                
-                debugPrint('CommentsModal: ${allComments.length} commentaires au total après fusion');
-                
+                                
                 if (allComments.isEmpty) {
                   return Center(
                     child: Column(

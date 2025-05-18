@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:firstflutterapp/interfaces/post.dart';
 import 'package:firstflutterapp/components/comments/comments_modal.dart';
 import 'package:firstflutterapp/components/comments/comment_badge.dart';
@@ -7,18 +6,32 @@ import 'package:flutter/material.dart';
 
 final ApiService _apiService = ApiService();
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final Post post;
   final bool isSSEConnected;
   final Function(String)? onPostUpdated;
 
   const PostCard({
-    Key? key,
+    super.key,
     required this.post,
     required this.isSSEConnected,
     this.onPostUpdated,
-  }) : super(key: key);
+  });
+  
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
 
+class _PostCardState extends State<PostCard> {
+  late int _likesCount;
+  bool _isLikeInProgress = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    _likesCount = widget.post.likesCount;
+  }
+  
   String getFormattedDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -46,27 +59,60 @@ class PostCard extends StatelessWidget {
           maxChildSize: 0.95,
           builder: (_, scrollController) {
             return CommentsModal(
-              post: post,
-              isConnected: isSSEConnected,
-              postAuthorName: post.user.userName,
+              post: widget.post,
+              isConnected: widget.isSSEConnected,
+              postAuthorName: widget.post.user.userName,
             );
           },
         );
       },
     );
   }
-  Future toggleLike(String postId) async {
-    final response = await _apiService.request(
-      method: 'post',
-      endpoint: '/posts/$postId/like',
-      withAuth: true,
-    );
-
-    if (response.success) {
-      return response.data;
+  
+  Future<void> toggleLike(String postId) async {
+    // J'ai essayé de faire un debounce pour éviter les clics trop rapides
+    if (_isLikeInProgress) {
+      return;
     }
+    
+    setState(() {
+      _isLikeInProgress = true;
+    });
+    
+    try {
+      final response = await _apiService.request(
+        method: 'post',
+        endpoint: '/posts/$postId/like',
+        withAuth: true,
+      );
 
-    throw Exception('Échec de l\'ajout du like: ${response.error}');
+
+      if (response.success) {
+        setState(() {
+          if (response.data['action'] == "added") {
+            _likesCount++;
+            widget.post.likesCount++;
+          } else if (response.data['action'] == "removed") {
+            _likesCount--;
+            widget.post.likesCount--;
+          }
+        });
+      } else {
+        throw Exception('Échec de l\'ajout du like: ${response.error}');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: $e')),
+      );
+    } finally {
+      // O.5 seconde pour le debounce
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        setState(() {
+          _isLikeInProgress = false;
+        });
+      }
+    }
   }
 
   @override
@@ -82,13 +128,10 @@ class PostCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage:
-                      post.user.profilePicture != null
-                          ? NetworkImage(post.user.profilePicture)
-                          : const AssetImage('assets/images/default_avatar.png')
-                              as ImageProvider,
+              children: [                CircleAvatar(
+                  backgroundImage: widget.post.user.profilePicture.isEmpty
+                      ? const AssetImage('assets/images/default_avatar.png') as ImageProvider
+                      : NetworkImage(widget.post.user.profilePicture),
                   radius: 20,
                 ),
                 const SizedBox(width: 10),
@@ -96,14 +139,14 @@ class PostCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      post.user.userName,
+                      widget.post.user.userName,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
                     Text(
-                      getFormattedDate(post.updatedAt),
+                      getFormattedDate(widget.post.updatedAt),
                       style: TextStyle(
                         color: Theme.of(context).textTheme.bodyMedium?.color,
                         fontSize: 12,
@@ -122,28 +165,20 @@ class PostCard extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onDoubleTap: () async {
-              try {
-                await toggleLike(post.id);
+            onDoubleTap: () {
+              toggleLike(widget.post.id).then((_) {
                 // We need to notify parent to update posts list
-                if (onPostUpdated != null) {
-                  onPostUpdated!(post.id);
+                if (widget.onPostUpdated != null) {
+                  widget.onPostUpdated!(widget.post.id);
                 }
-              } catch (e) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-              }
+              });
             },
             child: Container(
               constraints: const BoxConstraints(maxHeight: 400),
-              width: double.infinity,
-              child: Image(
-                image:
-                    post.pictureUrl != null
-                        ? NetworkImage(post.pictureUrl)
-                        : const AssetImage('assets/images/default_image.png')
-                            as ImageProvider,
+              width: double.infinity,              child: Image(
+                image: widget.post.pictureUrl.isEmpty
+                    ? const AssetImage('assets/images/default_image.png') as ImageProvider
+                    : NetworkImage(widget.post.pictureUrl),
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
@@ -164,40 +199,39 @@ class PostCard extends StatelessWidget {
           ),
 
           // Post caption
-          if (post.name.isNotEmpty)
+          if (widget.post.name.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Text(post.name, style: const TextStyle(fontSize: 15)),
+              child: Text(widget.post.name, style: const TextStyle(fontSize: 15)),
             ),
 
           // Like and comment actions
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.favorite, color: Colors.red),
-                  onPressed: () async {
-                    try {
-                      await toggleLike(post.id);
+              children: [                IconButton(
+                  icon: _isLikeInProgress 
+                      ? Icon(Icons.favorite, color: Colors.red.withOpacity(0.5))
+                      : Icon(Icons.favorite, color: Colors.red),
+                  onPressed: () {
+                    toggleLike(widget.post.id).then((_) {
+                      debugPrint('Post liked: ${widget.post.id}');
+                      debugPrint('Post likes count: ${_likesCount}');
+                      
                       // We need to notify parent to update posts list
-                      if (onPostUpdated != null) {
-                        onPostUpdated!(post.id);
+                      if (widget.onPostUpdated != null) {
+                        widget.onPostUpdated!(widget.post.id);
                       }
-                    } catch (e) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-                    }
+                    });
                   },
                 ),
                 Text(
-                  post.likesCount.toString(),
+                  _likesCount.toString(),
                   style: TextStyle(color: Colors.grey[700]),
                 ),
                 const SizedBox(width: 8),
                 CommentBadge(
-                  count: post.comments.length,
+                  count: widget.post.commentsCount,
                   onTap: () => _openCommentsModal(context),
                 ),
               ],

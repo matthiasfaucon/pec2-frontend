@@ -13,7 +13,7 @@ class Post {
   final DateTime updatedAt;
   final DateTime? deletedAt;
   final PostCreatorUser user;
-  final int likesCount;
+  int likesCount;
   final int commentsCount;
   final int reportsCount;
   List<Comment> comments;
