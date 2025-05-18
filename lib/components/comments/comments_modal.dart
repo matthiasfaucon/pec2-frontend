@@ -1,10 +1,11 @@
 import 'package:firstflutterapp/interfaces/comment.dart';
 import 'package:firstflutterapp/interfaces/post.dart';
+import 'package:firstflutterapp/notifiers/sse_provider.dart';
 import 'package:firstflutterapp/services/api_service.dart';
-import 'package:firstflutterapp/services/sse_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firstflutterapp/utils/date_formatter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class CommentsModal extends StatefulWidget {
   final Post post;
@@ -24,39 +25,43 @@ class CommentsModal extends StatefulWidget {
 
 class _CommentsModalState extends State<CommentsModal> {
   final TextEditingController _commentController = TextEditingController();
-  final Map<String, SSEService> _sseServices = {};
 
   List<Comment> _comments = [];
   bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
     _loadComments();
-    // SSE dans un provider
-    // context.read
-    // Ecouter sur les bons événements
+    
+    // Initialise la connexion SSE via le provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('CommentsModal: Initialisation du service SSE pour le post ${widget.post.id}');
+      final sseProvider = Provider.of<SSEProvider>(context, listen: false);
+      
+      // S'assurer que les commentaires SSE sont reflétés dans l'UI
+      sseProvider.connectToSSE(widget.post.id);
+    });
   }
 
   Future<void> _loadComments() async {
-      final ApiService _apiService = ApiService();
+    final ApiService _apiService = ApiService();
 
-       final response = await _apiService.request(
-        method: 'get',
-        endpoint: '/posts/${widget.post.id}/comments',
-        withAuth: true,
+    final response = await _apiService.request(
+      method: 'get',
+      endpoint: '/posts/${widget.post.id}/comments',
+      withAuth: true,
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _comments = response.data['comments'].map<Comment>((json) => Comment.fromJson(json)).toList();
+        _isLoading= false;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors du chargement des commentaires')),
       );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          _comments = response.data['comments'].map<Comment>((json) => Comment.fromJson(json)).toList();
-          _isLoading= false;
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors du chargement des commentaires')),
-        );
-      }
+    }
   }
   
   @override
@@ -66,26 +71,41 @@ class _CommentsModalState extends State<CommentsModal> {
   }
   
   void _sendComment() async {
-
-    try{
-      print("ALLO");
-      final Comment? response = await SSEService.sendComment(widget.post.id, _commentController.text);
-
-         print("RESPONSE");
-        _commentController.clear();
-        print(response);
-        FocusScope.of(context).unfocus();
-        setState(() {
-          _comments.add(response!);
-        });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de l\'envoi du commentaire')),
-      );
+    if (_commentController.text.trim().isEmpty) {
       return;
     }
-
-
+    
+    try {
+      debugPrint('CommentsModal: Envoi du commentaire: ${_commentController.text}');
+      final sseProvider = context.read<SSEProvider>();
+      debugPrint('CommentsModal: Envoi du commentaire via le provider SSE');
+      
+      // Store the comment text and clear the input field immediately for better UX
+      final String commentText = _commentController.text;
+      _commentController.clear();
+      FocusScope.of(context).unfocus();
+      
+      final comment = await sseProvider.sendComment(widget.post.id, commentText);
+      debugPrint('CommentsModal: Commentaire envoyé avec succès: ${comment?.id}');
+      
+      // Update local state with the new comment
+      setState(() {
+        if (comment != null && !_comments.any((c) => c.id == comment.id)) {
+          debugPrint('CommentsModal: Ajout du commentaire à la liste locale');
+          _comments.add(comment);
+        }
+      });
+    } catch (e, stackTrace) {
+      debugPrint('CommentsModal: Erreur lors de l\'envoi du commentaire: $e');
+      debugPrint('Stack trace: $stackTrace');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de l\'envoi du commentaire: ${e.toString().substring(0, 100)}...'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   @override
@@ -94,7 +114,7 @@ class _CommentsModalState extends State<CommentsModal> {
       padding: const EdgeInsets.only(top: 32),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
         ),
@@ -119,11 +139,44 @@ class _CommentsModalState extends State<CommentsModal> {
             ),
           ),
           if(_isLoading)
-            LinearProgressIndicator(),
+            const LinearProgressIndicator(),
           // Liste des commentaires
           Expanded(
-            child: _comments.isEmpty 
-                ? Center(
+            child: Consumer<SSEProvider>(
+              builder: (context, sseProvider, _) {                // Créer une liste combinée de tous les commentaires (SSE + chargés)
+                debugPrint('CommentsModal: Fusion des commentaires pour le post ${widget.post.id}');
+                
+                // Commencer avec tous les commentaires du SSE provider
+                final List<Comment> allComments = [];
+                final sseComments = sseProvider.getComments(widget.post.id);
+                
+                // Toujours afficher les commentaires du SSE provider en priorité
+                if (sseComments.isNotEmpty) {
+                  debugPrint('CommentsModal: ${sseComments.length} commentaires SSE trouvés');
+                  allComments.addAll(sseComments);
+                }
+                
+                // Ajouter les commentaires chargés via API REST qui ne sont pas déjà présents
+                if (_comments.isNotEmpty) {
+                  debugPrint('CommentsModal: ${_comments.length} commentaires locaux trouvés');
+                  for (final comment in _comments) {
+                    if (!allComments.any((c) => c.id == comment.id)) {
+                      allComments.add(comment);
+                    }
+                  }
+                }
+                
+                // Trier les commentaires par date (plus récent en dernier)
+                allComments.sort((a, b) {
+                  final dateA = DateTime.parse(a.createdAt);
+                  final dateB = DateTime.parse(b.createdAt);
+                  return dateA.compareTo(dateB);
+                });
+                
+                debugPrint('CommentsModal: ${allComments.length} commentaires au total après fusion');
+                
+                if (allComments.isEmpty) {
+                  return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -140,91 +193,96 @@ class _CommentsModalState extends State<CommentsModal> {
                         ),
                       ],
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _comments.length,
-                    itemBuilder: (context, index) {
-                      final comment = _comments[index];
-                      bool isAuthor = comment.userName == widget.postAuthorName;
-                      
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: isAuthor ? Colors.purple.shade100 : Colors.grey.shade300,
-                              child: Text(
-                                comment.userName.isNotEmpty 
-                                    ? comment.userName[0].toUpperCase()
-                                    : '?',
-                                style: TextStyle(
-                                  color: isAuthor ? Theme.of(context).primaryColor: Colors.black87,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  );
+                }
+                
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: allComments.length,
+                  itemBuilder: (context, index) {
+                    final comment = allComments[index];
+                    bool isAuthor = comment.userName == widget.postAuthorName;
+                    
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: isAuthor ? Colors.purple.shade100 : Colors.grey.shade300,
+                            child: Text(
+                              comment.userName.isNotEmpty 
+                                  ? comment.userName[0].toUpperCase()
+                                  : '?',
+                              style: TextStyle(
+                                color: isAuthor ? Theme.of(context).primaryColor: Colors.black87,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        comment.userName,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: isAuthor ? Theme.of(context).primaryColor : Colors.black87,
-                                        ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      comment.userName,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: isAuthor ? Theme.of(context).primaryColor : Colors.black87,
                                       ),
-                                      if (isAuthor)
-                                        Container(
-                                          margin: const EdgeInsets.only(left: 8),
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).primaryColor.withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                          child: Text(
-                                            'Auteur',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context).primaryColor,
-                                            ),
-                                          ),
-                                        ),
-                                      const Spacer(),
-                                      Text(
-                                        DateFormatter.formatTimeAgo(DateTime.parse(comment.createdAt)),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Theme.of(context).textTheme.bodyMedium?.color,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    comment.content,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context).textTheme.bodyMedium?.color,
                                     ),
+                                    if (isAuthor)
+                                      Container(
+                                        margin: const EdgeInsets.only(left: 8),
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).primaryColor.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          'Auteur',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context).primaryColor,
+                                          ),
+                                        ),
+                                      ),
+                                    const Spacer(),
+                                    Text(
+                                      DateFormatter.formatTimeAgo(DateTime.parse(comment.createdAt)),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  comment.content,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).textTheme.bodyMedium?.color,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ),                  // Champ de saisie pour commenter
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          // Champ de saisie pour commenter
           Container(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             decoration: BoxDecoration(
@@ -256,7 +314,7 @@ class _CommentsModalState extends State<CommentsModal> {
                           vertical: 10,
                         ),
                         hintStyle: TextStyle(
-                          color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: .7),
+                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                         ),
                       ),
                       maxLines: 1,
@@ -265,20 +323,24 @@ class _CommentsModalState extends State<CommentsModal> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: widget.isConnected 
-                      ? () {
-                          if (_commentController.text.trim().isNotEmpty) {
-                        
-                            _sendComment();
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    shadowColor: Colors.transparent,
-                    padding: const EdgeInsets.all(16),
-                    backgroundColor: Theme.of(context).primaryColor,                  ),
-                  child: const Icon(Icons.send, color: Colors.white, size: 20),
+                Consumer<SSEProvider>(
+                  builder: (context, sseProvider, _) {
+                    return ElevatedButton(
+                      onPressed: (widget.isConnected || sseProvider.isConnected(widget.post.id)) 
+                          ? () {
+                              if (_commentController.text.trim().isNotEmpty) {
+                                _sendComment();
+                              }
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.all(16),
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
+                      child: const Icon(Icons.send, color: Colors.white, size: 20),
+                    );
+                  }
                 ),
               ],
             ),

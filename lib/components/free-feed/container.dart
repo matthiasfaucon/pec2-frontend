@@ -1,8 +1,9 @@
 import 'package:firstflutterapp/components/post-card/container.dart';
 import 'package:firstflutterapp/interfaces/post.dart';
-import 'package:firstflutterapp/services/sse_service.dart';
+import 'package:firstflutterapp/notifiers/sse_provider.dart';
 import 'package:firstflutterapp/screens/home/home-service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FreeFeed extends StatefulWidget {
   @override
@@ -13,8 +14,6 @@ class _FreeFeedState extends State<FreeFeed> {
   bool _isLoading = false;
   List<Post> _posts = [];
   final PostsListingService _postListingService = PostsListingService();
-  final Map<String, SSEService> _sseServices = {};
-  final Map<String, bool> _sseConnections = {};
 
   @override
   void initState() {
@@ -24,9 +23,7 @@ class _FreeFeedState extends State<FreeFeed> {
 
   @override
   void dispose() {
-    for (final service in _sseServices.values) {
-      service.disconnect();
-    }
+    // La déconnexion est gérée par le provider
     super.dispose();
   }
 
@@ -41,9 +38,11 @@ class _FreeFeedState extends State<FreeFeed> {
         _posts = posts;
         _isLoading = false;
       });
-      for (final post in posts) {
-        _initSSEForPost(post.id);
       
+      // Initialise les connexions SSE pour chaque post
+      final sseProvider = Provider.of<SSEProvider>(context, listen: false);
+      for (final post in posts) {
+        sseProvider.connectToSSE(post.id);
       }
     } catch (e) {
       setState(() {
@@ -56,52 +55,16 @@ class _FreeFeedState extends State<FreeFeed> {
       }
     }
   }
-  void _initSSEForPost(String postId) {
-    final sseService = SSEService(
-      postId: postId,
-      onNewComment: (comment) {
-        setState(() {
-          for (final post in _posts) {
-            if (post.id == postId) {
-              post.comments.add(comment);
-              break;
-            }
-          }
-        });
-      },
-      onExistingComments: (comments) {
-        setState(() {
-          for (final post in _posts) {
-            if (post.id == postId) {
-              post.comments.addAll(comments);
-              break;
-            }
-          }
-        });
-      },
-      onConnectionStatusChanged: (isConnected) {
-        setState(() {
-          _sseConnections[postId] = isConnected;
-        });
-      },
-    );
-
-    _sseServices[postId] = sseService;
-
-    sseService.connect().catchError((error) {
-      print('Erreur de connexion SSE: $error');
-    });
-  }
 
   Widget _buildForYouSection() {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           "Pour vous",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
@@ -112,11 +75,15 @@ class _FreeFeedState extends State<FreeFeed> {
           itemCount: _posts.length,
           itemBuilder: (_, index) {
             final post = _posts[index];
-            return PostCard(
-              post: post,
-              isSSEConnected: _sseConnections[post.id] ?? false,
+            return Consumer<SSEProvider>(
+              builder: (context, sseProvider, _) {
+                final isConnected = sseProvider.isConnected(post.id);
+                return PostCard(
+                  post: post,
+                  isSSEConnected: isConnected,
+                );
+              },
             );
-              
           },
         ),
       ],
