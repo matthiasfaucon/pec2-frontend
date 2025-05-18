@@ -3,6 +3,7 @@ import 'package:firstflutterapp/components/form/custom_form_field.dart';
 import 'package:firstflutterapp/components/form/loading_button.dart';
 import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
+import 'package:firstflutterapp/screens/login/login_service.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
 import 'package:firstflutterapp/services/validators_service.dart';
@@ -23,6 +24,7 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController _passwordController = TextEditingController();
   final ToastService toastService = ToastService();
   final ApiService _apiService = ApiService();
+  final LoginService _loginService = LoginService();
   bool _isSubmitted = false;
   final _formKey = GlobalKey<FormState>();
 
@@ -69,9 +71,8 @@ class _LoginViewState extends State<LoginView> {
         await prefs.setString('auth_token', token);
         userNotifier.onAuthenticationSuccess(response.data);
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
+
         if (await userNotifier.isAdmin()) {
           context.go(adminDashboard);
         } else {
@@ -79,9 +80,12 @@ class _LoginViewState extends State<LoginView> {
         }
       } else {
         toastService.showToast(
-          'Erreur lors de la connexion',
+          _loginService.getMessageError(response.error),
           ToastificationType.error,
         );
+        if (response.error == "user don't valid email") {
+          context.push(confirmEmailRoute);
+        }
       }
     } catch (e) {
       toastService.showToast(
@@ -116,6 +120,12 @@ class _LoginViewState extends State<LoginView> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 200,
+                      height: 200,
+                    ),
+                    const SizedBox(height: 16),
                     const Text(
                       "Ravis de vous revoir sur",
                       textAlign: TextAlign.center,

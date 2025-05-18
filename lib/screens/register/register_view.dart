@@ -61,89 +61,105 @@ class _RegisterViewState extends State<RegisterView> {
 
   Widget _buildRegisterContent() {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: Text(
-                        "Bienvenue sur \nOnlyFlick",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 30),
-                    if (step == 2)
-                      GestureDetector(
-                        onTap: () => setState(() => step = 1),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.arrow_back,
-                              size: 18,
-                              color: Colors.blue,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double formWidth =
+              constraints.maxWidth > 800
+                  ? constraints.maxWidth / 3
+                  : double.infinity;
+
+          return Center(
+            child: Container(
+              width: formWidth,
+              padding: const  EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              "Bienvenue sur \nOnlyFlick",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            SizedBox(width: 4),
-                            Text("Retour"),
-                          ],
-                        ),
+                          ),
+                          SizedBox(height: 30),
+                          if (step == 2)
+                            GestureDetector(
+                              onTap: () => setState(() => step = 1),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.arrow_back,
+                                    size: 18,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text("Retour"),
+                                ],
+                              ),
+                            ),
+                          SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                step == 1
+                                    ? "Informations générales"
+                                    : "Informations personnelles",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "Étape \n ${step}/2",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          if (step == 1) _buildStep1(),
+                          if (step == 2) _buildStep2(),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child:   LoadingButton(
+                              label: step == 1 ? "Suivant" : "Créer un compte",
+                              isSubmitted: _isSubmitted,
+                              onPressed: () {
+                                if (step == 1) {
+                                  if (_formKey1.currentState!.validate()) {
+                                    setState(() {
+                                      step = 2;
+                                    });
+                                  }
+                                } else {
+                                  _submitForm();
+                                }
+                              },
+                            ),
+                          )
+                        ],
                       ),
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          step == 1
-                              ? "Informations générales"
-                              : "Informations personnelles",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          "Étape \n ${step}/2",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
                     ),
-                    SizedBox(height: 20),
-                    if (step == 1) _buildStep1(),
-                    if (step == 2) _buildStep2(),
-                  ],
-                ),
+                  ),
+
+                ],
               ),
             ),
-            SizedBox(height: 16),
-            LoadingButton(
-              label: step == 1 ? "Suivant" : "Créer un compte",
-              isSubmitted: _isSubmitted,
-              onPressed: () {
-                if (step == 1) {
-                  if (_formKey1.currentState!.validate()) {
-                    setState(() {
-                      step = 2;
-                    });
-                  }
-                } else {
-                  _submitForm();
-                }
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -266,7 +282,8 @@ class _RegisterViewState extends State<RegisterView> {
         );
 
         if (response.success) {
-         context.go(registerInfoRoute);
+          if (!mounted) return;
+          context.go(registerInfoRoute);
         } else {
           _toastService.showToast(
             _registerService.getMessageError(response.error),

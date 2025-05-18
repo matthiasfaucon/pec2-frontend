@@ -1,6 +1,7 @@
 import 'package:firstflutterapp/admin/admin_dashboard.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
-import 'package:firstflutterapp/screens/confirm_email_view.dart';
+import 'package:firstflutterapp/screens/confirm-email/confirm_email_view.dart';
+import 'package:firstflutterapp/screens/confirm-email/resend-email-confirmation.dart';
 import 'package:firstflutterapp/screens/home_view.dart';
 import 'package:firstflutterapp/screens/post-creation/upload-photo.dart';
 import 'package:firstflutterapp/screens/profile/profil_view.dart';
@@ -15,7 +16,7 @@ import 'package:firstflutterapp/screens/update_password_view.dart';
 import 'package:firstflutterapp/screens/search_view/search_view.dart';
 import 'package:firstflutterapp/components/bottom-navigation/container.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firstflutterapp/screens/login_view.dart';
+import 'package:firstflutterapp/screens/login/login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firstflutterapp/admin/users_management.dart';
@@ -34,6 +35,7 @@ const subFeedRoute = '/sub';
 const registerRoute = '/register';
 const registerInfoRoute = '/register/info';
 const confirmEmailRoute = '/confirm-email';
+const resendConfirmEmailRoute = '/confirm-email/resend';
 const profileRoute = '/profile';
 const editProfileRoute = '/profile/edit';
 const profileParams = '/profile/params';
@@ -165,7 +167,9 @@ final router = GoRouter(
         GoRoute(path: 'info', builder: (context, state) => EndRegisterView()),
       ],
     ),
-    GoRoute(path: confirmEmailRoute, builder: (context, state) => ConfirmEmailPage()),
+    GoRoute(path: confirmEmailRoute, builder: (context, state) => ConfirmEmailPage(), routes: [
+      GoRoute(path: 'resend', builder: (context, state) => ResendEmailConfirmation()),
+    ]),
     ShellRoute(
       builder: (context, state, child) {
         return AdminDashboardPage(child: child);
