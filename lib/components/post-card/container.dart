@@ -1,6 +1,7 @@
 import 'package:firstflutterapp/interfaces/post.dart';
 import 'package:firstflutterapp/components/comments/comments_modal.dart';
 import 'package:firstflutterapp/components/comments/comment_badge.dart';
+import 'package:firstflutterapp/components/post-card/report_bottom_sheet.dart';
 import 'package:firstflutterapp/services/api_service.dart';
 import 'package:flutter/material.dart';
 
@@ -154,11 +155,20 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ],
                 ),
-                const Spacer(),
-                IconButton(
+                const Spacer(),                IconButton(
                   icon: const Icon(Icons.report_outlined),
                   onPressed: () {
-                    // Là je mettrais la logique pour signaler le post
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true, 
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: ReportBottomSheet(postId: widget.post.id),
+                      ),
+                    );
                   },
                 ),
               ],
