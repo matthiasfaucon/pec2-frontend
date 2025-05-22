@@ -43,8 +43,8 @@ jobs:
         run: flutter build apk --release
 
       # Build AAB => Pour le Play Store
-      # - name: Build Android App Bundle
-      #   run: flutter build appbundle --release
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release
 
       # # Build IPA
       # - name: Build iOS
