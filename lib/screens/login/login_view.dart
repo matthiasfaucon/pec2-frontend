@@ -196,10 +196,16 @@ class _LoginViewState extends State<LoginView> {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          LoadingButton(
-                            label: 'Se connecter',
-                            isSubmitted: _isSubmitted,
-                            onPressed: _onSubmit,
+                          Center(
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: LoadingButton(
+                                label: 'Se connecter',
+                                isSubmitted: _isSubmitted,
+                                onPressed: _onSubmit,
+                              ),
+                            ),
                           ),
                         ],
                       ),
