@@ -80,6 +80,14 @@ class _ResetPasswordRequestPageState extends State<ResetPasswordRequestPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Center(
+                  child: Image.asset(
+                    'assets/images/reset-password.png',
+                    width: 300,
+                    height: 300,
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Text(
                   'Entrez votre adresse email pour recevoir un code de réinitialisation.',
                   textAlign: TextAlign.center,
