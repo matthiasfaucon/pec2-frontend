@@ -5,17 +5,20 @@ import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
 import 'package:firstflutterapp/services/validators_service.dart';
 import 'package:toastification/toastification.dart';
-import '../../config/router.dart';
 import 'package:go_router/go_router.dart';
+import '../../config/router.dart';
 
-class ResetPasswordRequestPage extends StatefulWidget {
+class ConfirmResetPasswordPage extends StatefulWidget {
   @override
-  State<ResetPasswordRequestPage> createState() => _ResetPasswordRequestPageState();
+  State<ConfirmResetPasswordPage> createState() => _ConfirmResetPasswordPageState();
 }
 
-class _ResetPasswordRequestPageState extends State<ResetPasswordRequestPage> {
+class _ConfirmResetPasswordPageState extends State<ConfirmResetPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _codeController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final ApiService _apiService = ApiService();
   final ToastService _toastService = ToastService();
   bool _isSubmitted = false;
@@ -23,7 +26,19 @@ class _ResetPasswordRequestPageState extends State<ResetPasswordRequestPage> {
   @override
   void dispose() {
     _emailController.dispose();
+    _codeController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final extra = GoRouterState.of(context).extra;
+    if (extra is String && extra.isNotEmpty) {
+      _emailController.text = extra;
+    }
   }
 
   Future<void> _onSubmit() async {
@@ -39,21 +54,24 @@ class _ResetPasswordRequestPageState extends State<ResetPasswordRequestPage> {
     try {
       final response = await _apiService.request(
         method: 'POST',
-        endpoint: '/users/password/reset/request',
-        body: {'email': _emailController.text},
+        endpoint: '/users/password/reset/confirm',
+        body: {
+          'email': _emailController.text,
+          'code': _codeController.text,
+          'newPassword': _passwordController.text,
+        },
         withAuth: false,
       );
       if (response.success) {
         _toastService.showToast(
-          'Un code a été envoyé à votre adresse email si elle existe.',
+          'Mot de passe réinitialisé avec succès !',
           ToastificationType.success,
         );
-        if (mounted) {
-          context.go(confirmResetPasswordRoute, extra: _emailController.text);
-        }
+        if (!mounted) return;
+        context.go(loginRoute);
       } else {
         _toastService.showToast(
-          response.error ?? 'Erreur lors de la demande',
+          response.error ?? 'Erreur lors de la réinitialisation',
           ToastificationType.error,
         );
       }
@@ -73,7 +91,7 @@ class _ResetPasswordRequestPageState extends State<ResetPasswordRequestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Réinitialiser le mot de passe'),
+        title: Text('Confirmer la réinitialisation'),
       ),
       body: Center(
         child: Container(
@@ -85,16 +103,8 @@ class _ResetPasswordRequestPageState extends State<ResetPasswordRequestPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Center(
-                  child: Image.asset(
-                    'assets/images/reset-password.png',
-                    width: 300,
-                    height: 300,
-                  ),
-                ),
-                const SizedBox(height: 16),
                 Text(
-                  'Entrez votre adresse email pour recevoir un code de réinitialisation.',
+                  'Entrez votre email, le code reçu et votre nouveau mot de passe.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16),
                 ),
@@ -104,9 +114,31 @@ class _ResetPasswordRequestPageState extends State<ResetPasswordRequestPage> {
                   label: 'Email',
                   validators: [RequiredValidator(), EmailValidator()],
                 ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: _codeController,
+                  label: 'Code',
+                  validators: [RequiredValidator()],
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: _passwordController,
+                  label: 'Nouveau mot de passe',
+                  obscure: true,
+                  showText: false,
+                  validators: [RequiredValidator(), PasswordValidator()],
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: _confirmPasswordController,
+                  label: 'Retaper le mot de passe',
+                  obscure: true,
+                  showText: false,
+                  validators: [RequiredValidator(), SamePasswordValidator(() => _passwordController.text)],
+                ),
                 const SizedBox(height: 24),
                 LoadingButton(
-                  label: 'Envoyer',
+                  label: 'Réinitialiser',
                   isSubmitted: _isSubmitted,
                   onPressed: _onSubmit,
                 ),
