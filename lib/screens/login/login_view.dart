@@ -161,6 +161,20 @@ class _LoginViewState extends State<LoginView> {
                             showText: false,
                             validators: [RequiredValidator()],
                           ),
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => context.push(resetPasswordRoute),
+                              child: Text(
+                                'Mot de passe perdu ?',
+                                style: TextStyle(
+                                  color: AppTheme.darkColor,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
