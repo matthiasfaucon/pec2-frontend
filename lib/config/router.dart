@@ -1,10 +1,14 @@
 import 'package:firstflutterapp/admin/admin_dashboard.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
+import 'package:firstflutterapp/screens/confirm-email/confirm_email_view.dart';
+import 'package:firstflutterapp/screens/confirm-email/resend-email-confirmation.dart';
 import 'package:firstflutterapp/screens/home/home_view.dart';
 import 'package:firstflutterapp/screens/post-creation/upload-photo.dart';
 import 'package:firstflutterapp/screens/profile/profil_view.dart';
+import 'package:firstflutterapp/screens/profile/setting-preferences/setting-preferences.dart';
 import 'package:firstflutterapp/screens/profile/setting-user/setting-user.dart';
 import 'package:firstflutterapp/screens/profile/update_profile/update_profile.dart';
+import 'package:firstflutterapp/screens/register/end-register.dart';
 import 'package:firstflutterapp/screens/register/register_view.dart';
 import 'package:firstflutterapp/screens/sub_feed_view/sub_feed_view.dart';
 import 'package:firstflutterapp/screens/support.dart';
@@ -12,15 +16,18 @@ import 'package:firstflutterapp/screens/update_password_view.dart';
 import 'package:firstflutterapp/screens/search_view/search_view.dart';
 import 'package:firstflutterapp/components/bottom-navigation/container.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firstflutterapp/screens/login_view.dart';
+import 'package:firstflutterapp/screens/login/login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firstflutterapp/admin/users_management.dart';
 import 'package:firstflutterapp/admin/contact_management.dart';
 import 'package:firstflutterapp/admin/users_chart.dart';
 import 'package:firstflutterapp/admin/content_creator.dart';
-
-
+import 'package:firstflutterapp/admin/categories_management.dart';
+import 'package:firstflutterapp/screens/message/message.dart';
+import 'package:firstflutterapp/admin/admin_kpi.dart';
+import 'package:firstflutterapp/screens/reset-password/request-reset-password.dart';
+import 'package:firstflutterapp/screens/reset-password/confirm-reset-password.dart';
 
 
 const homeRoute = '/';
@@ -28,6 +35,9 @@ const loginRoute = '/login';
 const uploadPhotoRoute = '/upload-photo';
 const subFeedRoute = '/sub';
 const registerRoute = '/register';
+const registerInfoRoute = '/register/info';
+const confirmEmailRoute = '/confirm-email';
+const resendConfirmEmailRoute = '/confirm-email/resend';
 const profileRoute = '/profile';
 const editProfileRoute = '/profile/edit';
 const profileParams = '/profile/params';
@@ -39,7 +49,13 @@ const adminUsersManagement = '/admin/users';
 const adminContacts = '/admin/contacts';
 const adminUsersChart = '/admin/users-chart';
 const adminContentCreator = '/admin/content-creator';
+const profilePreferences = '/profile/params/preferences';
 const searchRoute = '/search';
+const messageRoute = '/message';
+const adminKpiDashboard = '/admin/kpi-dashboard';
+const adminCategoriesManagement = '/admin/categories-management';
+const resetPasswordRoute = '/reset-password';
+const confirmResetPasswordRoute = '/reset-password/confirm';
 
 Future<String?> hasAdminPermissions(
   BuildContext context,
@@ -109,6 +125,13 @@ final router = GoRouter(
           },
         ),
         GoRoute(
+          path: messageRoute,
+          builder: (context, state) => const MessagePage(),
+          redirect: (context, state) {
+            return isAuthenticated(context, state);
+          },
+        ),
+        GoRoute(
           path: profileRoute,
           builder: (context, state) => ProfileView(),
           redirect: (context, state) {
@@ -128,6 +151,10 @@ final router = GoRouter(
                   path: 'support',
                   builder: (context, state) => SupportPage(),
                 ),
+                GoRoute(
+                  path: 'preferences',
+                  builder: (context, state) => SettingPreferences(),
+                ),
               ],
             ),
           ],
@@ -137,7 +164,24 @@ final router = GoRouter(
 
     /// Autres routes (sans menu)
     GoRoute(path: loginRoute, builder: (context, state) => LoginView()),
-    GoRoute(path: registerRoute, builder: (context, state) => RegisterView()),
+    GoRoute(
+      path: registerRoute,
+      builder: (context, state) => RegisterView(),
+      routes: [
+        GoRoute(path: 'info', builder: (context, state) => EndRegisterView()),
+      ],
+    ),
+    GoRoute(path: confirmEmailRoute, builder: (context, state) => ConfirmEmailPage(), routes: [
+      GoRoute(path: 'resend', builder: (context, state) => ResendEmailConfirmation()),
+    ]),
+    GoRoute(
+      path: resetPasswordRoute,
+      builder: (context, state) => ResetPasswordRequestPage(),
+    ),
+    GoRoute(
+      path: confirmResetPasswordRoute,
+      builder: (context, state) => ConfirmResetPasswordPage(),
+    ),
     ShellRoute(
       builder: (context, state, child) {
         return AdminDashboardPage(child: child);
@@ -149,9 +193,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '$adminRoute/dashboard',
-          builder:
-              (context, state) =>
-                  const Center(child: Text('Dashboard Content')),
+          builder: (context, state) => const AdminKpiDashboard(),
         ),
         GoRoute(
           path: '$adminRoute/users',
@@ -168,6 +210,14 @@ final router = GoRouter(
         GoRoute(
           path: '$adminRoute/content-creator',
           builder: (context, state) => const AdminContentCreator(),
+        ),
+        GoRoute(
+          path: '$adminRoute/kpi-dashboard',
+          builder: (context, state) => const AdminKpiDashboard(),
+        ),
+        GoRoute(
+          path: '$adminRoute/categories-management',
+          builder: (context, state) => const CategoriesManagement(),
         ),
       ],
     ),

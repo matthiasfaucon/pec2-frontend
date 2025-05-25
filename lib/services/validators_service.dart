@@ -1,11 +1,11 @@
 abstract class Validator {
-  String? validate(String value);
+  String? validate(String? value);
 }
 
 class RequiredValidator implements Validator {
   @override
-  String? validate(String value) {
-    if (value.isEmpty) {
+  String? validate(String? value) {
+    if (value == null || value.isEmpty) {
       return 'Vous devez remplir ce champs';
     }
 
@@ -15,10 +15,66 @@ class RequiredValidator implements Validator {
 
 class EmailValidator implements Validator {
   @override
-  String? validate(String value) {
-    final emailRegex = RegExp(r'^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
+  String? validate(String? value) {
+    if (value == null) {
+      return 'Email non valide';
+    }
+    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Email non valide';
+    }
+    return null;
+  }
+}
+
+class PasswordValidator implements Validator {
+  @override
+  String? validate(String? value) {
+    if (value == null) {
+      return 'Vous devez remplir ce champs';
+    }
+    final hasUpper = value.contains(RegExp(r'[A-Z]'));
+    final hasDigit = value.contains(RegExp(r'[0-9]'));
+    final hasMinimumString = value.length >= 6;
+    final okPassword = hasUpper && hasDigit && hasMinimumString;
+    if (!okPassword) {
+      return "format incorrect";
+    }
+    return null;
+  }
+}
+
+class SamePasswordValidator implements Validator {
+  final String Function() getPassword;
+
+  SamePasswordValidator(this.getPassword);
+
+  @override
+  String? validate(String? confirmPassword) {
+    if (confirmPassword == null || confirmPassword.isEmpty) {
+      return 'Vous devez remplir ce champs';
+    }
+
+    if (confirmPassword != getPassword()) {
+      return 'Les mots de passe ne sont pas identiques';
+    }
+    return null;
+  }
+}
+
+class MinimumValidator implements Validator {
+  final String Function() getMinimum;
+
+  MinimumValidator(this.getMinimum);
+
+  @override
+  String? validate(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Vous devez remplir ce champs';
+    }
+
+    if (value.length < 5 || value.length > 5) {
+      return 'Format incorrect';
     }
     return null;
   }

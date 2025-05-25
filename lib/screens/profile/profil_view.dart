@@ -1,3 +1,4 @@
+import 'package:firstflutterapp/config/constantes.dart';
 import 'package:firstflutterapp/config/router.dart';
 import 'package:firstflutterapp/interfaces/user.dart';
 import 'package:firstflutterapp/theme.dart';
@@ -16,7 +17,7 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   User? _user;
-  String _avatarUrl = 'https://coloriagevip.com/wp-content/uploads/2024/08/Coloriage-Chien-27.webp';
+  String _avatarUrl = "";
 
   @override
   void initState() {
@@ -63,7 +64,7 @@ class _ProfileViewState extends State<ProfileView> {
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundImage: NetworkImage(_avatarUrl),
+                backgroundImage: _avatarUrl != "" ? NetworkImage(_avatarUrl) : AssetImage('assets/images/dog.webp'),
                 backgroundColor: const Color(0xFFE4DAFF),
               ),
               Column(
