@@ -12,7 +12,7 @@ import 'package:firstflutterapp/screens/register/end-register.dart';
 import 'package:firstflutterapp/screens/register/register_view.dart';
 import 'package:firstflutterapp/screens/sub_feed_view/sub_feed_view.dart';
 import 'package:firstflutterapp/screens/support.dart';
-import 'package:firstflutterapp/screens/update_password_view.dart';
+import 'package:firstflutterapp/screens/update_password/update_password_view.dart';
 import 'package:firstflutterapp/screens/search_view/search_view.dart';
 import 'package:firstflutterapp/components/bottom-navigation/container.dart';
 import 'package:go_router/go_router.dart';
@@ -56,6 +56,8 @@ const adminKpiDashboard = '/admin/kpi-dashboard';
 const adminCategoriesManagement = '/admin/categories-management';
 const resetPasswordRoute = '/reset-password';
 const confirmResetPasswordRoute = '/reset-password/confirm';
+// final _rootNavigatorKey = GlobalKey<NavigatorState>();
+// final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<String?> hasAdminPermissions(
   BuildContext context,
@@ -84,10 +86,12 @@ Future<String?> isAuthenticated(
 }
 
 final router = GoRouter(
+  // navigatorKey: _rootNavigatorKey,
   initialLocation: homeRoute,
   routes: [
     /// Routes avec BottomNavigationBar
     ShellRoute(
+      // navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
         final location = state.uri.toString();
         return Scaffold(
@@ -141,18 +145,22 @@ final router = GoRouter(
             GoRoute(path: 'edit', builder: (context, state) => UpdateProfile()),
             GoRoute(
               path: 'params',
+              name: 'profile-params',
               builder: (context, state) => SettingUser(),
               routes: [
                 GoRoute(
                   path: 'update-password',
+                  name: 'update-password',
                   builder: (context, state) => UpdatePasswordView(),
                 ),
                 GoRoute(
                   path: 'support',
+                  name: 'support',
                   builder: (context, state) => SupportPage(),
                 ),
                 GoRoute(
                   path: 'preferences',
+                  name: 'preferences',
                   builder: (context, state) => SettingPreferences(),
                 ),
               ],
