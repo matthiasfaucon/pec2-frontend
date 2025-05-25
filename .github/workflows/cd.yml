@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows: [CI]
-    branches:
-      - home-screen
+    branches: [main]
     types: [completed]
 
 jobs:
@@ -34,13 +33,17 @@ jobs:
           version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      # 🟢 Build APK
+      - name: Create .env file
+        run: |
+          echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" > .env
+
+      # Build APK
       - name: Build Android APK
         run: flutter build apk --release
 
       # Build AAB => Pour le Play Store
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
+      # - name: Build Android App Bundle
+      #   run: flutter build appbundle --release
 
       # # Build IPA
       # - name: Build iOS
