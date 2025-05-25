@@ -161,6 +161,20 @@ class _LoginViewState extends State<LoginView> {
                             showText: false,
                             validators: [RequiredValidator()],
                           ),
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => context.push(resetPasswordRoute),
+                              child: Text(
+                                'Mot de passe perdu ?',
+                                style: TextStyle(
+                                  color: AppTheme.darkColor,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -182,10 +196,16 @@ class _LoginViewState extends State<LoginView> {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          LoadingButton(
-                            label: 'Se connecter',
-                            isSubmitted: _isSubmitted,
-                            onPressed: _onSubmit,
+                          Center(
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: LoadingButton(
+                                label: 'Se connecter',
+                                isSubmitted: _isSubmitted,
+                                onPressed: _onSubmit,
+                              ),
+                            ),
                           ),
                         ],
                       ),

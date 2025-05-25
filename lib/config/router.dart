@@ -26,6 +26,8 @@ import 'package:firstflutterapp/admin/content_creator.dart';
 import 'package:firstflutterapp/admin/categories_management.dart';
 import 'package:firstflutterapp/screens/message/message.dart';
 import 'package:firstflutterapp/admin/admin_kpi.dart';
+import 'package:firstflutterapp/screens/reset-password/request-reset-password.dart';
+import 'package:firstflutterapp/screens/reset-password/confirm-reset-password.dart';
 
 
 const homeRoute = '/';
@@ -52,6 +54,8 @@ const searchRoute = '/search';
 const messageRoute = '/message';
 const adminKpiDashboard = '/admin/kpi-dashboard';
 const adminCategoriesManagement = '/admin/categories-management';
+const resetPasswordRoute = '/reset-password';
+const confirmResetPasswordRoute = '/reset-password/confirm';
 
 Future<String?> hasAdminPermissions(
   BuildContext context,
@@ -170,6 +174,14 @@ final router = GoRouter(
     GoRoute(path: confirmEmailRoute, builder: (context, state) => ConfirmEmailPage(), routes: [
       GoRoute(path: 'resend', builder: (context, state) => ResendEmailConfirmation()),
     ]),
+    GoRoute(
+      path: resetPasswordRoute,
+      builder: (context, state) => ResetPasswordRequestPage(),
+    ),
+    GoRoute(
+      path: confirmResetPasswordRoute,
+      builder: (context, state) => ConfirmResetPasswordPage(),
+    ),
     ShellRoute(
       builder: (context, state, child) {
         return AdminDashboardPage(child: child);
