@@ -46,3 +46,31 @@ class User {
     );
   }
 }
+
+class PostCreatorUser {
+  final String id;
+  final String userName;
+  final String profilePicture;
+
+  PostCreatorUser({
+    required this.id,
+    required this.userName,
+    this.profilePicture = "",
+  });
+
+  factory PostCreatorUser.fromJson(Map<String, dynamic> json) {
+    return PostCreatorUser(
+      id: json['id'],
+      userName: json['userName'],
+      profilePicture: json['profilePicture'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userName': userName,
+      'profilePicture': profilePicture,
+    };
+  }
+}

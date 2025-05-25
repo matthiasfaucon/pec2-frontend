@@ -2,7 +2,7 @@ import 'package:firstflutterapp/admin/admin_dashboard.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:firstflutterapp/screens/confirm-email/confirm_email_view.dart';
 import 'package:firstflutterapp/screens/confirm-email/resend-email-confirmation.dart';
-import 'package:firstflutterapp/screens/home_view.dart';
+import 'package:firstflutterapp/screens/home/home_view.dart';
 import 'package:firstflutterapp/screens/post-creation/upload-photo.dart';
 import 'package:firstflutterapp/screens/profile/profil_view.dart';
 import 'package:firstflutterapp/screens/profile/setting-preferences/setting-preferences.dart';
