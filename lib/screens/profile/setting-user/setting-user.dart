@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-
 class SettingUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,7 +16,7 @@ class SettingUser extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                context.push(profileUpdatePassword);
+                context.goNamed('update-password');
               },
               style: AppTheme.emptyButtonStyle.merge(
                 ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),
@@ -27,7 +26,7 @@ class SettingUser extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                context.go(profileSupport);
+                context.goNamed('support');
               },
               style: AppTheme.emptyButtonStyle.merge(
                 ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),
@@ -37,7 +36,7 @@ class SettingUser extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                context.push(profilePreferences);
+                context.goNamed('preferences');
               },
               style: AppTheme.emptyButtonStyle.merge(
                 ElevatedButton.styleFrom(fixedSize: const Size(300, 50)),

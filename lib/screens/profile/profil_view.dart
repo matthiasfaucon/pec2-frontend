@@ -91,7 +91,8 @@ class _ProfileViewState extends State<ProfileView> {
               IconButton(
                 icon: const Icon(Icons.settings),
                 onPressed: () {
-                 context.push(profileParams);
+                 // context.push(profileParams);
+                 context.goNamed('profile-params');
                 },
               ),
             ],
