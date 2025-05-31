@@ -151,7 +151,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 32),
                             Center(
                               child: SizedBox(
                                 width: double.infinity,

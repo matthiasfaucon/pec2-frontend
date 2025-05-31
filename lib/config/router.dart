@@ -56,8 +56,6 @@ const adminKpiDashboard = '/admin/kpi-dashboard';
 const adminCategoriesManagement = '/admin/categories-management';
 const resetPasswordRoute = '/reset-password';
 const confirmResetPasswordRoute = '/reset-password/confirm';
-// final _rootNavigatorKey = GlobalKey<NavigatorState>();
-// final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<String?> hasAdminPermissions(
   BuildContext context,
@@ -86,7 +84,6 @@ Future<String?> isAuthenticated(
 }
 
 final router = GoRouter(
-  // navigatorKey: _rootNavigatorKey,
   initialLocation: homeRoute,
   routes: [
     /// Routes avec BottomNavigationBar
