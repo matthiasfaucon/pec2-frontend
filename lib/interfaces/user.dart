@@ -6,7 +6,6 @@ class User {
   String bio;
   String profilePicture;
   String? stripeCustomerId;
-  BigInt subscriptionPrice;
   DateTime? emailVerifiedAt;
   String firstName;
   String lastName;
@@ -19,7 +18,6 @@ class User {
     required this.role,
     required this.bio,
     required this.profilePicture,
-    required this.subscriptionPrice,
     required this.firstName,
     required this.lastName,
     required this.birthDayDate,
@@ -38,11 +36,38 @@ class User {
       bio: json['bio'],
       profilePicture: json['profilePicture'] ?? "",
       stripeCustomerId: json['stripeCustomerId'],
-      subscriptionPrice: BigInt.parse(json["subscriptionPrice"].toString()),
       firstName: json['firstName'],
       lastName: json['lastName'],
       birthDayDate: DateTime.parse(json["birthDayDate"]),
       sexe: json['sexe'],
     );
+  }
+}
+
+class PostCreatorUser {
+  final String id;
+  final String userName;
+  final String profilePicture;
+
+  PostCreatorUser({
+    required this.id,
+    required this.userName,
+    this.profilePicture = "",
+  });
+
+  factory PostCreatorUser.fromJson(Map<String, dynamic> json) {
+    return PostCreatorUser(
+      id: json['id'],
+      userName: json['userName'],
+      profilePicture: json['profilePicture'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userName': userName,
+      'profilePicture': profilePicture,
+    };
   }
 }

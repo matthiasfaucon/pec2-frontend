@@ -1,5 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
+import 'package:firstflutterapp/notifiers/sse_provider.dart';
 import 'package:firstflutterapp/theme.dart';
 import 'package:firstflutterapp/config/router.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ Future<void> main() async {
   MultiProvider multiProvider = MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => UserNotifier()),
+      ChangeNotifierProvider(create: (_) => SSEProvider()),
     ],
     child: const ToastificationWrapper(
       child: MyApp(),
