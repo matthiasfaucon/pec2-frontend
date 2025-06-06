@@ -6,7 +6,6 @@ class User {
   String bio;
   String profilePicture;
   String? stripeCustomerId;
-  BigInt subscriptionPrice;
   DateTime? emailVerifiedAt;
   String firstName;
   String lastName;
@@ -19,7 +18,6 @@ class User {
     required this.role,
     required this.bio,
     required this.profilePicture,
-    required this.subscriptionPrice,
     required this.firstName,
     required this.lastName,
     required this.birthDayDate,
@@ -38,9 +36,6 @@ class User {
       bio: json['bio'],
       profilePicture: json['profilePicture'] ?? "",
       stripeCustomerId: json['stripeCustomerId'],
-      subscriptionPrice: json["subscriptionPrice"] != null 
-          ? BigInt.tryParse(json["subscriptionPrice"].toString()) ?? BigInt.zero
-          : BigInt.zero,
       firstName: json['firstName'],
       lastName: json['lastName'],
       birthDayDate: DateTime.parse(json["birthDayDate"]),
