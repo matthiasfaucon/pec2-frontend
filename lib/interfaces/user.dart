@@ -38,7 +38,9 @@ class User {
       bio: json['bio'],
       profilePicture: json['profilePicture'] ?? "",
       stripeCustomerId: json['stripeCustomerId'],
-      subscriptionPrice: BigInt.parse(json["subscriptionPrice"].toString()),
+      subscriptionPrice: json["subscriptionPrice"] != null 
+          ? BigInt.tryParse(json["subscriptionPrice"].toString()) ?? BigInt.zero
+          : BigInt.zero,
       firstName: json['firstName'],
       lastName: json['lastName'],
       birthDayDate: DateTime.parse(json["birthDayDate"]),
