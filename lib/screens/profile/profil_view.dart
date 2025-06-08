@@ -140,10 +140,7 @@ class _ProfileViewState extends State<ProfileView> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CreatorView()),
-              );
+              context.goNamed('profile-creator');
             },
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),

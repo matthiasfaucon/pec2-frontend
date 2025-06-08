@@ -2,6 +2,7 @@ import 'package:firstflutterapp/admin/admin_dashboard.dart';
 import 'package:firstflutterapp/notifiers/userNotififers.dart';
 import 'package:firstflutterapp/screens/confirm-email/confirm_email_view.dart';
 import 'package:firstflutterapp/screens/confirm-email/resend-email-confirmation.dart';
+import 'package:firstflutterapp/screens/creator/creator-view.dart';
 import 'package:firstflutterapp/screens/home/home_view.dart';
 import 'package:firstflutterapp/screens/post-creation/upload-photo.dart';
 import 'package:firstflutterapp/screens/profile/profil_view.dart';
@@ -28,7 +29,6 @@ import 'package:firstflutterapp/screens/message/message.dart';
 import 'package:firstflutterapp/admin/admin_kpi.dart';
 import 'package:firstflutterapp/screens/reset-password/request-reset-password.dart';
 import 'package:firstflutterapp/screens/reset-password/confirm-reset-password.dart';
-
 
 const homeRoute = '/';
 const loginRoute = '/login';
@@ -141,6 +141,11 @@ final router = GoRouter(
           routes: [
             GoRoute(path: 'edit', builder: (context, state) => UpdateProfile()),
             GoRoute(
+              path: 'creator',
+              name: 'profile-creator',
+              builder: (context, state) => CreatorView(),
+            ),
+            GoRoute(
               path: 'params',
               name: 'profile-params',
               builder: (context, state) => SettingUser(),
@@ -176,9 +181,16 @@ final router = GoRouter(
         GoRoute(path: 'info', builder: (context, state) => EndRegisterView()),
       ],
     ),
-    GoRoute(path: confirmEmailRoute, builder: (context, state) => ConfirmEmailPage(), routes: [
-      GoRoute(path: 'resend', builder: (context, state) => ResendEmailConfirmation()),
-    ]),
+    GoRoute(
+      path: confirmEmailRoute,
+      builder: (context, state) => ConfirmEmailPage(),
+      routes: [
+        GoRoute(
+          path: 'resend',
+          builder: (context, state) => ResendEmailConfirmation(),
+        ),
+      ],
+    ),
     GoRoute(
       path: resetPasswordRoute,
       builder: (context, state) => ResetPasswordRequestPage(),
