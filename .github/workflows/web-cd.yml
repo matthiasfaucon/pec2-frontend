@@ -57,10 +57,6 @@ jobs:
         # Appliquer le Deployment
         echo "Application du Deployment..."
         kubectl apply -f ./kube-files/kube/prod/front/deployment.yaml
-
-        # Appliquer le Service
-        echo "Application du Service..."
-        kubectl apply -f ./kube-files/kube/prod/front/service.yaml
     
     - name: Afficher les informations de déploiement
       run: |
