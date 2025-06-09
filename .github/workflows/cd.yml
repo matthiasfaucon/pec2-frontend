@@ -1,66 +1,87 @@
-name: CD
+name: Continuous Deployment
 
 on:
-  workflow_dispatch:
   workflow_run:
-    workflows: [CI]
-    branches: [main]
-    types: [completed]
+    workflows: [Docker]
+    types:
+      - completed
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: pec2
+  GKE_ZONE: europe-west9
+  KUBE_REPO: anthonyvouin/pec2-kube
 
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    # runs-on: macos-latest
+    name: Deploy to GKE
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.29.2'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Extract version from pubspec.yaml
-        id: version
-        run: |
-          version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Create .env file
-        run: |
-          echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" > .env
-
-      # Build APK
-      - name: Build Android APK
-        run: flutter build apk --release
-
-      # Build AAB => Pour le Play Store
-      # - name: Build Android App Bundle
-      #   run: flutter build appbundle --release
-
-      # # Build IPA
-      # - name: Build iOS
-      #   run: |
-      #     flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
-
-      # Create GitHub Release with binaries
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: "v${{ steps.version.outputs.version }}"
-          generate_release_notes: true
-          files: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Done
-        run: echo "Release v${{ steps.version.outputs.version }} déployée avec succès !"
+    - name: Checkout repository
+      uses: actions/checkout@v3    
+    
+    - name: Checkout Kubernetes repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ env.KUBE_REPO }}
+        path: kube-files
+        
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+        
+    - name: 'Setup Google Cloud CLI'
+      uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+        project_id: '${{ secrets.GCP_PROJECT_ID }}'
+        install_components: 'gke-gcloud-auth-plugin'
+        
+    - name: 'Get GKE credentials'
+      run: |
+        gcloud container clusters get-credentials pec2  --region europe-west9 --project basic-tube-461312-r9
+        
+    # https://stackoverflow.com/questions/40366192/kubernetes-how-to-make-deployment-to-update-image
+    - name: Apply Kubernetes configurations
+      run: |
+        # D'abord scale down le deployment existant
+        kubectl scale deployment front-pec-2-deployment --replicas=0 || true
+        
+        # Appliquer le Secret
+        echo "Application des Secrets..."
+        kubectl apply -f ./kube-files/kube/front-pec-2-config-secret.yaml || echo "Aucun fichier de secrets trouvé ou erreur"
+        
+        # Appliquer la ConfigMap
+        echo "Application de la ConfigMap..."
+        kubectl apply -f ./kube-files/kube/front-pec-2-configmap.yaml || echo "Aucune ConfigMap trouvée ou erreur"
+        
+        # Modifier l'image du déploiement pour utiliser le SHA du commit
+        echo "Mise à jour de l''image Docker avec le SHA du commit..."
+        sed -i "s|image: charlineroyer937/frontend-pec-2:latest|image: charlineroyer937/frontend-pec-2:${{ github.sha }}|g" ./kube-files/kube/front-pec-2-deployment.yaml
+        
+        # Appliquer le Deployment
+        echo "Application du Deployment..."
+        kubectl apply -f ./kube-files/kube/front-pec-2-deployment.yaml
+        
+        # Appliquer le Service
+        echo "Application du Service..."
+        kubectl apply -f ./kube-files/kube/front-pec-2-service.yaml || echo "Aucun Service trouvé ou erreur"
+        
+        # Redémarrer le déploiement pour appliquer les derniéres configurations
+        echo "Redémarrage du déploiement..."
+        kubectl rollout restart deployment/front-pec-2-deployment
+    
+    - name: Afficher les informations de déploiement
+      run: |
+        echo "Déploiement terminé!"
+        echo "Statut des déploiements:"
+        kubectl get deployment
+        echo "Statut des services:"
+        kubectl get service
+        echo "Statut de l''ingress:"
+        kubectl get ingress
+        echo "Statut du certificat:"
+        kubectl get managedcertificate
