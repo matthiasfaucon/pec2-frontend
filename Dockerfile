@@ -9,6 +9,10 @@ RUN apt-get update && \
 ARG FLUTTER_SDK=/usr/local/flutter
 ARG FLUTTER_VERSION=3.29.3
 ARG APP=/app
+ARG API_BASE_URL
+
+# Set environment variables for build
+ENV API_BASE_URL=$API_BASE_URL
 
 # Download Flutter SDK
 RUN git clone https://github.com/flutter/flutter.git $FLUTTER_SDK && \
@@ -29,6 +33,11 @@ RUN flutter config --no-analytics && \
 # Set the working directory
 WORKDIR $APP
 COPY . $APP
+
+# Create .env file if needed
+RUN if [ -n "$API_BASE_URL" ]; then \
+      echo "API_BASE_URL=${API_BASE_URL}" > .env; \
+    fi
 
 # If we're building from the CI workflow, the web build is already done
 # If not, build the web app

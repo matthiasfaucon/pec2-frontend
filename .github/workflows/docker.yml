@@ -42,6 +42,8 @@ jobs:
       with:
         context: .
         push: true
+        build-args: |
+          API_BASE_URL=${{ secrets.API_BASE_URL }}
         tags: |
           ${{ secrets.DOCKERHUB_USERNAME }}/frontend-pec-2:${{ env.DOCKER_IMAGE_VERSION }}
           ${{ secrets.DOCKERHUB_USERNAME }}/frontend-pec-2:latest
