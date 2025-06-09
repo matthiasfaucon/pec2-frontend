@@ -31,7 +31,6 @@ class _CreatorViewState extends State<CreatorView> {
   final ImagePicker _picker = ImagePicker();
   final _formKey1 = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
-  final ToastService _toastService = ToastService();
 
   final TextEditingController _siretController = TextEditingController();
   final TextEditingController _companyNameController = TextEditingController();
@@ -118,7 +117,7 @@ class _CreatorViewState extends State<CreatorView> {
                         _step = 2;
                       });
                     } else {
-                      _toastService.showToast(
+                      ToastService.showToast(
                         'Siret invalide',
                         ToastificationType.error,
                       );
@@ -372,13 +371,13 @@ class _CreatorViewState extends State<CreatorView> {
           });
 
         } else {
-          _toastService.showToast(
+          ToastService.showToast(
             "Une erreur s'est produite",
             ToastificationType.error,
           );
         }
       } else {
-        _toastService.showToast(
+        ToastService.showToast(
           "Vous devez selectionner un KBIS",
           ToastificationType.error,
         );
