@@ -22,8 +22,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: apk-build
-          path: build/app/outputs/flutter-apk/
-
+          path: build/app/outputs/flutter-apk/app-release.apk
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
       - name: Extract version from pubspec.yaml
         id: version
         run: |
