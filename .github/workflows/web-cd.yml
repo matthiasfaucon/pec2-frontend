@@ -50,40 +50,13 @@ jobs:
         # D'abord scale down le deployment existant
         kubectl scale deployment front-pec-2-deployment --replicas=0 || true
         
-        # Appliquer le Secret backend à partir du secret GitHub
-        echo "${{ secrets.CONFIGMAP_SECRET }}" > backend-secret.yaml
-        kubectl apply -f backend-secret.yaml
-        
-        # Créer un ConfigMap pour le frontend
-        cat << EOF > frontend-config.yaml
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: frontend-config
-        data:
-          NGINX_PORT: "80"
-        EOF
-        
-        # Appliquer le ConfigMap
-        kubectl apply -f frontend-config.yaml
-        
         # Modifier l'image du déploiement pour utiliser le SHA du commit
         echo "Mise à jour de l'image Docker avec le SHA du commit..."
         sed -i "s|image: charlineroyer937/frontend-pec-2:latest|image: charlineroyer937/frontend-pec-2:${{ github.sha }}|g" ./kube-files/kube/prod/front/deployment.yaml
         
-        # Ajouter des variables d'environnement au déploiement
-        echo "Ajout des variables d'environnement au déploiement..."
-        if grep -q "envFrom:" ./kube-files/kube/prod/front/deployment.yaml; then
-          echo "Les variables d'environnement sont déjà configurées"
-        else
-          # Trouver la ligne 'containers:' et ajouter envFrom après
-          LINE_NUM=$(grep -n "containers:" ./kube-files/kube/prod/front/deployment.yaml | cut -d: -f1)
-          INDENT=$(grep "containers:" ./kube-files/kube/prod/front/deployment.yaml | awk '{print match($0, /[^ ]/)-1}')
-          SPACES=$(printf '%*s' $((INDENT+2)) '')
-          LINE_TO_INSERT="${SPACES}      - envFrom:\\n${SPACES}        - configMapRef:\\n${SPACES}            name: frontend-config"
-          sed -i "$((LINE_NUM+1))i\\${LINE_TO_INSERT}" ./kube-files/kube/prod/front/deployment.yaml
-          echo "Variables d'environnement ajoutées au déploiement"
-        fi
+        # Appliquer le Secret backend à partir du secret GitHub
+        echo "${{ secrets.CONFIGMAP_SECRET }}" > back-pec-2-secret-env.yaml
+        kubectl apply -f back-pec-2-secret-env.yaml
         
         # Appliquer le Deployment
         echo "Application du Deployment..."
