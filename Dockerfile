@@ -34,10 +34,11 @@ RUN flutter config --no-analytics && \
 WORKDIR $APP
 COPY . $APP
 
-# Create .env file if needed
-RUN if [ -n "$API_BASE_URL" ]; then \
-      echo "API_BASE_URL=${API_BASE_URL}" > .env; \
-    fi
+# Create .env file with appropriate environment variables for web build
+RUN echo "API_BASE_URL_WEB=${API_BASE_URL}" > .env && \
+    echo "API_BASE_URL_ANDROID=http://10.0.2.2:8090" >> .env && \
+    echo "API_BASE_URL_IOS=http://127.0.0.1:8090" >> .env && \
+    echo "API_BASE_URL_DEFAULT=${API_BASE_URL}" >> .env
 
 # If we're building from the CI workflow, the web build is already done
 # If not, build the web app
@@ -50,7 +51,13 @@ RUN if [ ! -d "build/web" ]; then \
 # ---------- STAGE 2: Serve via NGINX ----------
 FROM nginx:1.25.2-alpine
 
+# Copier les fichiers du build
 COPY --from=build-env /app/build/web /usr/share/nginx/html
+
+# S'assurer que le fichier .env n'est pas copié dans le build final
+RUN rm -f /usr/share/nginx/html/assets/.env
+
+# Configurer Nginx
 COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf.template
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
