@@ -52,7 +52,7 @@ jobs:
         
         # Modifier l'image du déploiement pour utiliser le SHA du commit
         echo "Mise à jour de l'image Docker avec le SHA du commit..."
-        sed -i "s|image: charlineroyer937/frontend-pec-2:latest|image: charlineroyer937/frontend-pec-2:${{ github.sha }}|g" ./kube-files/kube/front-pec-2-deployment.yaml
+        sed -i "s|image: charlineroyer937/frontend-pec-2:latest|image: charlineroyer937/frontend-pec-2:${{ github.sha }}|g" ./kube-files/kube/prod/front/deployment.yaml
         
         # Appliquer le Deployment
         echo "Application du Deployment..."
