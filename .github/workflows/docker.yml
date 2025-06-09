@@ -24,6 +24,7 @@ jobs:
       with:
         name: web-build
         path: build/web
+        run-id: ${{ github.event.workflow_run.id }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
