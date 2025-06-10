@@ -54,8 +54,9 @@ FROM nginx:1.25.2-alpine
 # Copier les fichiers du build
 COPY --from=build-env /app/build/web /usr/share/nginx/html
 
-# S'assurer que le fichier .env n'est pas copié dans le build final
-RUN rm -f /usr/share/nginx/html/assets/.env
+# Ensure .env file is properly copied to assets directory
+RUN mkdir -p /usr/share/nginx/html/assets && \
+    cp /app/.env /usr/share/nginx/html/assets/.env
 
 # Configurer Nginx
 COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf.template
