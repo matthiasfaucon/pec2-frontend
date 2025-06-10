@@ -26,11 +26,14 @@ jobs:
           name: apk-build
           path: build/app/outputs/flutter-apk/
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Extract version from pubspec.yaml
         id: version
         run: |
-          version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)          echo "version=$version" >> "$GITHUB_OUTPUT"
+          version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)          
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       # Create GitHub Release with binaries
       - name: Create GitHub Release
