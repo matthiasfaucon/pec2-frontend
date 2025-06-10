@@ -30,9 +30,7 @@ jobs:
       - name: Extract version from pubspec.yaml
         id: version
         run: |
-          version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+          version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       # Create GitHub Release with binaries
       - name: Create GitHub Release
@@ -41,7 +39,7 @@ jobs:
           tag_name: "v${{ steps.version.outputs.version }}"
           generate_release_notes: true
           files: |
-            ./artifacts/app-release.apk
+            ./build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

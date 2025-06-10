@@ -51,17 +51,20 @@ RUN if [ ! -d "build/web" ]; then \
 # ---------- STAGE 2: Serve via NGINX ----------
 FROM nginx:1.25.2-alpine
 
-# Copier les fichiers du build
+# Set environment variable
+ENV NGINX_PORT=80
+
+# Copy the web build
 COPY --from=build-env /app/build/web /usr/share/nginx/html
 
 # Ensure .env file is properly copied to assets directory
-RUN mkdir -p /usr/share/nginx/html/assets && \
-    cp /app/.env /usr/share/nginx/html/assets/.env
+RUN mkdir -p /usr/share/nginx/html/assets
+COPY --from=build-env /app/.env /usr/share/nginx/html/assets/.env
 
-# Configurer Nginx
+# Configure Nginx
 COPY docker/nginx/nginx.conf /etc/nginx/http.d/default.conf.template
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
