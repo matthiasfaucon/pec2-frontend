@@ -26,10 +26,10 @@ jobs:
         run: flutter pub get
       
       - name: Create .env file
-        env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: |
-          echo "API_BASE_URL=${API_BASE_URL}" > .env
+          echo "API_BASE_URL_ANDROID=${{ secrets.API_BASE_URL }}" > .env
+          echo "API_BASE_URL_IOS=${{ secrets.API_BASE_URL }}" >> .env
+          echo "API_BASE_URL_WEB=${{ secrets.API_BASE_URL }}" >> .env    
       
       - name: Flutter doctor
         run: flutter doctor -v
