@@ -13,6 +13,8 @@
 migrate_working_dir/
 .env
 
+docker_save/
+
 # IntelliJ related
 *.iml
 *.ipr

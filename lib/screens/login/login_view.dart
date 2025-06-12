@@ -126,7 +126,7 @@ class _LoginViewState extends State<LoginView> {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      "Ravis de vous revoir ici sur",
+                      "Ravis de vous revoir sur notre application sur",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
