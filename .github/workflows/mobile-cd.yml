@@ -35,6 +35,9 @@ jobs:
           echo "API_BASE_URL_IOS=${{ secrets.API_BASE_URL }}" >> .env
           echo "API_BASE_URL_WEB=${{ secrets.API_BASE_URL }}" >> .env  
           echo "API_BASE_URL_DEFAULT=${{ secrets.API_BASE_URL }}" >> .env
+
+      - name: List files in the current directory
+        run: ls -la
       
       - name: Build APK with environment variables
         run: flutter build apk --release
