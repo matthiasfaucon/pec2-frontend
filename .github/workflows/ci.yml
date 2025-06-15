@@ -29,7 +29,8 @@ jobs:
         run: |
           echo "API_BASE_URL_ANDROID=${{ secrets.API_BASE_URL }}" > .env
           echo "API_BASE_URL_IOS=${{ secrets.API_BASE_URL }}" >> .env
-          echo "API_BASE_URL_WEB=${{ secrets.API_BASE_URL }}" >> .env    
+          echo "API_BASE_URL_WEB=${{ secrets.API_BASE_URL }}" >> .env  
+          echo "API_BASE_URL_DEFAULT=${{ secrets.API_BASE_URL }}" >> .env  
       
       - name: Flutter doctor
         run: flutter doctor -v
@@ -41,7 +42,7 @@ jobs:
           sudo apt-get install -y clang cmake ninja-build pkg-config
       
       - name: Build Web
-        run: flutter build web
+        run: flutter build web --release
       
       - name: Upload web build artifacts
         uses: actions/upload-artifact@v4

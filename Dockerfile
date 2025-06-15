@@ -23,8 +23,8 @@ WORKDIR $APP
 COPY . $APP
 
 RUN echo "API_BASE_URL_WEB=${API_BASE_URL}" > .env && \
-    echo "API_BASE_URL_ANDROID=http://10.0.2.2:8090" >> .env && \
-    echo "API_BASE_URL_IOS=http://127.0.0.1:8090" >> .env && \
+    echo "API_BASE_URL_ANDROID=${API_BASE_URL}" >> .env && \
+    echo "API_BASE_URL_IOS=${API_BASE_URL}" >> .env && \
     echo "API_BASE_URL_DEFAULT=${API_BASE_URL}" >> .env
 
 RUN flutter clean && flutter pub get && flutter build web
