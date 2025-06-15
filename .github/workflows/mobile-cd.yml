@@ -19,16 +19,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Download APK artifacts
-        uses: actions/download-artifact@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          name: apk-build
-          path: build/app/outputs/flutter-apk/
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
-
+          flutter-version: '3.29.3'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Create .env file
+        run: |
+          echo "API_BASE_URL_ANDROID=${{ secrets.API_BASE_URL }}" > .env
+          echo "API_BASE_URL_IOS=${{ secrets.API_BASE_URL }}" >> .env
+          echo "API_BASE_URL_WEB=${{ secrets.API_BASE_URL }}" >> .env  
+          echo "API_BASE_URL_DEFAULT=${{ secrets.API_BASE_URL }}" >> .env
+      
+      - name: Build APK with environment variables
+        run: flutter build apk --release
+      
       - name: Extract version from pubspec.yaml
         id: version
         run: |
