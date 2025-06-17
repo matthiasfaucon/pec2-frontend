@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: read
+      actions: read  # Nécessaire pour télécharger les artifacts
 
     steps:
       - name: Checkout code
@@ -26,6 +26,8 @@ jobs:
           name: apk-build
           path: build/app/outputs/flutter-apk/
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Extract version from pubspec.yaml
         id: version
