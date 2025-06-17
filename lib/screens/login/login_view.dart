@@ -8,7 +8,9 @@ import 'package:firstflutterapp/services/api_service.dart';
 import 'package:firstflutterapp/services/toast_service.dart';
 import 'package:firstflutterapp/services/validators_service.dart';
 import 'package:firstflutterapp/theme.dart';
+import 'package:firstflutterapp/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -125,6 +127,11 @@ class _LoginViewState extends State<LoginView> {
                       height: 200,
                     ),
                     const SizedBox(height: 16),
+                    // Display the .env variable for debugging
+                    Text(
+                      'API Base URL: ${PlatformUtils.getApiBaseUrl() ?? 'Not set'}',
+                      style: TextStyle(color: Colors.red),
+                    ),
                     const Text(
                       "Ravis de vous revoir sur notre application sur",
                       textAlign: TextAlign.center,
