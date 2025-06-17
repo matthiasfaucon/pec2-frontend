@@ -32,14 +32,6 @@ jobs:
           echo "API_BASE_URL_WEB=${{ secrets.API_BASE_URL }}" >> .env
           echo "API_BASE_URL_DEFAULT=${{ secrets.API_BASE_URL }}" >> .env
       
-      - name: Create .env file in assets directory
-        run: |
-          mkdir -p assets
-          echo "API_BASE_URL_ANDROID=${{ secrets.API_BASE_URL }}" > assets/.env
-          echo "API_BASE_URL_IOS=${{ secrets.API_BASE_URL }}" >> assets/.env
-          echo "API_BASE_URL_WEB=${{ secrets.API_BASE_URL }}" >> assets/.env
-          echo "API_BASE_URL_DEFAULT=${{ secrets.API_BASE_URL }}" >> assets/.env
-      
       - name: Flutter doctor
         run: flutter doctor -v
       
