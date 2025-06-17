@@ -127,7 +127,6 @@ class _LoginViewState extends State<LoginView> {
                       height: 200,
                     ),
                     const SizedBox(height: 16),
-                    // Display the .env variable for debugging
                     Text(
                       'API Base URL: ${PlatformUtils.getApiBaseUrl() ?? 'Not set'}',
                       style: TextStyle(color: Colors.red),

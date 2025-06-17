@@ -4,4 +4,8 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Quand j'installe l'APK, je ne peux pas faire de call à l'API
+         car je n'ai pas de connexion internet. Donc, je désactive cette permission.
+         <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 </manifest>
